@@ -1,6 +1,24 @@
 # Whatsapp chat
 whatsapp-chat/
 
+# Ren'Py generated/runtime files
+*.rpyc
+*.rpymc
+*.rpyb
+*.save
+log.txt
+errors.txt
+traceback.txt
+cache/
+game/cache/
+*/game/cache/
+saves/
+game/saves/
+*/game/saves/
+game/tl/None/
+*/game/tl/None/
+build/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
