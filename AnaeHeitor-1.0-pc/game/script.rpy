@@ -126,13 +126,17 @@ label start:
     $ heitor_progress = 0
     $ ana_progress = 30
     $ heitor_money = 25
-    $ ana_money = 25
+    $ ana_money = 200
     $ current_day = 1
-    $ time_slot_index = 0
+    $ time_slot_index = 1
     $ first_kiss_done = False
+    $ career_phase = "btg"
+    $ set_love_cap_stage("intro")
     $ unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
     $ completed_memories = []
     $ inventory = []
+    $ mother_money_day = 0
+    $ mother_money_requests_today = 0
 
     show screen relationship_hud
     call change_pov("heitor", "Uma rara ida ao Bandejão Central")
@@ -180,7 +184,7 @@ label start:
 
     a "Pode considerar."
 
-    $ advance_dialog_section("primeira troca")
+    $ advance_dialog_section("primeiro papo")
 
     pause 1.0
 
@@ -224,6 +228,8 @@ label start:
             show ana college thinking
 
             a "Acho que não…"
+
+            $ queue_notification("{color=%s}O que é um Street Fighter? É de comer?{/color}" % pov_color("ana"))
 
             show ana college embarrassed
 
@@ -370,17 +376,17 @@ label start:
 
     pause 1.2
 
-    a "Ficamos conversando o jantar inteiro. Me dissociei um pouco dos arredores."
+    ana_thought "Ficamos conversando o jantar inteiro. Me dissociei um pouco dos arredores."
 
-    a "Todos os amigos conversavam entre si, mas havia algo me impedindo de olhar em outra direção."
+    ana_thought "Todos os amigos conversavam entre si, mas havia algo me impedindo de olhar em outra direção."
 
     pause 1.0
-    a "Eu fiquei um pouco intrigada. Havia muito tempo que não sentia nada assim. Bom, não me leve a mal, mas eu estava em uma situação bem ruim havia muito tempo." 
-    a "Eu me via andando por aí sem rumo, sem objetivo, sem interagir tanto. Eu me via uma pessoa completamente da que eu era antes e isso me assustava um pouco."
-    a "De uns meses para cá isso mudou, eu pude sentir essa mudança na forma como eu conversava, em como eu agia. Talvez eu devesse dar uma chance para nos tornarmos amigos."
+    ana_thought "Eu fiquei um pouco intrigada. Havia muito tempo que não sentia nada assim. Bom, não me leve a mal, mas eu estava em uma situação bem ruim havia muito tempo." 
+    ana_thought "Eu me via andando por aí sem rumo, sem objetivo, sem interagir tanto. Eu me via uma pessoa completamente da que eu era antes e isso me assustava um pouco."
+    ana_thought "De uns meses para cá isso mudou, eu pude sentir essa mudança na forma como eu conversava, em como eu agia. Talvez eu devesse dar uma chance para nos tornarmos amigos."
     ana_thought "Talvez um pouco mais. Ele era tão fofo..."
     pause 1.2
-    a "Ai Ana, você pensa demais. Um homem de 24 anos nunca teria interesse em uma pirralha como você."
+    ana_thought "Ai Ana, você pensa demais. Um homem de 24 anos nunca teria interesse em uma pirralha como você."
     ana_thought "Ótimo. Diagnóstico feito com zero dados e cem por cento de convicção."
 
     $ advance_dialog_section("primeira conversa no bandejão")
@@ -395,7 +401,7 @@ label raio_x:
 
     show ana casual neutral at pov_left
 
-    a "Cheguei em casa e não sabia o que mandar."
+    ana_thought "Cheguei em casa e não sabia o que mandar."
 
     menu:
         "Mandar um oi normal.":
@@ -410,27 +416,13 @@ label mensagem_raiox:
 
     show ana home sad at pov_left
 
-    a "Eu mandei a coisa mais idiota possível."
+    ana_thought "Eu mandei a coisa mais idiota possível."
 
     pause 0.5
 
-    a "Uma foto do meu raio-x."
+    ana_thought "Uma foto do meu raio-x."
 
     pause 0.8
-
-    show ana home neutral
-
-    a "Olha como minha coluna é torta."
-
-    pause 0.6
-
-    a "Acho que eu tinha comentado com você hoje."
-
-    show ana home embarrassed
-
-    a "Sou a Ana, aliás. :)"
-
-    pause 1.0
 
     call whatsapp_raiox_excerpt
 
@@ -438,17 +430,17 @@ label mensagem_raiox:
 
     show ana home happy
 
-    a "Nossa, eu sou burra!"
+    ana_thought "Nossa, eu sou burra!"
 
     show ana home embarrassed
 
-    a "Achei que tinha sido completamente inconveniente."
+    ana_thought "Achei que tinha sido completamente inconveniente."
 
     pause 0.5
 
     show ana home soft
 
-    a "Mas ele não pareceu se importar."
+    ana_thought "Mas ele não pareceu se importar."
 
     pause 1.2
 
@@ -457,13 +449,14 @@ label mensagem_raiox:
 
     show ana home soft at pov_left
 
-    a "E a conversa continuou por vários dias."
+    ana_thought "E a conversa continuou por vários dias."
 
     pause 1.0
-    a "Ele não notava meu tom um pouco mais sugestivo em algumas mensagens. Isso me deixava um pouco pensativa demais. Não sei o porquê..."
+    ana_thought "Ele não notava meu tom um pouco mais sugestivo em algumas mensagens. Isso me deixava um pouco pensativa demais. Não sei o porquê..."
 
     heitor_thought "Ela mandou um raio-x como primeira grande mensagem. Eu devia ter percebido que isso era o começo de uma saga."
 
+    $ set_love_cap_stage("mensagens_iniciais")
     $ add_love(5, "mensagens iniciais")
     call free_time_phase("mensagens_iniciais")
 
@@ -483,13 +476,14 @@ label mensagem_normal:
 
     show ana casual neutral
 
-    a "Sem graça."
+    ana_thought "Sem graça."
 
-    a "Eu devia ter mandado algo diferente."
+    ana_thought "Eu devia ter mandado algo diferente."
 
     scene black
     with fade
 
+    $ set_love_cap_stage("mensagens_iniciais")
     $ add_love(3, "oi estrategicamente simples")
     call free_time_phase("mensagens_iniciais")
 
@@ -506,17 +500,31 @@ label picles:
 
     show heitor college neutral at other_right
 
-    a "Eu convidei ele e os meninos pro Picles."
+    ana_thought "Eu convidei ele e os meninos pro Picles."
 
-    a "Ele odiou."
+    ana_thought "Ele odiou."
+
+    hide ana
+    hide heitor
+    call quick_change_pov("heitor")
+    show heitor college neutral at pov_left
+    show ana party neutral at other_right
+
+    heitor_thought "Ei, quem disse que eu odiei?"
+
+    hide ana
+    hide heitor
+    call quick_change_pov("ana")
+    show ana party neutral at pov_left
+    show heitor college neutral at other_right
 
     show ana party embarrassed
 
-    a "Mas também… o que que eu tava pensando."
+    ana_thought "Mas também… o que que eu tava pensando."
 
-    a "Ele e o Solano odeiam lugares muito cheios."
+    ana_thought "Ele e o Solano odeiam lugares muito cheios."
 
-    a "Devia ter pensado em outra coisa."
+    ana_thought "Devia ter pensado em outra coisa."
 
     show heitor college serious
 
@@ -532,13 +540,15 @@ label picles:
 
     show ana party thinking
 
-    a "Mas que merda… eu errei feio mesmo."
+    ana_thought "Mas que merda… eu errei feio mesmo."
 
     a "Acho que podemos fazer alguma outra coisa."
 
     menu:
 
-        "Ir numa hamburgueria":
+        "Ir numa hamburgueria (R$ 50,00)" if current_money() >= 50:
+
+            $ spend_money(50, "hamburgueria")
 
             scene bg burger_place
             with fade
@@ -551,9 +561,9 @@ label picles:
 
             pause 0.5
 
-            a "A gente acabou indo numa hamburgueria."
+            ana_thought "A gente acabou indo numa hamburgueria."
 
-            a "Bem mais quieta."
+            ana_thought "Bem mais quieta."
 
             h "Aqui é melhor."
 
@@ -569,17 +579,20 @@ label picles:
 
             pause 1.0
 
-            a "A gente passou alguns segundos em silêncio."
+            ana_thought "A gente passou alguns segundos em silêncio."
 
             pause 1.0
 
-            a "Com a cabeça deitada na mesa."
+            ana_thought "Com a cabeça deitada na mesa."
 
             pause 2.5
 
             show ana college sad
 
-            a "Eu quase morri de vergonha."
+            ana_thought "Eu quase morri de vergonha."
+
+            $ add_love(5, "hamburgueria mais tranquila", person="ana")
+            $ add_love(5, "hamburgueria mais tranquila", person="heitor")
 
             scene black
             with fade
@@ -587,7 +600,9 @@ label picles:
             jump ep_yoshi
 
 
-        "Ir comer alguma coisa":
+        "Ir comer qualquer coisa (R$ 25,00)" if current_money() >= 25:
+
+            $ spend_money(25, "lanche improvisado")
 
             scene bg cafe_evening
             with fade
@@ -596,19 +611,22 @@ label picles:
 
             show heitor college soft_smile at other_right
 
-            a "A gente decidiu procurar alguma coisa pra comer."
+            ana_thought "A gente decidiu procurar alguma coisa pra comer."
 
             h "Muito melhor que lá."
 
             show ana college happy
 
-            a "Ele disse que gostou…"
+            ana_thought "Ele disse que gostou…"
 
             show ana college thinking
 
-            a "Mas não sei não."
+            ana_thought "Mas não sei não."
 
             a "Esse lugar é meio sem graça."
+
+            $ add_love(2, "lanche improvisado", person="ana")
+            $ add_love(2, "lanche improvisado", person="heitor")
 
             scene black
             with fade
@@ -625,21 +643,24 @@ label picles:
 
             show heitor college soft_smile at other_right
 
-            a "A gente resolveu só dar uma volta."
+            ana_thought "A gente resolveu só dar uma volta."
 
-            a "O parque tava bem tranquilo…"
+            ana_thought "O parque tava bem tranquilo…"
 
             show ana college thinking
 
-            a "Mas tenho um pouco de medo."
+            ana_thought "Mas tenho um pouco de medo."
 
-            a "Aqui em São Paulo é muito perigoso."
+            ana_thought "Aqui em São Paulo é muito perigoso."
 
             h "Assim é perfeito."
 
             show ana college soft
 
-            a "Eu acho que ele gosta mesmo é de paz."
+            ana_thought "Eu acho que ele gosta mesmo é de paz."
+
+            $ add_love(2, "volta no parque", person="ana")
+            $ add_love(2, "volta no parque", person="heitor")
 
             scene black
             with fade
@@ -655,7 +676,7 @@ label ep_yoshi:
 
     show heitor college shy_smile at other_right
 
-    a "Eu aceitei sair com ele, mas era o último dia antes de uma tarefa importante."
+    ana_thought "Eu aceitei sair com ele, mas era o último dia antes de uma tarefa importante."
 
     a "Mas só se terminasse o EP do Yoshi."
 
@@ -672,7 +693,7 @@ label ep_yoshi:
 
     show heitor focused at other_right
 
-    a "Eu não tava entendendo absolutamente nada."
+    ana_thought "Eu não tava entendendo absolutamente nada."
 
     h "Aqui você cria a função... depois chama ela dentro do loop."
 
@@ -690,11 +711,11 @@ label ep_yoshi:
 
     pause 1.0
 
-    a "Eu praticamente não fiz nada."
+    ana_thought "Eu praticamente não fiz nada."
 
     show ana college sad
 
-    a "Eu fiquei me sentindo inútil."
+    ana_thought "Eu fiquei me sentindo inútil."
 
     show heitor gentle
 
@@ -726,33 +747,33 @@ label ep_yoshi:
 
     show heitor thoughtful at other_right
 
-    a "A gente colocou um anime pra assistir. Eu não entendi nada. Eu olhava um pouco para baixo o tempo todo, com medo de levantar a cabeça, de falar alguma bobagem ou fazer algo errado."
-    a "Não sei porque eu ficava tão nervosa na presença dele. Até aquele momento parecia tudo muito natural, mas o fato de ele ter me chamado para sair me deixou um pouco confusa."
-    a "Afinal, faria sentido dois amigos saírem sozinhos dessa forma?"
+    ana_thought "A gente colocou um anime pra assistir. Eu não entendi nada. Eu olhava um pouco para baixo o tempo todo, com medo de levantar a cabeça, de falar alguma bobagem ou fazer algo errado."
+    ana_thought "Não sei porque eu ficava tão nervosa na presença dele. Até aquele momento parecia tudo muito natural, mas o fato de ele ter me chamado para sair me deixou um pouco confusa."
+    ana_thought "Afinal, faria sentido dois amigos saírem sozinhos dessa forma?"
 
     pause 1.0
 
     show ana college embarrassed
 
-    a "Ele estava sentado no sofá. Ele também não olhava para mim. A gente jogava conversa fora aqui e ali, mas eu mal conseguia me concentrar no filme."
+    ana_thought "Ele estava sentado no sofá. Ele também não olhava para mim. A gente jogava conversa fora aqui e ali, mas eu mal conseguia me concentrar no filme."
 
     pause 1.5
 
-    a "Em alguns momentos ele sorria de uma maneira tão genuína, com umas conversas tão bobas." 
-    a "Se fosse qualquer outra pessoa eu acharia normal, mas ele era tão fechado, não o via sorrindo com quase ninguém. O sorriso era lindo, um dos mais lindos que já vi na minha vida."
-    a "Não que eu fosse dizer algo para ele. Eu não sou nem louca."
+    ana_thought "Em alguns momentos ele sorria de uma maneira tão genuína, com umas conversas tão bobas." 
+    ana_thought "Se fosse qualquer outra pessoa eu acharia normal, mas ele era tão fechado, não o via sorrindo com quase ninguém. O sorriso era lindo, um dos mais lindos que já vi na minha vida."
+    ana_thought "Não que eu fosse dizer algo para ele. Eu não sou nem louca."
 
     pause 1.0
 
     show heitor thoughtful
 
-    a "Me perguntei se seríamos somente amigos mesmo. Fiquei esperando a noite inteira para que ele dissesse algo."
+    ana_thought "Me perguntei se seríamos somente amigos mesmo. Fiquei esperando a noite inteira para que ele dissesse algo."
 
     pause 2.0
 
     show ana college sad
 
-    a "Mas nada aconteceu."
+    ana_thought "Mas nada aconteceu."
 
     pause 2.0
 
@@ -761,7 +782,7 @@ label ep_yoshi:
 
     show ana college sad at pov_left
 
-    a "Eu fui embora e me esqueci desse assunto. Nada nunca aconteceria entre a gente."
+    ana_thought "Eu fui embora e me esqueci desse assunto. Nada nunca aconteceria entre a gente."
 
     hide ana
 
@@ -776,27 +797,27 @@ label mensagem_onibus:
 
     show ana home sleepy at pov_left
 
-    a "Eu entrei no ônibus e já me posicionei para dormir, mesmo sabendo que eu não iria dormir nada."
+    ana_thought "Eu entrei no ônibus e já me posicionei para dormir, mesmo sabendo que eu não iria dormir nada."
 
     pause 0.8
 
-    a "Não me leve a mal, eu amo dormir, mas minhas costas doem muito a noite, principalmente sem conseguir deitar."
+    ana_thought "Não me leve a mal, eu amo dormir, mas minhas costas doem muito a noite, principalmente sem conseguir deitar."
 
     pause 1.0
 
     show ana home neutral
 
-    a "Era o último dia para entregar o trabalho do ep."
+    ana_thought "Era o último dia para entregar o trabalho do ep."
 
     pause 0.6
 
     show ana home sad
 
-    a "Eu não ia mais enviar, acho que não dava tempo mais e eu também não enviaria algo repetido."
+    ana_thought "Eu não ia mais enviar, acho que não dava tempo mais e eu também não enviaria algo repetido."
 
     pause 1.2
 
-    a "Eu fui olhar as mensagens mais uma vez e talvez agradecer ao Heitor pelo tempo, mesmo que tenha sido somente entre amigos."
+    ana_thought "Eu fui olhar as mensagens mais uma vez e talvez agradecer ao Heitor pelo tempo, mesmo que tenha sido somente entre amigos."
 
     pause 1.5
 
@@ -807,7 +828,7 @@ label mensagem_onibus:
 
     pause 0.8
 
-    a "Mas assim que abri as mensagens dei de cara com uma mensagem dele:"
+    ana_thought "Mas assim que abri as mensagens dei de cara com uma mensagem dele:"
 
     hide ana
 
@@ -827,31 +848,31 @@ label mensagem_onibus:
 
     show ana home embarrassed at pov_left
 
-    a "Assim que eu abri tinha tudo, era completamente diferente da dele, um código completamente novo, tinha o cabeçalho, meu nusp, nome completo."
+    ana_thought "Assim que eu abri tinha tudo, era completamente diferente da dele, um código completamente novo, tinha o cabeçalho, meu nusp, nome completo."
 
     pause 1.2
 
-    a "Eu passei 3 minutos somente lendo de novo para ter certeza do que estava vendo."
+    ana_thought "Eu passei 3 minutos somente lendo de novo para ter certeza do que estava vendo."
 
     pause 2.0
 
     show ana home soft
 
-    a "Acho que ninguém tinha feito algum trabalho por mim, em troca de nada, só para ajudar."
+    ana_thought "Acho que ninguém tinha feito algum trabalho por mim, em troca de nada, só para ajudar."
 
     pause 1.2
 
-    a "Caramba."
+    ana_thought "Caramba."
 
     pause 0.8
 
     show ana home emotional
 
-    a "Ele é um bom amigo e uma pessoa maravilhosa."
+    ana_thought "Ele é um bom amigo e uma pessoa maravilhosa."
 
     pause 1.5
 
-    a "Vou agradecer."
+    ana_thought "Vou agradecer."
 
     pause 1.0
 
@@ -903,8 +924,9 @@ label mensagem_onibus:
 
             pause 1.0
 
+    $ set_love_cap_stage("ep_yoshi")
     $ add_love(8, "EP salvo na madrugada")
-    call relationship_gate("primeiro_beijo", 24, "A amizade já tinha virado uma coisa mais difícil de ignorar. Falta só deixar o jogador viver um pouco antes do primeiro beijo.")
+    call free_time_phase("primeiro_beijo", 24, "heitor")
 
 label primeiro_beijo:
     $ first_kiss_done = True
@@ -936,11 +958,11 @@ label primeiro_beijo:
 
     show heitor college neutral at other_right
 
-    a "A gente foi conversando do bandejão até o ponto."
+    ana_thought "A gente foi conversando do bandejão até o ponto."
 
     pause 0.8
 
-    a "Eu estava muito preocupada com a monitoria e o Heitor parecia não estar nenhum pouco preocupado."
+    ana_thought "Eu estava muito preocupada com a monitoria e o Heitor parecia não estar nenhum pouco preocupado."
 
     pause 1.2
 
@@ -953,45 +975,45 @@ label primeiro_beijo:
 
     show heitor college neutral at other_right
 
-    a "Até que quando chegamos no ponto e nos sentamos eu peguei o meu celular e comecei a ver."
+    ana_thought "Até que quando chegamos no ponto e nos sentamos eu peguei o meu celular e comecei a ver."
 
     pause 0.8
 
     show ana college thinking
 
-    a "Eu não consegui prestar atenção."
+    ana_thought "Eu não consegui prestar atenção."
 
     pause 1.2
 
-    a "Eu me virei e o Heitor estava me olhando também."
+    ana_thought "Eu me virei e o Heitor estava me olhando também."
 
     pause 1.5
 
     show ana college embarrassed
 
-    a "Eu fiquei um pouco nervosa, não sabia muito bem o que pensar."
+    ana_thought "Eu fiquei um pouco nervosa, não sabia muito bem o que pensar."
 
     pause 1.2
 
-    a "Não tinha ninguém perto, a rua completamente vazia e o ônibus não chegava de jeito nenhum."
+    ana_thought "Não tinha ninguém perto, a rua completamente vazia e o ônibus não chegava de jeito nenhum."
 
     pause 1.5
 
     show ana college soft
 
-    a "Eu encostei a minha cabeça no ombro dele, só por um instante."
+    ana_thought "Eu encostei a minha cabeça no ombro dele, só por um instante."
 
     pause 1.5
 
-    a "Não sei de onde tirei tanta coragem, mas eu me senti segura em fazer isso."
+    ana_thought "Não sei de onde tirei tanta coragem, mas eu me senti segura em fazer isso."
 
     pause 1.5
 
-    a "Eu tinha um pouco de medo, de estar com algum homem sozinha, num lugar sem ninguém, mas eu já me sentia muito confortável perto dele, era incapaz de fazer mal a uma mosca."
+    ana_thought "Eu tinha um pouco de medo, de estar com algum homem sozinha, num lugar sem ninguém, mas eu já me sentia muito confortável perto dele, era incapaz de fazer mal a uma mosca."
 
     pause 2.0
 
-    a "Quando eu olhava para o lado, ele estava olhando também, eu morria de vergonha, minha bochecha corava e eu tentava voltar a ver a aula."
+    ana_thought "Quando eu olhava para o lado, ele estava olhando também, eu morria de vergonha, minha bochecha corava e eu tentava voltar a ver a aula."
 
     pause 2.0
 
@@ -999,7 +1021,7 @@ label primeiro_beijo:
 
     pause 1.0
 
-    a "Ele me olhou, tirou o celular da minha mão e me beijou, eu escutei o celular dele caindo no chão e paramos por um instante."
+    ana_thought "Ele me olhou, tirou o celular da minha mão e me beijou, eu escutei o celular dele caindo no chão e paramos por um instante."
 
     pause 2.5
 
@@ -1019,11 +1041,11 @@ label primeiro_beijo:
 
     pause 1.5
 
-    a "Foi lindo, eu me esqueci de tudo, das aulas, do ônibus."
+    ana_thought "Foi lindo, eu me esqueci de tudo, das aulas, do ônibus."
 
     pause 1.5
 
-    a "Meu Deus, o ônibus!"
+    ana_thought "Meu Deus, o ônibus!"
 
     pause 1.2
 
@@ -1036,13 +1058,13 @@ label primeiro_beijo:
 
     show heitor college surprised at other_right
 
-    a "O ônibus para a casa dele chegou e a gente parou de se beijar."
+    ana_thought "O ônibus para a casa dele chegou e a gente parou de se beijar."
 
     pause 1.5
 
     show ana college thinking
 
-    a "Eu olhei para ele e pensei porque não?"
+    ana_thought "Eu olhei para ele e pensei: por que não?"
 
     pause 1.5
 
@@ -1056,7 +1078,7 @@ label primeiro_beijo:
 
     pause 1.0
 
-    a "ele olhou para mim sorrindo, pegou na minha mão e entramos no ônibus juntos."
+    ana_thought "Ele olhou para mim sorrindo, pegou na minha mão e entramos no ônibus juntos."
 
     pause 1.5
 
@@ -1065,7 +1087,7 @@ label primeiro_beijo:
 
     pause 1.5
 
-    a "A partir desse dia a gente não se desgrudou mais, eu acho que já estava apaixonada e nem percebia"
+    ana_thought "A partir desse dia a gente não se desgrudou mais. Eu acho que já estava apaixonada e nem percebia."
 
     pause 2.0
 
@@ -1078,6 +1100,7 @@ label primeiro_beijo:
 
     hide ana
 
+    $ set_love_cap_stage("pedido_namoro")
     $ add_love(10, "primeiro beijo")
     call relationship_gate("pedido_namoro", 38, "Depois do primeiro beijo, ainda precisa caber um pouco de rotina: mensagens, encontros baratos e coragem acumulada.")
 
@@ -1096,11 +1119,11 @@ label pedido_namoro:
 
     pause 0.5
 
-    a "Duas semanas depois do primeiro beijo…"
+    ana_thought "Duas semanas depois do primeiro beijo…"
 
     pause 1.0
 
-    a "Ele me chamou pra ir numa hamburgueria."
+    ana_thought "Ele me chamou pra ir numa hamburgueria."
 
     pause 1.2
 
@@ -1116,11 +1139,11 @@ label pedido_namoro:
 
     pause 0.8
 
-    a "Ele tava estranho."
+    ana_thought "Ele tava estranho."
 
     pause 0.8
 
-    a "Quieto demais."
+    ana_thought "Quieto demais."
 
     pause 1.2
 
@@ -1176,8 +1199,8 @@ label pedido_namoro:
 
     pause 2.0
 
-    a "Eu já sabia o que era, afinal tínhamos conversado sobre isso e eu disse que aceitaria caso ele me pedisse do jeito certo." 
-    a "Mas sendo honesta, qualquer pedido seria perfeito, ele era perfeito."
+    ana_thought "Eu já sabia o que era, afinal tínhamos conversado sobre isso e eu disse que aceitaria caso ele me pedisse do jeito certo." 
+    ana_thought "Mas sendo honesta, qualquer pedido seria perfeito. Ele era perfeito."
 
     pause 2.0
 
@@ -1246,15 +1269,15 @@ label aceita_namoro:
 
     pause 1.0
 
-    a "Eu saí daquela hamburgueria com brincos novos."
+    ana_thought "Eu saí daquela hamburgueria com brincos novos."
 
     pause 1.0
 
-    a "Chocolate."
+    ana_thought "Chocolate."
 
     pause 1.2
 
-    a "E um namorado."
+    ana_thought "E um namorado."
 
     pause 2.5
 
@@ -1265,12 +1288,13 @@ label aceita_namoro:
 
     pause 1.5
 
-    a "E eu nunca me senti tão feliz."
+    ana_thought "E eu nunca me senti tão feliz."
 
     pause 2.0
 
     hide ana
 
+    $ set_love_cap_stage("primeiro_eu_te_amo")
     $ add_love(12, "pedido de namoro")
     call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.")
 
@@ -1289,10 +1313,10 @@ label primeiro_eu_te_amo:
 
     pause 1.0
 
-    a "Estávamos com olhares fixos um no outro, depois de muito tempo juntos, muitas saídas, muitos beijos, abraços e muito carinho." 
-    a "Eu já não conseguia desviar o olhar, quando não me atentava aos seus olhos, estava apreciando seu sorriso, suas bochechas, seu nariz, seu cabelo, tudo, tudo era lindo, como ele era lindo!" 
-    a "Ele era tão gentil, tão carinhoso. Ele sempre fazia o que era moralmente correto, sempre pensa no bem das pessoas, mas acima de tudo parecia sempre estar pensando no meu bem."
-    a "Ele era inteligente, educado. Era tão relaxante passar tempo com ele, parecia que eu não tinha que fingir ser alguém que eu não era, podia ficar triste, feliz, boba, ele gostava de todas as versões."
+    ana_thought "Estávamos com olhares fixos um no outro, depois de muito tempo juntos, muitas saídas, muitos beijos, abraços e muito carinho." 
+    ana_thought "Eu já não conseguia desviar o olhar. Quando não me atentava aos seus olhos, estava apreciando seu sorriso, suas bochechas, seu nariz, seu cabelo. Tudo era lindo, como ele era lindo!" 
+    ana_thought "Ele era tão gentil, tão carinhoso. Ele sempre fazia o que era moralmente correto, sempre pensava no bem das pessoas, mas acima de tudo parecia sempre estar pensando no meu bem."
+    ana_thought "Ele era inteligente, educado. Era tão relaxante passar tempo com ele, parecia que eu não tinha que fingir ser alguém que eu não era. Podia ficar triste, feliz, boba; ele gostava de todas as versões."
 
     pause 2.5
 
@@ -1300,11 +1324,11 @@ label primeiro_eu_te_amo:
 
     pause 0.8
 
-    a "Eu comecei a pensar."
+    ana_thought "Eu comecei a pensar."
 
     pause 1.0
 
-    a "Será que já era isso?"
+    ana_thought "Será que já era isso?"
 
     pause 2.0
 
@@ -1352,19 +1376,19 @@ label primeiro_eu_te_amo:
 
     pause 1.0
 
-    a "Foi simples."
+    ana_thought "Foi simples."
 
     pause 1.0
 
-    a "Sem discurso."
+    ana_thought "Sem discurso."
 
     pause 1.0
 
-    a "Sem preparação."
+    ana_thought "Sem preparação."
 
     pause 2.0
 
-    a "Mas foi o momento em que eu soube."
+    ana_thought "Mas foi o momento em que eu soube."
 
     pause 2.5
 
@@ -1375,11 +1399,11 @@ label primeiro_eu_te_amo:
 
     pause 1.5
 
-    a "Não era cedo."
+    ana_thought "Não era cedo."
 
     pause 1.2
 
-    a "Era exatamente a hora certa."
+    ana_thought "Era exatamente a hora certa."
 
     pause 2.0
 
@@ -1387,6 +1411,7 @@ label primeiro_eu_te_amo:
 
     hide ana
 
+    $ set_love_cap_stage("australia")
     $ add_love(12, "primeiro eu te amo")
 
     jump ano_feliz
@@ -1396,11 +1421,11 @@ label ano_feliz:
     scene black
     with fade
 
-    a "Depois disso…"
+    ana_thought "Depois disso…"
 
-    a "A gente viveu um ano inteiro muito feliz."
+    ana_thought "A gente viveu um ano inteiro muito feliz."
 
-    a "E eu queria guardar cada memória."
+    ana_thought "E eu queria guardar cada memória."
 
     scene bg ap_heitor_night
     with dissolve
@@ -1432,11 +1457,11 @@ label ano_feliz:
 
     show ana college soft at pov_left
 
-    a "Eu achava que nada podia mudar."
+    ana_thought "Eu achava que nada podia mudar."
 
-    a "E talvez…"
+    ana_thought "E talvez…"
 
-    a "Eu só não soubesse ainda o quanto amar também exige coragem."
+    ana_thought "Eu só não soubesse ainda o quanto amar também exige coragem."
 
     hide ana
 
@@ -1455,15 +1480,15 @@ label jogar_juntos:
 
     show heitor focused at other_right
 
-    a "Nosso primeiro jogo juntos."
+    ana_thought "Nosso primeiro jogo juntos."
 
     a "It Takes Two."
 
     show ana college super_happy
 
-    a "Eu gritava."
+    ana_thought "Eu gritava."
 
-    a "Ele tentava manter a calma."
+    ana_thought "Ele tentava manter a calma."
 
     h "Pula! Pula agora!"
 
@@ -1471,7 +1496,7 @@ label jogar_juntos:
 
     pause 1.5
 
-    a "Eu ria mais do que jogava, mas ele estava sempre muito paciente comigo."
+    ana_thought "Eu ria mais do que jogava, mas ele estava sempre muito paciente comigo."
 
     jump ano_feliz
 
@@ -1488,19 +1513,19 @@ label ver_series:
 
     menu:
         "Começar Breaking Bad":
-            a "A gente ficou obcecado."
-            a "Eu perguntava mil coisas."
+            ana_thought "A gente ficou obcecado."
+            ana_thought "Eu perguntava mil coisas."
             h "Confia no roteiro."
         "Ver Two and a Half Men":
             show ana college happy
-            a "A gente ria de coisas idiotas."
+            ana_thought "A gente ria de coisas idiotas."
             h "Esse é o ponto."
 
     pause 1.5
 
-    a "Era simples."
+    ana_thought "Era simples."
 
-    a "Mas era nosso."
+    ana_thought "Mas era nosso."
 
     jump ano_feliz
 
@@ -1515,9 +1540,9 @@ label jantar_sushi:
 
     show heitor college soft_smile at other_right
 
-    a "A gente começou a sair pra comer sushi."
+    ana_thought "A gente começou a sair pra comer sushi."
 
-    a "Eu comia todo o peixe cru e ele comia todo o camarão."
+    ana_thought "Eu comia todo o peixe cru e ele comia todo o camarão."
 
     h "Esse aqui você gosta."
 
@@ -1537,15 +1562,15 @@ label visitar_familia:
             with fade
             show ana college happy at pov_left
             show heitor college shy_smile at other_right
-            a "Ele conheceu meus pais."
-            a "Eu fiquei nervosa o tempo inteiro."
+            ana_thought "Ele conheceu meus pais."
+            ana_thought "Eu fiquei nervosa o tempo inteiro."
         "Espírito Santo":
             scene bg espirito_santo
             with fade
             show ana college neutral at pov_left
             show heitor college soft_smile at other_right
-            a "Eu conheci os pais dele."
-            a "Eu queria causar uma boa impressão."
+            ana_thought "Eu conheci os pais dele."
+            ana_thought "Eu queria causar uma boa impressão."
 
     pause 1.5
 
@@ -1562,13 +1587,13 @@ label festa_formatura:
 
     show heitor college amused at other_right
 
-    a "A festa do Cecato foi incrível."
+    ana_thought "A festa do Cecato foi incrível."
 
-    a "A gente dançou a noite inteira, e o Heitor parecia estar tão feliz, tiramos fotos lindas juntos, tudo foi lindo."
+    ana_thought "A gente dançou a noite inteira, e o Heitor parecia estar tão feliz. Tiramos fotos lindas juntos, tudo foi lindo."
 
     show ana party happy_hand
 
-    a "Eu nunca tinha me sentido tão leve."
+    ana_thought "Eu nunca tinha me sentido tão leve."
 
     pause 1.5
 
@@ -1637,9 +1662,9 @@ label preparando_mala:
 
     show ana home sad at other_right
 
-    a "A mala ficou pronta."
+    ana_thought "A mala ficou pronta."
 
-    a "Mas nenhuma das duas pessoas ali estava."
+    ana_thought "Mas nenhuma das duas pessoas ali estava."
 
     pause 2.0
 
@@ -1763,12 +1788,14 @@ label despedida_aeroporto:
 
     show ana home sad at pov_left
 
-    a "Acho que meu coração nunca sofreu tanto na vida."
+    ana_thought "Acho que meu coração nunca sofreu tanto na vida."
 
-    a "Mas é a nossa vida, sofremos juntos e vamos continuar juntos, na alegria, na tristeza, em qualquer situação, porque eu amo você e eu amo tudo que construímos juntos."
-    a "Essa história não termina aqui e nunca vai terminar."
+    ana_thought "Mas é a nossa vida. Sofremos juntos e vamos continuar juntos, na alegria, na tristeza, em qualquer situação, porque eu amo você e eu amo tudo que construímos juntos."
+    ana_thought "Essa história não termina aqui e nunca vai terminar."
 
     pause 2.0
 
+    $ set_love_cap_stage("post_australia")
+    $ career_phase = "virtualisurg_frontend"
     $ add_love(8, "promessa no aeroporto")
     jump post_australia_route
