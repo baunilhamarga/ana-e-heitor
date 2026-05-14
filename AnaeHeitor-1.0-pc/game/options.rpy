@@ -28,6 +28,8 @@ define config.version = "2.0-dev"
 # Enable Ren'Py developer shortcuts while this editable copy is in development.
 define config.developer = True
 define config.console = True
+define config.default_language = "pt_br"
+define config.menu_include_disabled = True
 
 
 ## Text that is placed on the game's about screen. Place the text between the
