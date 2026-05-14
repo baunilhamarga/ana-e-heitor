@@ -1,11 +1,11 @@
-﻿# The script of the game goes in this file.
+# The script of the game goes in this file.
 
 # Declare characters used by this game. The color argument colorizes the
 # name of the character.
 
 # Personagens
-define a = Character("Ana")
-define h = Character("Heitor")
+define a = Character("Ana", color="#f0a7bb")
+define h = Character("Heitor", color="#89c7f5")
 
 # =========================
 # PERSONAGENS - ANA
@@ -122,14 +122,28 @@ image bg hamburgueria = im.Scale("bg hamburgueria.png", 1920, 1080)
 # The game starts here.
 label start:
 
+    $ current_pov = "heitor"
+    $ heitor_progress = 0
+    $ ana_progress = 30
+    $ heitor_money = 25
+    $ ana_money = 25
+    $ current_day = 1
+    $ time_slot_index = 0
+    $ unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
+    $ completed_memories = []
+    $ inventory = []
+
+    show screen relationship_hud
+    call change_pov("heitor", "Bandejão, bugs e uma conversa que saiu do controle")
+
     scene bg bandejao
     with fade
 
     pause 1.0
 
-    show ana college neutral at right
+    show heitor college neutral at pov_left
 
-    show heitor college neutral at left
+    show ana college neutral at other_right
 
     pause 0.5
 
@@ -164,6 +178,8 @@ label start:
     show ana college super_happy
 
     a "Pode considerar."
+
+    $ advance_dialog_section("primeira troca")
 
     pause 1.0
 
@@ -244,6 +260,8 @@ label start:
 
             h "Duvido."
 
+    $ advance_dialog_section("gostos e hobbies")
+
     show ana college happy
 
     a "Mas bom…"
@@ -314,6 +332,8 @@ label start:
 
             a "Mas depende muito do dia."
 
+    $ advance_dialog_section("ranking do bandejão")
+
     pause 0.8
 
     show ana college embarrassed
@@ -333,7 +353,9 @@ label start:
     scene black
     with dissolve
 
-    show ana college thinking at right
+    call change_pov("ana", "Depois do bandejão")
+
+    show ana college thinking at pov_left
 
     pause 1.2
 
@@ -347,6 +369,10 @@ label start:
     a "De uns meses para cá isso mudou, eu pude sentir essa mudança na forma como eu conversava, em como eu agia. Talvez eu devesse dar uma chance para nos tornarmos amigos. Talvez um pouco mais, achei ele tão fofo..."
     pause 1.2
     a "Ai Ana, você pensa demais. Um homem de 24 anos nunca teria interesse em uma pirralha como você."
+    ana_thought "Ótimo. Diagnóstico feito com zero dados e cem por cento de convicção."
+
+    $ advance_dialog_section("primeira conversa no bandejão")
+    call free_time_phase("primeiro_contato")
 
     jump raio_x
 
@@ -355,7 +381,7 @@ label raio_x:
     scene bg bedroom_night
     with fade
 
-    show ana casual neutral at right
+    show ana casual neutral at pov_left
 
     a "Cheguei em casa e não sabia o que mandar."
 
@@ -370,7 +396,7 @@ label mensagem_raiox:
     scene bg bedroom_night
     with fade
 
-    show ana home sad at right
+    show ana home sad at pov_left
 
     a "Eu mandei a coisa mais idiota possível."
 
@@ -394,48 +420,7 @@ label mensagem_raiox:
 
     pause 1.0
 
-    show heitor home neutral at left:
-        xzoom -1
-
-    pause 0.5
-
-    menu:
-
-        "Caramba, não dá pra ver nada ao vivo.":
-
-            show heitor home amused
-
-            h "Caramba… não dá pra ver nada ao vivo."
-
-            show ana home embarrassed
-
-            a "Sério??"
-
-        "Uau… isso é um raio-x mesmo?":
-
-            show heitor home surprised
-
-            h "Uau…"
-
-            pause 0.4
-
-            h "Isso é um raio-x mesmo?"
-
-            show ana home embarrassed
-
-            a "É sim… da minha coluna. Essa foto é de uns anos atrás, mas não melhorou muito não."
-
-        "Então era disso que você estava falando hoje.":
-
-            show heitor home neutral
-
-            h "Ahh… então era isso que você estava falando hoje."
-
-            show ana home embarrassed
-
-            a "Era sim!"
-
-            a "Minha coluna é bem torta."
+    call whatsapp_raiox_excerpt
 
     pause 0.5
 
@@ -458,12 +443,17 @@ label mensagem_raiox:
     scene black
     with fade
 
-    show ana home soft at right
+    show ana home soft at pov_left
 
     a "E a conversa continuou por vários dias."
 
     pause 1.0
     a "Ele não notava meu tom um pouco mais sugestivo em algumas mensagens. Isso me deixava um pouco pensativa demais. Não sei o porquê..."
+
+    heitor_thought "Ela mandou um raio-x como primeira grande mensagem. Eu devia ter percebido que isso era o começo de uma saga."
+
+    $ add_love(5, "mensagens iniciais")
+    call free_time_phase("mensagens_iniciais")
 
     hide ana
     pause 1.0
@@ -475,7 +465,7 @@ label mensagem_normal:
 
     a "Oi :)"
 
-    show heitor college neutral at left
+    show heitor college neutral at other_right
 
     h "Oi."
 
@@ -488,6 +478,9 @@ label mensagem_normal:
     scene black
     with fade
 
+    $ add_love(3, "oi estrategicamente simples")
+    call free_time_phase("mensagens_iniciais")
+
     jump picles
 
 label picles:
@@ -497,9 +490,9 @@ label picles:
 
     pause 1.0
 
-    show ana party neutral at right
+    show ana party neutral at pov_left
 
-    show heitor college neutral at left
+    show heitor college neutral at other_right
 
     a "Eu convidei ele e os meninos pro Picles."
 
@@ -540,9 +533,9 @@ label picles:
 
             pause 1.0
 
-            show ana college happy at right
+            show ana college happy at pov_left
 
-            show heitor college soft_smile at left
+            show heitor college soft_smile at other_right
 
             pause 0.5
 
@@ -587,9 +580,9 @@ label picles:
             scene bg cafe_evening
             with fade
 
-            show ana college happy at right
+            show ana college happy at pov_left
 
-            show heitor college soft_smile at left
+            show heitor college soft_smile at other_right
 
             a "A gente decidiu ir pra um café."
 
@@ -616,9 +609,9 @@ label picles:
             scene bg park_evening
             with fade
 
-            show ana college happy at right
+            show ana college happy at pov_left
 
-            show heitor college soft_smile at left
+            show heitor college soft_smile at other_right
 
             a "A gente resolveu só dar uma volta."
 
@@ -646,9 +639,9 @@ label ep_yoshi:
     scene bg ap_heitor_day
     with fade
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor college shy_smile at left
+    show heitor college shy_smile at other_right
 
     a "Eu aceitei sair com ele, mas era o último dia antes de uma tarefa importante."
 
@@ -663,9 +656,9 @@ label ep_yoshi:
     scene bg desktop_code
     with dissolve
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor focused at left
+    show heitor focused at other_right
 
     a "Eu não tava entendendo absolutamente nada."
 
@@ -702,9 +695,9 @@ label ep_yoshi:
     scene bg ap_heitor_night
     with fade
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor tired_smile at left
+    show heitor tired_smile at other_right
 
     h "Terminamos."
 
@@ -717,9 +710,9 @@ label ep_yoshi:
     scene bg sofa_dim
     with dissolve
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor thoughtful at left
+    show heitor thoughtful at other_right
 
     a "A gente colocou um anime pra assistir. Eu não entendi nada. Eu olhava um pouco para baixo o tempo todo, com medo de levantar a cabeça, de falar alguma bobagem ou fazer algo errado."
     a "Não sei porque eu ficava tão nervosa na presença dele. Até aquele momento parecia tudo muito natural, mas o fato de ele ter me chamado para sair me deixou um pouco confusa."
@@ -754,7 +747,7 @@ label ep_yoshi:
     scene black
     with fade
 
-    show ana college sad at right
+    show ana college sad at pov_left
 
     a "Eu fui embora e me esqueci desse assunto. Nada nunca aconteceria entre a gente."
 
@@ -769,7 +762,7 @@ label mensagem_onibus:
 
     pause 1.0
 
-    show ana home sleepy at right
+    show ana home sleepy at pov_left
 
     a "Eu entrei no ônibus e já me posicionei para dormir, mesmo sabendo que eu não iria dormir nada."
 
@@ -798,7 +791,7 @@ label mensagem_onibus:
     scene black
     with dissolve
 
-    show ana home neutral at right
+    show ana home neutral at pov_left
 
     pause 0.8
 
@@ -811,7 +804,7 @@ label mensagem_onibus:
     scene bg bus
     with fade
 
-    show heitor home soft_smile at left:
+    show heitor home soft_smile at other_right:
         xzoom -1
 
     pause 0.5
@@ -820,7 +813,7 @@ label mensagem_onibus:
 
     pause 1.5
 
-    show ana home embarrassed at right
+    show ana home embarrassed at pov_left
 
     a "Assim que eu abri tinha tudo, era completamente diferente da dele, um código completamente novo, tinha o cabeçalho, meu nusp, nome completo."
 
@@ -866,7 +859,7 @@ label mensagem_onibus:
 
             pause 1.0
 
-            show heitor home soft_smile at left:
+            show heitor home soft_smile at other_right:
                 xzoom -1
 
             h "Fica tranquila."
@@ -891,12 +884,15 @@ label mensagem_onibus:
 
             pause 1.0
 
-            show heitor home soft_smile at left:
+            show heitor home soft_smile at other_right:
                 xzoom -1
 
             h "Fico feliz em ajudar."
 
             pause 1.0
+
+    $ add_love(8, "EP salvo na madrugada")
+    call relationship_gate("primeiro_beijo", 24, "A amizade já tinha virado um algoritmo mais complexo. Falta só deixar o jogador viver um pouco antes do primeiro beijo.")
 
 label primeiro_beijo:
     pause 1.5
@@ -904,8 +900,8 @@ label primeiro_beijo:
     scene bg bandejao
     with fade
 
-    show ana college neutral at right
-    show heitor college neutral at left
+    show ana college neutral at pov_left
+    show heitor college neutral at other_right
 
     pause 1.5
 
@@ -922,9 +918,9 @@ label primeiro_beijo:
 
     pause 1.0
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor college neutral at left
+    show heitor college neutral at other_right
 
     a "A gente foi conversando do bandejão até o ponto."
 
@@ -939,9 +935,9 @@ label primeiro_beijo:
 
     pause 1.0
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor college neutral at left
+    show heitor college neutral at other_right
 
     a "Até que quando chegamos no ponto e nos sentamos eu peguei o meu celular e comecei a ver."
 
@@ -1005,7 +1001,7 @@ label primeiro_beijo:
     scene black
     with dissolve
 
-    show ana college soft at right
+    show ana college soft at pov_left
 
     pause 1.5
 
@@ -1022,9 +1018,9 @@ label primeiro_beijo:
 
     pause 1.0
 
-    show ana college surprised at right
+    show ana college surprised at pov_left
 
-    show heitor college surprised at left
+    show heitor college surprised at other_right
 
     a "O ônibus para a casa dele chegou e a gente parou de se beijar."
 
@@ -1062,11 +1058,14 @@ label primeiro_beijo:
     scene black
     with fade
 
-    show ana college happy at right
+    show ana college happy at pov_left
 
     pause 2.0
 
     hide ana
+
+    $ add_love(10, "primeiro beijo")
+    call relationship_gate("pedido_namoro", 38, "Depois do primeiro beijo, ainda precisa caber um pouco de rotina: mensagens, encontros baratos e coragem acumulada.")
 
     jump pedido_namoro
 
@@ -1077,9 +1076,9 @@ label pedido_namoro:
 
     pause 1.0
 
-    show ana college happy at right
+    show ana college happy at pov_left
 
-    show heitor nervous at left
+    show heitor nervous at other_right
 
     pause 0.5
 
@@ -1248,7 +1247,7 @@ label aceita_namoro:
     scene black
     with fade
 
-    show ana college super_happy at right
+    show ana college super_happy at pov_left
 
     pause 1.5
 
@@ -1257,6 +1256,9 @@ label aceita_namoro:
     pause 2.0
 
     hide ana
+
+    $ add_love(12, "pedido de namoro")
+    call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.")
 
     jump primeiro_eu_te_amo
 
@@ -1267,9 +1269,9 @@ label primeiro_eu_te_amo:
 
     pause 1.5
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor college soft_smile at left
+    show heitor college soft_smile at other_right
 
     pause 1.0
 
@@ -1355,7 +1357,7 @@ label primeiro_eu_te_amo:
     scene black
     with fade
 
-    show ana college super_happy at right
+    show ana college super_happy at pov_left
 
     pause 1.5
 
@@ -1367,7 +1369,11 @@ label primeiro_eu_te_amo:
 
     pause 2.0
 
+    call whatsapp_te_amo_excerpt
+
     hide ana
+
+    $ add_love(12, "primeiro eu te amo")
 
     jump ano_feliz
 
@@ -1385,7 +1391,7 @@ label ano_feliz:
     scene bg ap_heitor_night
     with dissolve
 
-    show ana college happy at right
+    show ana college happy at pov_left
 
     menu:
         "🎮 Jogar juntos":
@@ -1404,12 +1410,13 @@ label ano_feliz:
             jump festa_formatura
 
         "Continuar...":
+            call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
             jump preparando_mala
 
     scene bg ap_heitor_night
     with fade
 
-    show ana college soft at right
+    show ana college soft at pov_left
 
     a "Eu achava que nada podia mudar."
 
@@ -1419,16 +1426,20 @@ label ano_feliz:
 
     hide ana
 
+    call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
+
     jump preparando_mala
 
 label jogar_juntos:
 
+    $ complete_memory("jogar_juntos", love=5)
+
     scene bg sala_game
     with fade
 
-    show ana college happy at right
+    show ana college happy at pov_left
 
-    show heitor focused at left
+    show heitor focused at other_right
 
     a "Nosso primeiro jogo juntos."
 
@@ -1452,12 +1463,14 @@ label jogar_juntos:
 
 label ver_series:
 
+    $ complete_memory("ver_series", love=5)
+
     scene bg sofa_series
     with fade
 
-    show ana college neutral at right
+    show ana college neutral at pov_left
 
-    show heitor college soft_smile at left
+    show heitor college soft_smile at other_right
 
     menu:
         "Começar Breaking Bad":
@@ -1479,12 +1492,14 @@ label ver_series:
 
 label jantar_sushi:
 
+    $ complete_memory("jantar_sushi", love=6)
+
     scene bg sushi
     with fade
 
-    show ana college super_happy at right
+    show ana college super_happy at pov_left
 
-    show heitor college soft_smile at left
+    show heitor college soft_smile at other_right
 
     a "A gente começou a sair pra comer sushi."
 
@@ -1500,19 +1515,21 @@ label jantar_sushi:
 
 label visitar_familia:
 
+    $ complete_memory("visitar_familia", love=7)
+
     menu:
         "Minas":
             scene bg minas
             with fade
-            show ana college happy at right
-            show heitor college shy_smile at left
+            show ana college happy at pov_left
+            show heitor college shy_smile at other_right
             a "Ele conheceu meus pais."
             a "Eu fiquei nervosa o tempo inteiro."
         "Espírito Santo":
             scene bg espirito_santo
             with fade
-            show ana college neutral at right
-            show heitor college soft_smile at left
+            show ana college neutral at pov_left
+            show heitor college soft_smile at other_right
             a "Eu conheci os pais dele."
             a "Eu queria causar uma boa impressão."
 
@@ -1522,12 +1539,14 @@ label visitar_familia:
 
 label festa_formatura:
 
+    $ complete_memory("festa_formatura", love=7)
+
     scene bg festa
     with fade
 
-    show ana party super_happy at right
+    show ana party super_happy at pov_left
 
-    show heitor college amused at left
+    show heitor college amused at other_right
 
     a "A festa do Cecato foi incrível."
 
@@ -1543,11 +1562,13 @@ label festa_formatura:
 
 label preparando_mala:
 
+    call change_pov("heitor", "A mala para a Austrália")
+
     scene bg ap_heitor_day
     with fade
 
-    show heitor home soft_smile at left
-    show ana home neutral at right
+    show heitor home soft_smile at pov_left
+    show ana home neutral at other_right
 
     a "Caramba, você vai levar isso tudo?"
 
@@ -1559,40 +1580,40 @@ label preparando_mala:
 
     pause 1.5
 
-    show ana home soft at right
+    show ana home soft at other_right
     a "Quanto tempo é 'um tempo'?"
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at pov_left
     h "O suficiente pra eu sentir saudade."
 
     pause 2.0
 
-    show ana home embarrassed at right
+    show ana home embarrassed at other_right
     a "Eu já tô sentindo."
 
     pause 2.5
 
-    show ana home soft at right
+    show ana home soft at other_right
     a "Eu não gosto dessa parte."
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at pov_left
     pause 1.5
 
     h "Eu sei."
 
     pause 2.5
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at pov_left
     h "Mas eu volto."
 
     pause 1.5
 
-    show ana home sad at right
+    show ana home sad at other_right
     a "Promete?"
 
     pause 1.5
 
-    show heitor home serious at left
+    show heitor home serious at pov_left
     h "Prometo."
 
     pause 2.0
@@ -1600,7 +1621,7 @@ label preparando_mala:
     scene black
     with fade
 
-    show ana home sad at right
+    show ana home sad at other_right
 
     a "A mala ficou pronta."
 
@@ -1614,11 +1635,13 @@ label preparando_mala:
 
 label despedida_aeroporto:
 
+    call change_pov("ana", "Aeroporto: modo coração em produção")
+
     scene bg airport
     with fade
 
-    show ana home neutral at right
-    show heitor home soft_smile at left
+    show ana home neutral at pov_left
+    show heitor home soft_smile at other_right
 
     pause 2.0
 
@@ -1628,7 +1651,7 @@ label despedida_aeroporto:
 
     pause 2.5
 
-    show ana home soft at right
+    show ana home soft at pov_left
     a "Não fala assim."
 
     h "Assim como?"
@@ -1637,53 +1660,52 @@ label despedida_aeroporto:
 
     pause 2.0
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at other_right
     h "Mas é."
 
     h "É só um voo."
 
     pause 2.0
 
-    show ana home serious at right
+    show ana home serious at pov_left
     a "É um voo muito longo."
 
     pause 2.5
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at other_right
     h "Ei."
 
     pause 1.5
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at other_right
     h "Olha pra mim."
 
     pause 2.0
 
-    show ana home soft at right
+    show ana home soft at pov_left
     pause 2.0
 
     h "Você acha mesmo que eu ia deixar minha lindinha assim?"
 
     pause 2.5
 
-    show ana home embarrassed at right
+    show ana home embarrassed at pov_left
     a "Eu não gosto quando você usa isso em momentos sérios."
 
     h "Eu uso porque é sério."
 
     pause 3.0
 
-    play sound "airport_call.wav"
     "Atenção passageiros do voo 302..."
 
     pause 2.0
 
-    show heitor home serious at left
+    show heitor home serious at other_right
     h "É o meu."
 
     pause 2.5
 
-    show ana home sad at right
+    show ana home sad at pov_left
     a "Amor, eu não quero que você vá embora, eu vou ficar muito sozinha..."
 
     pause 3.0
@@ -1694,7 +1716,7 @@ label despedida_aeroporto:
 
     a "Promete?"
 
-    show heitor home soft_smile at left
+    show heitor home soft_smile at other_right
     h "Prometo."
 
     pause 2.5
@@ -1703,7 +1725,7 @@ label despedida_aeroporto:
 
     pause 1.5
 
-    show ana home soft at right
+    show ana home soft at pov_left
     a "Você também, amor."
 
     pause 3.0
@@ -1712,7 +1734,7 @@ label despedida_aeroporto:
 
     pause 3.5
 
-    show ana home sad at right
+    show ana home sad at pov_left
     a "Eu amo você, amor."
 
     pause 4.0
@@ -1725,7 +1747,7 @@ label despedida_aeroporto:
     scene black
     with fade
 
-    show ana home sad at right
+    show ana home sad at pov_left
 
     a "Acho que meu coração nunca sofreu tanto na vida."
 
@@ -1734,4 +1756,5 @@ label despedida_aeroporto:
 
     pause 2.0
 
-    return
+    $ add_love(8, "promessa no aeroporto")
+    jump post_australia_route

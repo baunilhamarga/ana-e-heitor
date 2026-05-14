@@ -1,4 +1,4 @@
-2026-05-09 14:29:28 UTC
+2026-05-14 17:06:36 UTC
 Windows-11-10.0.26200-SP0
 Ren'Py 8.5.2.26010301
 
@@ -6,50 +6,51 @@ Ana e Heitor
 1.0
 Built at 2026-03-22 07:38:19 UTC
 
-Early init took 59 ms
-Loading error handling took 88 ms
-Loading script took 959 ms
-Loading save slot metadata took 115 ms
+Early init took 46 ms
+Loading error handling took 29 ms
+Loading script took 159 ms
+Loading save slot metadata took 42 ms
 Loading persistent took 0 ms
 Set script version to: (8, 5, 2)
-Running init code took 162 ms
-Loading analysis data took 8 ms
-Analyze and compile ATL took 2 ms
-Reloading save slot metadata took 31 ms
+Running init code took 94 ms
+Loading analysis data took 6 ms
+Analyze and compile ATL took 4 ms
+Reloading save slot metadata took 2 ms
 Dump and make backups took 0 ms
 Cleaning cache took 0 ms
 Making clean stores took 1 ms
-Initial gc took 34 ms
+Initial gc took 38 ms
 DPI scale factor: 1.250000
 nvdrs: Loaded, about to disable thread optimizations.
 nvdrs: Disabled thread optimizations.
-Creating interface object took 389 ms
-Init translation took 1 ms
+Creating interface object took 368 ms
+Init translation took 0 ms
 Cleaning stores took 0 ms
-Load screen analysis took 22 ms
-Analyze screens took 0 ms
+Load screen analysis took 16 ms
+Analyze screens took 3 ms
 Save screen analysis took 0 ms
 Save pyanalysis took 0 ms
 Save bytecode took 0 ms
-Running _start took 1 ms
-Interface start took 1398 ms
+﻿Ren'Py 8.5.2.26010301 lint report, generated at: Thu May 14 19:06:37 2026
 
-Initializing gl2 renderer:
-primary display bounds: (0, 0, 1920, 1080)
-swap interval: 1 frames
-Fullscreen mode.
-Vendor: 'NVIDIA Corporation'
-Renderer: 'NVIDIA GeForce RTX 2060/PCIe/SSE2'
-Version: '4.6.0 NVIDIA 581.08'
-Display Info: <Info({'bitsize': 32, 'bytesize': 4, 'masks': (16711680, 65280, 255, 0), 'shifts': (16, 8, 0, 0), 'losses': (0, 0, 0, 8), 'current_w': 1920, 'current_h': 1080, 'refresh_rate': 144, 'hw': False, 'wm': True, 'video_mem': 268435456, 'blit_hw': False, 'blit_hw_CC': False, 'blit_hw_A': False, 'blit_sw': False, 'blit_sw_CC': False, 'blit_sw_A': False})>
-Screen sizes: virtual=(1920, 1080) physical=(1920, 1080) drawable=(1920, 1080)
-Maximum texture size: 4096x4096
-controller: '030000005e040000ff02000000007200' 'Controller (Xbox One For Windows)' 1
-Cleaning stores took 0 ms
-Load screen analysis took 12 ms
-Analyze screens took 0 ms
-Running _start took 1 ms
-Cleaning stores took 0 ms
-Load screen analysis took 12 ms
-Analyze screens took 0 ms
-Running _start took 2 ms
+
+Obsolete Image Manipulators:
+
+game/script.rpy:
+    * line    14 im.Scale
+    * line    15 im.Scale
+    * line    16 im.Scale
+    * line    17 im.Scale
+    * and 66 more.
+
+
+Statistics:
+
+The game contains 468 dialogue blocks, containing 3,777 words and 20,800
+characters, for an average of 8.1 words and 44 characters per block.
+
+The game contains 18 menus, 70 images, and 29 screens.
+
+
+Lint is not a substitute for thorough testing. Remember to update Ren'Py
+before releasing. New releases fix bugs and improve compatibility.
