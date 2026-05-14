@@ -129,12 +129,13 @@ label start:
     $ ana_money = 25
     $ current_day = 1
     $ time_slot_index = 0
+    $ first_kiss_done = False
     $ unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
     $ completed_memories = []
     $ inventory = []
 
     show screen relationship_hud
-    call change_pov("heitor", "Bandejão, bugs e uma conversa que saiu do controle")
+    call change_pov("heitor", "Uma rara ida ao Bandejão Central")
 
     scene bg bandejao
     with fade
@@ -210,6 +211,8 @@ label start:
 
             h "Todo mundo começa ruim."
 
+            $ add_love(3, "calistenia", person="ana")
+
         "Street Fighter":
 
             show heitor college amused
@@ -260,6 +263,8 @@ label start:
 
             h "Duvido."
 
+            $ add_love(2, "desenhar", person="ana")
+
     $ advance_dialog_section("gostos e hobbies")
 
     show ana college happy
@@ -304,6 +309,8 @@ label start:
 
             a "Você é a primeira pessoa que eu vejo dizendo isso."
 
+            $ add_love(1, "bandejão da Física", person="ana")
+
         "Central":
 
             show heitor college soft_smile
@@ -315,6 +322,8 @@ label start:
             a "EU SABIA."
 
             a "O Central é claramente o melhor."
+
+            $ add_love(3, "bandejão Central", person="ana")
 
         "Química":
 
@@ -331,6 +340,8 @@ label start:
             a "Ok, esse eu aceito."
 
             a "Mas depende muito do dia."
+
+            $ add_love(2, "bandejão da Química", person="ana")
 
     $ advance_dialog_section("ranking do bandejão")
 
@@ -366,7 +377,8 @@ label start:
     pause 1.0
     a "Eu fiquei um pouco intrigada. Havia muito tempo que não sentia nada assim. Bom, não me leve a mal, mas eu estava em uma situação bem ruim havia muito tempo." 
     a "Eu me via andando por aí sem rumo, sem objetivo, sem interagir tanto. Eu me via uma pessoa completamente da que eu era antes e isso me assustava um pouco."
-    a "De uns meses para cá isso mudou, eu pude sentir essa mudança na forma como eu conversava, em como eu agia. Talvez eu devesse dar uma chance para nos tornarmos amigos. Talvez um pouco mais, achei ele tão fofo..."
+    a "De uns meses para cá isso mudou, eu pude sentir essa mudança na forma como eu conversava, em como eu agia. Talvez eu devesse dar uma chance para nos tornarmos amigos."
+    ana_thought "Talvez um pouco mais. Ele era tão fofo..."
     pause 1.2
     a "Ai Ana, você pensa demais. Um homem de 24 anos nunca teria interesse em uma pirralha como você."
     ana_thought "Ótimo. Diagnóstico feito com zero dados e cem por cento de convicção."
@@ -512,11 +524,11 @@ label picles:
 
     show ana party happy
 
-    a "Eu achei fofo ele reclamar."
+    ana_thought "Eu achei fofo ele reclamar."
 
-    a "Eu acho tudo nele fofo."
+    ana_thought "Eu acho tudo nele fofo."
 
-    a "Ai Ana, para, você não pode encarar as coisas dessa forma."
+    ana_thought "Ai Ana, para, você não pode encarar as coisas dessa forma."
 
     show ana party thinking
 
@@ -557,7 +569,7 @@ label picles:
 
             pause 1.0
 
-            a "A gente ficou olhando um pro outro."
+            a "A gente passou alguns segundos em silêncio."
 
             pause 1.0
 
@@ -575,7 +587,7 @@ label picles:
             jump ep_yoshi
 
 
-        "Ir num café":
+        "Ir comer alguma coisa":
 
             scene bg cafe_evening
             with fade
@@ -584,7 +596,7 @@ label picles:
 
             show heitor college soft_smile at other_right
 
-            a "A gente decidiu ir pra um café."
+            a "A gente decidiu procurar alguma coisa pra comer."
 
             h "Muito melhor que lá."
 
@@ -892,9 +904,11 @@ label mensagem_onibus:
             pause 1.0
 
     $ add_love(8, "EP salvo na madrugada")
-    call relationship_gate("primeiro_beijo", 24, "A amizade já tinha virado um algoritmo mais complexo. Falta só deixar o jogador viver um pouco antes do primeiro beijo.")
+    call relationship_gate("primeiro_beijo", 24, "A amizade já tinha virado uma coisa mais difícil de ignorar. Falta só deixar o jogador viver um pouco antes do primeiro beijo.")
 
 label primeiro_beijo:
+    $ first_kiss_done = True
+
     pause 1.5
 
     scene bg bandejao

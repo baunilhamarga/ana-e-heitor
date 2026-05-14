@@ -15,11 +15,16 @@ default heitor_money = 25
 default ana_money = 25
 default current_day = 1
 default time_slot_index = 0
+default queued_notifications = []
+default notification_sequence = 0
+default first_kiss_done = False
 default unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
 default completed_memories = []
 default inventory = []
 
 init python:
+    import time as pytime
+
     time_slots = ["manhã", "tarde", "noite", "madrugada"]
 
     pov_data = {
@@ -46,11 +51,11 @@ init python:
         {
             "id": "bandejao",
             "name": "Bandejão",
-            "subtitle": "Romance universitário no modo sobrevivência.",
+            "subtitle": "Fila, arroz e decisões difíceis.",
         },
         {
             "id": "heitor_home",
-            "name": "Apê do Heitor",
+            "name": "Casa do Heitor",
             "subtitle": "Código, sofá e uma chance alta de anime.",
         },
         {
@@ -81,18 +86,18 @@ init python:
             "line": "O clássico. Funciona porque funciona.",
         },
         {
-            "id": "coffee",
-            "name": "Café antes da aula",
+            "id": "snack",
+            "name": "Lanchinho antes da aula",
             "cost": 12,
             "love": 4,
-            "line": "Tecnicamente um combustível acadêmico.",
+            "line": "Pequeno, barato e emocionalmente estratégico.",
         },
         {
             "id": "earrings",
             "name": "Brincos bonitinhos",
             "cost": 45,
             "love": 10,
-            "line": "Perigoso. Pode desbloquear pedido de namoro.",
+            "line": "Perigoso. Pode render um sorriso enorme.",
         },
         {
             "id": "sushi_date",
@@ -116,6 +121,12 @@ init python:
     def pov_dark(who=None):
         key = who or current_pov
         return pov_data.get(key, pov_data["ana"])["dark"]
+
+    def other_pov(person=None):
+        key = person or current_pov
+        if key == "ana":
+            return "heitor"
+        return "ana"
 
     def time_slot():
         return time_slots[time_slot_index % len(time_slots)]
@@ -151,11 +162,33 @@ init python:
             return "Paixão"
         return "Amor"
 
+    def queue_notification(message, duration=3.25):
+        global notification_sequence
+        notification_sequence += 1
+        queued_notifications.append((notification_sequence, message, pytime.time() + duration))
+        if len(queued_notifications) > 5:
+            del queued_notifications[:-5]
+        renpy.show_screen("notification_stack")
+        renpy.restart_interaction()
+
+    def prune_notifications():
+        before = len(queued_notifications)
+        now = pytime.time()
+        queued_notifications[:] = [toast for toast in queued_notifications if toast[2] > now]
+        if before != len(queued_notifications):
+            if queued_notifications:
+                renpy.restart_interaction()
+            else:
+                renpy.hide_screen("notification_stack")
+
     def add_love(amount, reason=None, person=None):
         key = person or current_pov
         set_progress_for(key, progress_for(key) + amount)
         if amount and reason:
-            renpy.notify("+%d %s de %s: %s" % (amount, progress_label(person=key).lower(), pov_data[key]["name"], reason))
+            queue_notification("{color=%s}+%d %s para %s: %s{/color}" % (pov_color(key), amount, progress_label(person=key), pov_data[key]["name"], reason))
+
+    def add_partner_love(amount, reason=None):
+        add_love(amount, reason, person=other_pov())
 
     def advance_dialog_section(reason=None):
         add_love(2, reason or "conversa")
@@ -187,16 +220,16 @@ init python:
         key = person or current_pov
         set_money_for(key, money_for(key) + amount)
         if amount and reason:
-            renpy.notify("+%s para %s: %s" % (format_money(amount), pov_data[key]["name"], reason))
+            queue_notification("+%s para %s: %s" % (format_money(amount), pov_data[key]["name"], reason))
 
     def spend_money(amount, reason=None, person=None):
         key = person or current_pov
         if money_for(key) < amount:
-            renpy.notify("Dinheiro insuficiente para %s." % pov_data[key]["name"])
+            queue_notification("Dinheiro insuficiente para %s." % pov_data[key]["name"])
             return False
         set_money_for(key, money_for(key) - amount)
         if reason:
-            renpy.notify("-%s de %s: %s" % (format_money(amount), pov_data[key]["name"], reason))
+            queue_notification("-%s de %s: %s" % (format_money(amount), pov_data[key]["name"], reason))
         return True
 
     def advance_time(blocks=1):
@@ -249,6 +282,30 @@ screen relationship_hud():
 
             text "[current_money_text()]" color "#f6f7fb" size 22 layout "nobreak"
 
+screen notification_stack():
+    zorder 130
+
+    timer 0.20 repeat True action Function(prune_notifications)
+
+    if queued_notifications:
+        vbox:
+            xalign 0.98
+            ypos 92
+            xmaximum 760
+            spacing 8
+
+            for toast in queued_notifications:
+                frame at stacked_notify_appear:
+                    xalign 1.0
+                    background Solid("#101827ee")
+                    padding (18, 10)
+
+                    text toast[1]:
+                        color "#f6f7fb"
+                        size 22
+                        text_align 1.0
+                        xalign 1.0
+
 screen pov_card(who, title=""):
     zorder 120
     modal True
@@ -298,6 +355,11 @@ transform pov_card_pop:
     yoffset 32
     ease 0.25 alpha 1.0 yoffset 0
 
+transform stacked_notify_appear:
+    alpha 0.0
+    xoffset 24
+    linear 0.15 alpha 1.0 xoffset 0
+
 transform pov_left:
     xpos 0.28
     xanchor 0.5
@@ -310,7 +372,7 @@ transform other_right:
     yalign 1.0
     zoom 0.92
 
-screen gate_notice(title, needed, hint):
+screen gate_notice(title, needed, hint, target_name=""):
     modal True
     zorder 110
 
@@ -327,7 +389,10 @@ screen gate_notice(title, needed, hint):
             spacing 18
             text title color "#ffffff" size 42 xalign 0.5 text_align 0.5
             text hint color "#dfe7f3" size 28 xalign 0.5 text_align 0.5
-            text _("Progresso necessário: [needed]") color "#f0a7bb" size 26 xalign 0.5
+            if target_name:
+                text _("Love necessário com [target_name]: [needed]") color "#f0a7bb" size 26 xalign 0.5
+            else:
+                text _("Love necessário: [needed]") color "#f0a7bb" size 26 xalign 0.5
             textbutton _("Abrir turno livre") action Return(True) xalign 0.5
 
 screen location_picker(stage):
@@ -367,7 +432,6 @@ screen location_picker(stage):
                                 xalign 0.5
                                 yalign 0.5
                                 text loc["name"] color "#ffffff" size 32 xalign 0.5
-                                text loc["subtitle"] color "#cbd5e1" size 20 xalign 0.5 text_align 0.5
 
                 button:
                     xsize 540
@@ -415,7 +479,7 @@ screen gift_shop_screen():
                         yalign 0.5
                         text gift["name"] color "#ffffff" size 26 xminimum 390
                         text format_money(gift["cost"]) color "#f0a7bb" size 24 xminimum 95
-                        text "+%d progresso" % gift["love"] color "#89c7f5" size 24 xminimum 135
+                        text "+%d love" % gift["love"] color "#89c7f5" size 24 xminimum 135
                         text gift["line"] color "#cbd5e1" size 20
 
             textbutton _("Voltar") action Return("back") xalign 0.5
@@ -428,12 +492,15 @@ label change_pov(who, title=""):
     return
 
 label relationship_gate(gate_name, needed, hint):
-    if current_progress() < needed:
-        call screen gate_notice(_("Memória bloqueada"), needed, hint)
+    $ gate_person = other_pov()
+    $ gate_person_name = pov_data[gate_person]["name"]
 
-    while current_progress() < needed:
-        $ missing_love = needed - current_progress()
-        system_line "Ainda faltam [missing_love] pontos de progresso para esta memória fazer sentido."
+    if progress_for(gate_person) < needed:
+        call screen gate_notice(_("Memória bloqueada"), needed, hint, gate_person_name)
+
+    while progress_for(gate_person) < needed:
+        $ missing_love = needed - progress_for(gate_person)
+        system_line "Ainda faltam [missing_love] pontos de love com [gate_person_name] para esta memória fazer sentido."
         call free_time_phase(gate_name)
 
     return
@@ -474,21 +541,21 @@ label poli_interaction(stage="campus"):
     menu:
         "Resolver uma lista juntos":
             a "Se a gente dividir por questão, talvez dê tempo."
-            h "Ou a gente descobre que a lista tinha uma questão escondida no PDF."
+            h "Ou a gente descobre que a questão 4 depende da 7, que depende de uma epifania."
             show ana college annoyed
-            a "Não brinca com esse tipo de terror acadêmico."
-            $ add_love(4, "lista em dupla")
+            a "Não brinca com esse tipo de coisa."
+            $ add_partner_love(4, "lista em dupla")
             $ advance_time()
 
         "Fazer debug do EP":
             call minigame_debug_ep
 
-        "Tomar café e reclamar da graduação":
+        "Reclamar da graduação":
             show ana college happy
-            a "Reclamar em dupla aumenta a produtividade?"
+            a "Reclamar junto deixa tudo um pouco menos pior."
             show heitor college amused
-            h "Na Poli isso conta como método científico."
-            $ add_love(3, "café na Poli")
+            h "Na Poli isso quase conta como atividade complementar."
+            $ add_partner_love(3, "reclamação acadêmica")
             $ advance_time()
 
     return
@@ -509,19 +576,25 @@ label bandejao_interaction(stage="campus"):
             call minigame_bandejao
 
         "Almoço gratuito e conversa boa":
-            a "O prato é imprevisível, mas pelo menos a companhia tem patch notes bons."
-            h "Meu changelog de hoje inclui sentar perto de você."
-            show ana college embarrassed
-            a "Ridículo. Funcionou."
-            $ add_love(4, "almoço no bandejão")
+            if first_kiss_done:
+                a "O prato é imprevisível, mas pelo menos a companhia é boa."
+                h "Meu plano era sentar perto de você mesmo."
+                show ana college embarrassed
+                a "Ridículo. Funcionou."
+            else:
+                a "O prato é imprevisível, mas a conversa tá boa."
+                h "Então já foi melhor que a média."
+                show ana college happy
+                a "Tá, isso eu aceito."
+            $ add_partner_love(4, "almoço no bandejão")
             $ advance_time()
 
         "Debater o ranking dos bandejões":
             show ana college annoyed
-            a "Se você falar Física de novo eu vou abrir uma issue."
+            a "Se você falar Física de novo eu vou fingir que não ouvi."
             show heitor college amused
-            h "Issue aceita, prioridade baixa."
-            $ add_love(3, "debate gastronômico duvidoso")
+            h "Mas é perto e quase não tem fila."
+            $ add_partner_love(3, "debate gastronômico duvidoso")
             $ advance_time()
 
     return
@@ -543,19 +616,19 @@ label heitor_home_interaction(stage="home"):
             h "Você disse isso no episódio passado."
             show ana college embarrassed
             a "Hoje eu vou fingir com mais convicção."
-            $ add_love(5, "sofá e série")
+            $ add_partner_love(5, "sofá e série")
             $ advance_time()
 
         "Jogar alguma coisa":
             a "Eu aviso desde já que os controles são contra mim."
             h "Claro. O controle acordou e escolheu violência."
-            $ add_love(5, "jogo em dupla")
+            $ add_partner_love(5, "jogo em dupla")
             $ advance_time()
 
         "Cozinhar algo barato":
             h "A receita tem três passos."
             a "Então em algum momento vamos errar quatro."
-            $ add_love(4, "jantar improvisado")
+            $ add_partner_love(4, "jantar improvisado")
             $ advance_time()
 
     return
@@ -583,7 +656,7 @@ label gift_phase(stage="shop"):
 
     if bought_gift:
         $ inventory.append(gift_name)
-        $ add_love(gift_love, gift_name)
+        $ add_partner_love(gift_love, gift_name)
         $ advance_time()
         system_line "Você entregou: [gift_name]."
     else:
@@ -611,7 +684,9 @@ label money_phase(stage="money"):
 
         "Pegar uma janela de estágio":
             if "btg_shift" not in completed_memories:
-                $ complete_memory("btg_shift", love=2, money_reward=80)
+                $ completed_btg_shift = complete_memory("btg_shift", money_reward=80)
+                if completed_btg_shift:
+                    $ add_partner_love(2, "turno no BTG")
                 show ana college happy
                 a "Turno de verão no BTG concluído."
                 call whatsapp_btg_excerpt
@@ -619,7 +694,7 @@ label money_phase(stage="money"):
                 with dissolve
                 show ana college happy at pov_left
                 show heitor focused at other_right
-                h "Romance capitalizado."
+                h "Saldo emocional e financeiro atualizado."
                 show ana college annoyed
                 a "Não fala assim que parece relatório."
             else:
@@ -643,47 +718,49 @@ label mother_money_phase:
         a "Hipoteticamente, se uma pessoa precisasse investir na própria felicidade..."
         system_line "A mãe da Ana ouviu 'hipoteticamente' e já entendeu a planilha inteira."
         $ add_money(55, "mãe da Ana")
-        $ add_love(1, "logística familiar")
+        $ add_partner_love(1, "logística familiar")
         $ advance_time()
     else:
         scene bg desktop_code
         with fade
 
         show heitor thoughtful at pov_left
-        heitor_thought "Pedir dinheiro para a mãe da Ana parece uma feature com permissão negada."
+        heitor_thought "Pedir dinheiro para a mãe da Ana parece uma permissão que eu definitivamente não tenho."
         $ advance_time()
 
     return
 
 label minigame_bandejao:
-    $ score = 0
-
-    system_line "Mini-game: escolha uma estratégia para sobreviver ao bandejão."
+    system_line "Escolha uma estratégia para sobreviver ao bandejão."
 
     menu:
         "Fila menor":
-            $ score += 1
-        "Prato misterioso":
-            $ score += 0
-        "Sobremesa primeiro":
-            $ score += 2
+            show heitor college amused
+            h "Física. Perto, rápido e menos fila."
+            show ana college annoyed
+            a "O arroz tá duro. Tipo, muito duro."
+            if current_pov == "ana":
+                $ add_love(6, "Física sem fila", person="heitor")
+            else:
+                system_line "Ana registrou que eficiência e almoço bom continuam sendo métricas diferentes."
 
-    menu:
-        "Sentar perto da saída":
-            $ score += 1
-        "Sentar perto dela":
-            $ score += 2
-        "Sentar perto do ventilador duvidoso":
-            $ score += 0
+        "Prato mais gostoso":
+            show ana college super_happy
+            a "Central. Arroz soltinho, feijão decente e uma chance real de comida gostosa."
+            show heitor college serious
+            h "Uma hora de fila para três cubos de estrogonofe. A gente devia ter ido na Física."
+            if current_pov == "heitor":
+                $ add_love(6, "Central bem escolhida", person="ana")
+            else:
+                system_line "Heitor aceitou a comida boa, mas a fila ficou aberta em uma aba mental."
 
-    if score >= 3:
-        show ana college super_happy
-        a "Ok, isso foi surpreendentemente eficiente."
-        $ add_love(6, "bandejão speedrun")
-    else:
-        show ana college annoyed
-        a "A gente sobreviveu. Não foi bonito, mas foi acadêmico."
-        $ add_love(3, "bandejão sobrevivido")
+        "Sobremesa mais gostosa":
+            show ana college happy
+            a "Se a sobremesa for boa, eu perdoo muita coisa."
+            show heitor college amused
+            h "De fato, não posso negar."
+            $ add_love(2, "sobremesa estratégica", person="ana")
+            $ add_love(2, "sobremesa estratégica", person="heitor")
 
     $ advance_time()
     return
@@ -691,7 +768,7 @@ label minigame_bandejao:
 label minigame_debug_ep:
     $ score = 0
 
-    system_line "Mini-game: debug emocional do EP. Ache os bugs antes da madrugada."
+    system_line "Debug emocional do EP. Ache os bugs antes da madrugada."
 
     menu:
         "Quando o código não compila, você primeiro..."
@@ -719,14 +796,14 @@ label minigame_debug_ep:
 
     if score >= 3:
         show heitor gentle
-        h "Debug feito. Sem julgamento, com café."
+        h "Debug feito. Sem julgamento, com paciência."
         show ana college soft
         a "Esse é o melhor tipo."
-        $ add_love(7, "debug sem pânico")
+        $ add_partner_love(7, "debug sem pânico")
     else:
         show ana college thinking
-        a "O bug ficou, mas pelo menos a gente também."
-        $ add_love(3, "debug caótico")
+        a "Não resolveu tudo, mas pelo menos a gente tentou junto."
+        $ add_partner_love(3, "debug caótico")
 
     $ advance_time()
     return

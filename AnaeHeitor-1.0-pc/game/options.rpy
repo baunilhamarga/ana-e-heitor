@@ -25,6 +25,10 @@ define gui.show_name = True
 
 define config.version = "2.0-dev"
 
+# Enable Ren'Py developer shortcuts while this editable copy is in development.
+define config.developer = True
+define config.console = True
+
 
 ## Text that is placed on the game's about screen. Place the text between the
 ## triple-quotes, and leave a blank line between paragraphs.
