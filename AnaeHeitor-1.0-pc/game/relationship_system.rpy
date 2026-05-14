@@ -311,6 +311,26 @@ init python:
             return "#07132f72"
         return "#05071688"
 
+    def free_turn_overlay():
+        slot = time_slot()
+        if slot == "Manhã":
+            return "#fff2bd4f"
+        if slot == "Tarde":
+            return "#ff9f2a66"
+        if slot == "Noite":
+            return "#071a3aa8"
+        return "#030816dd"
+
+    def free_turn_room_filter():
+        slot = time_slot()
+        if slot == "Manhã":
+            return "#fff4c72f"
+        if slot == "Tarde":
+            return "#ff9b2f3c"
+        if slot == "Noite":
+            return "#06163358"
+        return "#03081670"
+
     def heitor_home_background():
         if time_slot() in ("Noite", "Madrugada"):
             return "bg ap_heitor_night"
@@ -320,6 +340,20 @@ init python:
         if time_slot() in ("Manhã", "Tarde"):
             return "bg ap_heitor_day"
         return "bg bedroom_night"
+
+    def free_turn_background():
+        if time_slot() == "Manhã":
+            return "bg ap_heitor_day"
+        if time_slot() == "Tarde":
+            return "bg ap_heitor_day"
+        if time_slot() == "Noite":
+            return "bg ap_heitor_night"
+        return "bg bedroom_night"
+
+    def show_free_turn_scene():
+        renpy.scene()
+        renpy.show(free_turn_background())
+        renpy.show("free_turn_room_filter", what=Solid(free_turn_room_filter()))
 
     def show_free_action_scene(bg_name):
         renpy.scene()
@@ -864,7 +898,7 @@ screen location_picker(stage, needed=0, target_person=None):
     default locked_location_id = None
     default locked_location_hint = ""
 
-    add Solid("#090d16ee")
+    add Solid(free_turn_overlay())
 
     frame:
         xalign 0.5
@@ -1050,7 +1084,10 @@ label free_time_phase(stage="campus", needed=0, target_person=None):
     $ keep_looping = True
 
     while keep_looping:
+        window hide
+        $ show_free_turn_scene()
         call screen location_picker(stage, needed, target_person)
+        window auto
         $ selected_location = _return
 
         if selected_location == "continue":
