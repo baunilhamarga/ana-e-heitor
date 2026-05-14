@@ -8,7 +8,11 @@ label whatsapp_raiox_excerpt:
     show ana home embarrassed at pov_left
     show heitor home neutral at other_right
 
-    wa_note "WhatsApp - 24/10/2023, madrugada"
+    wa_note "WhatsApp - madrugada"
+
+    wa_a "Olha como minha coluna é torta."
+
+    wa_a "Acho que eu tinha comentado com você hoje."
 
     wa_a "Oi, Heitoor, é a Ana."
 
@@ -27,10 +31,10 @@ label whatsapp_raiox_excerpt:
     wa_h "Parece muito severo mesmo. Ainda bem que melhorou."
 
     show ana home happy
-    a "Essa foi oficialmente a primeira conversa grande."
+    ana_thought "Essa foi oficialmente a primeira conversa grande."
 
     show ana home embarrassed
-    a "E por algum motivo ela começou com ortopedia, régua e um raio-x de madrugada."
+    ana_thought "E por algum motivo ela começou com ortopedia, régua e um raio-x de madrugada."
 
     return
 
@@ -56,10 +60,10 @@ label whatsapp_academic_excerpt:
     wa_h "A gente sempre se junta pra fazer Física, Ronaldo, Yoshi, estudar pras coisas. É divertido."
 
     show ana college annoyed
-    a "Repare que nesse ponto ele ainda achava EP divertido."
+    ana_thought "Repare que nesse ponto ele ainda achava EP divertido."
 
     show heitor college amused
-    h "Era antes de alguns enunciados cometerem crimes."
+    heitor_thought "Era antes de alguns enunciados cometerem crimes."
 
     return
 
@@ -70,11 +74,11 @@ label whatsapp_btg_excerpt:
     show ana college happy at pov_left
     show heitor college amused at other_right
 
-    wa_note "BTG, óculos quebrado e uma defesa frágil."
+    wa_note "Mais um politreco vendido para o BTG..."
 
     wa_a "Eu usando meus óculos sem a perninha. Tome."
 
-    wa_h "Ainda? Pegou do Solano?"
+    wa_h "Ainda?"
 
     wa_a "Sim. Como que eu ia lá hoje? Fiquei no BTG o dia todo."
 
@@ -85,7 +89,7 @@ label whatsapp_btg_excerpt:
     wa_a "Eu não faço questão de óculos, eu já falei. KKKK"
 
     show ana college embarrassed
-    a "Essa frase foi juridicamente fraca."
+    ana_thought "Pra que consertar se vou quebrar em menos de 1 dia de novo."
 
     return
 
@@ -166,7 +170,7 @@ label whatsapp_travel_paperwork_excerpt:
     wa_h "Também."
 
     show ana college annoyed
-    a "A parte menos romântica de amar alguém é descobrir que o amor também tem PDF, comprovante e prazo."
+    ana_thought "A parte menos romântica de amar alguém é descobrir que o amor também tem PDF, comprovante e prazo."
 
     return
 
@@ -200,9 +204,9 @@ label whatsapp_australia_excerpt:
     wa_h "Também. Bom dia."
 
     show ana home soft
-    a "Era sempre assim: boa noite de um lado, bom dia do outro."
+    ana_thought "Era sempre assim: boa noite de um lado, bom dia do outro."
 
     show heitor home soft_smile
-    h "E uma canjica superfaturada tentando fazer ponte entre os fusos."
+    heitor_thought "E uma canjica superfaturada tentando fazer ponte entre os fusos."
 
     return

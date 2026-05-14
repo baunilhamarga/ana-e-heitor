@@ -2,6 +2,8 @@
 # Dialog remains in Brazilian Portuguese; code names stay in English for future maintenance.
 
 label post_australia_route:
+    $ career_phase = "virtualisurg_frontend"
+    $ set_love_cap_stage("post_australia")
     call whatsapp_mosaic_intro
     call australia_distance_arc
     call france_departure_arc
@@ -68,6 +70,7 @@ label whatsapp_mosaic_intro:
     return
 
 label australia_distance_arc:
+    $ set_love_cap_stage("post_australia")
     call change_pov("heitor", "Austrália: fuso, saudade e Wi-Fi")
 
     scene bg airport
@@ -82,9 +85,9 @@ label australia_distance_arc:
 
     show heitor focused at pov_left
 
-    h "A Austrália era longe de um jeito quase ofensivo."
+    heitor_thought "A Austrália era longe de um jeito quase ofensivo."
 
-    h "Quando eu acordava, ela às vezes estava dormindo. Quando ela tinha tempo, eu estava tentando não parecer um zumbi no estágio."
+    heitor_thought "Quando eu acordava, ela às vezes estava dormindo. Quando ela tinha tempo, eu estava tentando não parecer um zumbi no estágio."
 
     heitor_thought "Engenharia de computação tinha me preparado para muita coisa. Menos para calcular saudade com fuso horário."
 
@@ -117,15 +120,15 @@ label australia_distance_arc:
 
     show ana home neutral at pov_left
 
-    a "Eu fingia que estava tudo sob controle."
+    ana_thought "Eu fingia que estava tudo sob controle."
 
     show ana home sad
-    a "Não estava."
+    ana_thought "Não estava."
 
-    a "Eu olhava o relógio do celular como se ele fosse mudar de ideia e aproximar a Austrália."
+    ana_thought "Eu olhava o relógio do celular como se ele fosse mudar de ideia e aproximar a Austrália."
 
     show ana home embarrassed
-    a "Spoiler: o relógio é muito pouco colaborativo."
+    ana_thought "Spoiler: o relógio é muito pouco colaborativo."
 
     show heitor home soft_smile at other_right
 
@@ -139,15 +142,16 @@ label australia_distance_arc:
     show ana home soft
     a "Obrigada."
 
-    a "A distância doeu, mas também deixou uma coisa ridiculamente clara."
+    ana_thought "A distância doeu, mas também deixou uma coisa ridiculamente clara."
 
-    a "A gente não dependia de estar no mesmo lugar para continuar escolhendo a mesma pessoa."
+    ana_thought "A gente não dependia de estar no mesmo lugar para continuar escolhendo a mesma pessoa."
 
     $ add_love(8, "três meses de distância")
     call free_time_phase("distancia_australia")
     return
 
 label france_departure_arc:
+    $ set_love_cap_stage("france_departure")
     call change_pov("ana", "França: o segundo grande aeroporto")
 
     scene bg ap_heitor_day
@@ -156,10 +160,10 @@ label france_departure_arc:
     show ana home neutral at pov_left
     show heitor home soft_smile at other_right
 
-    a "Depois da Austrália eu achei que aeroportos já tinham gastado toda a capacidade dramática."
+    ana_thought "Depois da Austrália eu achei que aeroportos já tinham gastado toda a capacidade dramática."
 
     show ana home serious
-    a "A França discordou."
+    ana_thought "A França discordou."
 
     h "É o duplo diploma."
 
@@ -178,7 +182,7 @@ label france_departure_arc:
     show heitor home soft_smile at other_right
 
     show ana home serious
-    a "O problema é que saber não diminui a mala."
+    ana_thought "O problema é que saber não diminui a mala."
 
     call change_pov("heitor", "Checklist do duplo diploma")
 
@@ -207,7 +211,7 @@ label france_departure_arc:
 
     show ana home sad at pov_left
 
-    a "Eu queria ser adulta, elegante e perfeitamente compreensiva."
+    ana_thought "Eu queria ser adulta, elegante e perfeitamente compreensiva."
 
     ana_thought "Consegui aproximadamente uma dessas coisas por três minutos."
 
@@ -268,9 +272,11 @@ label france_departure_arc:
     h "Principalmente longe."
 
     $ add_love(10, "França e duplo diploma")
+    $ career_phase = "virtualisurg_xr"
     return
 
 label birthday_finale:
+    $ set_love_cap_stage("birthday_finale")
     call change_pov("heitor", "Presente de aniversário")
 
     scene bg ap_heitor_night
