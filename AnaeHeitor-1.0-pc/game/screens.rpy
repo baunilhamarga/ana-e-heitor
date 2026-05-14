@@ -299,38 +299,38 @@ screen navigation():
 
         if main_menu:
 
-            textbutton _("Start") action Start()
+            textbutton _("Iniciar") action Start()
 
         else:
 
-            textbutton _("History") action ShowMenu("history")
+            textbutton _("Histórico") action ShowMenu("history")
 
-            textbutton _("Save") action ShowMenu("save")
+            textbutton _("Salvar") action ShowMenu("save")
 
-        textbutton _("Load") action ShowMenu("load")
+        textbutton _("Carregar") action ShowMenu("load")
 
-        textbutton _("Preferences") action ShowMenu("preferences")
+        textbutton _("Preferências") action ShowMenu("preferences")
 
         if _in_replay:
 
-            textbutton _("End Replay") action EndReplay(confirm=True)
+            textbutton _("Encerrar replay") action EndReplay(confirm=True)
 
         elif not main_menu:
 
-            textbutton _("Main Menu") action MainMenu()
+            textbutton _("Menu principal") action MainMenu()
 
-        textbutton _("About") action ShowMenu("about")
+        textbutton _("Sobre") action ShowMenu("about")
 
         if renpy.variant("pc") or (renpy.variant("web") and not renpy.variant("mobile")):
 
             ## Help isn't necessary or relevant to mobile devices.
-            textbutton _("Help") action ShowMenu("help")
+            textbutton _("Ajuda") action ShowMenu("help")
 
         if renpy.variant("pc"):
 
             ## The quit button is banned on iOS and unnecessary on Android and
             ## Web.
-            textbutton _("Quit") action Quit(confirm=not main_menu)
+            textbutton _("Sair") action Quit(confirm=not main_menu)
 
 
 style navigation_button is gui_button
@@ -482,7 +482,7 @@ screen game_menu(title, scroll=None, yinitial=0.0, spacing=0):
 
     use navigation
 
-    textbutton _("Return"):
+    textbutton _("Voltar"):
         style "return_button"
 
         action Return()
