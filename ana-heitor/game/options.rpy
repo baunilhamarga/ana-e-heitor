@@ -124,6 +124,11 @@ define config.window_hide_transition = Dissolve(.2)
 
 ## Preference defaults #########################################################
 
+## Start in fullscreen on a fresh install. Saved player preferences still win
+## after the first launch.
+
+define config.default_fullscreen = True
+
 ## Controls the default text speed. The default, 0, is infinite, while any other
 ## number is the number of characters per second to type out.
 
