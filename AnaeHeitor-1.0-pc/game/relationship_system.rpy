@@ -328,7 +328,7 @@ init python:
         {"name": "Austrália", "label": "despedida_aeroporto"},
         {"name": "Distância da Austrália", "label": "australia_distance_arc"},
         {"name": "França", "label": "france_departure_arc"},
-        {"name": "Final de aniversário", "label": "birthday_finale"},
+        {"name": "Feliz aniversário", "label": "birthday_finale"},
     ]
 
     endgame_state_data = [
@@ -373,6 +373,69 @@ init python:
             "stage": "france_departure",
             "country": "🇫🇷 França",
             "career": "virtualisurg_xr",
+        },
+    ]
+
+    achievement_data = [
+        {
+            "id": "first_kiss",
+            "name": "Primeiro beijo",
+            "description": "Chegou ao ponto de ônibus que mudou tudo.",
+        },
+        {
+            "id": "dating_started",
+            "name": "Agora é oficial",
+            "description": "Aceitou o pedido de namoro.",
+        },
+        {
+            "id": "first_love",
+            "name": "Eu te amo",
+            "description": "Chegou ao primeiro eu te amo.",
+        },
+        {
+            "id": "australia_departure",
+            "name": "Fuso horário desbloqueado",
+            "description": "Passou pela despedida da Austrália.",
+        },
+        {
+            "id": "birthday_complete",
+            "name": "História concluída",
+            "description": "Viu o presente de aniversário até o final.",
+        },
+        {
+            "id": "earrings_bought",
+            "name": "Dinheiro a gente faz",
+            "description": "Comprou os brincos do pedido.",
+        },
+        {
+            "id": "aline_limit",
+            "name": "Tá passando fome?",
+            "description": "Pediu dinheiro para a nanãe vezes demais no mesmo dia.",
+        },
+        {
+            "id": "photo_gift",
+            "name": "Capricho com fotos",
+            "description": "Fez um presente com mosaico de fotos.",
+        },
+        {
+            "id": "photo_gift_hard",
+            "name": "Capricho máximo",
+            "description": "Completou o mosaico difícil.",
+        },
+        {
+            "id": "propaganda_seen",
+            "name": "Propaganda desbloqueada",
+            "description": "Jogou Jorge e Mateus no minigame de ritmo.",
+        },
+        {
+            "id": "all_rhythm_songs",
+            "name": "DJ da relação",
+            "description": "Desbloqueou todas as músicas do minigame de ritmo.",
+        },
+        {
+            "id": "endgame_mode",
+            "name": "Pós-jogo infinito",
+            "description": "Entrou no modo Dia a dia infinito.",
         },
     ]
 
@@ -835,6 +898,36 @@ init python:
         plain = py_re.sub(r"\{[^}]+\}", "", message)
         return min(9.0, max(4.75, 3.25 + (len(plain) / 28.0)))
 
+    def ensure_achievement_store():
+        if not hasattr(persistent, "achievements") or persistent.achievements is None:
+            persistent.achievements = {}
+        return persistent.achievements
+
+    def achievement_by_id(achievement_id):
+        for achievement in achievement_data:
+            if achievement["id"] == achievement_id:
+                return achievement
+        return None
+
+    def achievement_unlocked(achievement_id):
+        return bool(ensure_achievement_store().get(achievement_id))
+
+    def unlock_achievement(achievement_id):
+        store = ensure_achievement_store()
+        if store.get(achievement_id):
+            return False
+        achievement = achievement_by_id(achievement_id)
+        if achievement is None:
+            return False
+        store[achievement_id] = True
+        renpy.save_persistent()
+        queue_notification("{color=#f5c84b}🏆 Conquista desbloqueada: %s{/color}" % achievement["name"], duration=7.5)
+        return True
+
+    def unlocked_achievement_count():
+        store = ensure_achievement_store()
+        return sum(1 for achievement in achievement_data if store.get(achievement["id"]))
+
     def queue_notification(message, duration=None):
         global notification_sequence
         if duration is None:
@@ -1213,6 +1306,10 @@ init python:
         except ValueError:
             return
         rhythm_unlocked_song_index = max(rhythm_unlocked_song_index, min(index + 1, len(rhythm_song_order) - 1))
+        if track_id == "propaganda":
+            unlock_achievement("propaganda_seen")
+        if rhythm_unlocked_song_index >= len(rhythm_song_order) - 1:
+            unlock_achievement("all_rhythm_songs")
 
     def rhythm_song_entries():
         entries = []
@@ -1454,9 +1551,9 @@ screen relationship_hud():
             spacing 18
             yalign 0.5
 
-            text "[pov_name()]" color pov_color() size 24 layout "nobreak"
-            text "[day_status_text()]" color "#f6f7fb" size 24 layout "nobreak"
-            text "[time_slot_icon()] [time_slot()]" color "#f6f7fb" size 24 layout "nobreak"
+            text "[pov_name()]" color pov_color() size 24 layout "nobreak" yalign 0.5
+            text "[day_status_text()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
+            text "[time_slot_icon()] [time_slot()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
 
             hbox:
                 spacing 10
@@ -1465,8 +1562,18 @@ screen relationship_hud():
                 bar value StaticValue(current_progress(), progress_max) xsize 220 ysize 14 left_bar Solid(pov_color()) right_bar Solid(pov_dark()) yalign 0.5
                 text "[current_progress()]/[progress_max]" color "#f6f7fb" size 18 layout "nobreak" yalign 0.5
 
-            text "💵 [current_money_text()]" color "#f6f7fb" size 22 layout "nobreak"
-            text "[current_country_label]" color "#f6f7fb" size 24 layout "nobreak"
+            text "💵 [current_money_text()]" color "#f6f7fb" size 22 layout "nobreak" yalign 0.5
+            text "[current_country_label]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
+            textbutton "🏆":
+                yalign 0.5
+                ysize 30
+                text_size 22
+                text_color "#f5c84b"
+                text_hover_color "#ffe08a"
+                text_yalign 0.5
+                background None
+                hover_background Solid("#f5c84b22")
+                action Show("achievement_list_screen")
 
 screen notification_stack():
     zorder 130
@@ -1493,6 +1600,55 @@ screen notification_stack():
                         layout "nobreak"
                         text_align 1.0
                         xalign 1.0
+
+screen achievement_list_screen():
+    modal True
+    zorder 140
+
+    add Solid("#080c14e8")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 1040
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 18
+
+            hbox:
+                spacing 18
+                xalign 0.5
+                text "🏆 Conquistas" color "#f5c84b" size 44
+                text "%d/%d" % (unlocked_achievement_count(), len(achievement_data)) color "#f6f7fb" size 28 yalign 0.5
+
+            viewport:
+                xmaximum 930
+                ymaximum 620
+                scrollbars "vertical"
+                mousewheel True
+
+                vbox:
+                    spacing 10
+
+                    for achievement in achievement_data:
+                        $ unlocked = achievement_unlocked(achievement["id"])
+                        frame:
+                            xfill True
+                            background Solid("#26324a" if unlocked else "#1c2435")
+                            padding (18, 14)
+
+                            hbox:
+                                spacing 16
+                                yalign 0.5
+                                text ("🏆" if unlocked else "🔒") color ("#f5c84b" if unlocked else "#7f8797") size 30 yalign 0.5
+                                vbox:
+                                    spacing 4
+                                    text (achievement["name"] if unlocked else "???") color ("#ffffff" if unlocked else "#7f8797") size 25
+                                    text achievement["description"] color ("#cfd7e6" if unlocked else "#8a93a5") size 19
+
+            textbutton _("Fechar") action Hide("achievement_list_screen") xalign 0.5
 
 screen pov_card(who, title=""):
     zorder 120
@@ -2206,6 +2362,7 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
 label endgame_loop:
     $ endgame_mode = True
     $ endgame_replay_mode = False
+    $ unlock_achievement("endgame_mode")
     $ special_day_label = "🏆 Pós-jogo"
     $ first_kiss_done = True
     $ dating_started = True
@@ -2654,6 +2811,8 @@ label gift_phase(stage="shop"):
         $ inventory.append(gift_name)
         if gift_id not in purchased_gifts:
             $ purchased_gifts.append(gift_id)
+        if gift_id == "earrings":
+            $ unlock_achievement("earrings_bought")
         $ add_partner_love(gift_love, gift_name)
         $ advance_free_time(stage)
         if ana_distance_day(stage) and gift_id == "sushi_date":
@@ -2730,6 +2889,9 @@ label photo_gift_phase(stage="shop", gift=None):
 
     hide completed_photo
     $ photo_gift_completed = True
+    $ unlock_achievement("photo_gift")
+    if difficulty_id == "dificil":
+        $ unlock_achievement("photo_gift_hard")
     $ inventory.append(gift_name)
     $ add_partner_love(final_reward, gift_name)
     $ advance_free_time(stage, 2)
@@ -2851,6 +3013,7 @@ label mother_money_phase(stage="money"):
         a "Manda dinheiro pro iFoods, por favor?"
 
         if mother_money_requests_today >= 3:
+            $ unlock_achievement("aline_limit")
             system_line "Aline: Que isso Ana, ta passando fome?"
             system_line "Dessa vez o pix não veio. Talvez seja melhor esperar amanhã."
         else:

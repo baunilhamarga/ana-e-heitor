@@ -946,6 +946,7 @@ label mensagem_onibus:
 
 label primeiro_beijo:
     $ first_kiss_done = True
+    $ unlock_achievement("first_kiss")
 
     pause 1.5
 
@@ -1289,6 +1290,7 @@ label pedido_namoro:
 label aceita_namoro:
 
     $ dating_started = True
+    $ unlock_achievement("dating_started")
 
     call quick_change_pov("heitor")
     show heitor nervous
@@ -1462,6 +1464,7 @@ label primeiro_eu_te_amo:
 
     $ set_love_cap_stage("australia")
     $ add_love(12, "primeiro eu te amo")
+    $ unlock_achievement("first_love")
     if endgame_replay_mode:
         return
 
@@ -1866,6 +1869,7 @@ label despedida_aeroporto:
     $ career_phase = "virtualisurg_frontend"
     $ current_country_label = "🇦🇺 Austrália"
     $ add_love(8, "promessa no aeroporto")
+    $ unlock_achievement("australia_departure")
     if endgame_replay_mode:
         return
     jump post_australia_route

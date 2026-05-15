@@ -374,6 +374,7 @@ label birthday_finale:
     scene black
     with fade
 
+    $ unlock_achievement("birthday_complete")
     system_line "A vida continua."
 
     $ special_day_label = ""
