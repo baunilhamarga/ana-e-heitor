@@ -957,6 +957,12 @@ init python:
             new_pieces[blank], new_pieces[index] = new_pieces[index], new_pieces[blank]
         return new_pieces
 
+    def puzzle_move_in_place(pieces, index, size):
+        blank = pieces.index(len(pieces) - 1)
+        if puzzle_adjacent(index, blank, size):
+            pieces[blank], pieces[index] = pieces[index], pieces[blank]
+        return None
+
     def puzzle_solved(pieces):
         return pieces == list(range(len(pieces)))
 
@@ -986,6 +992,17 @@ init python:
         tile_h = layout["tile_height"]
         row, col = divmod(piece, size)
         return im.Crop(im.FactorScale(photo, layout["scale"]), (col * tile_w, row * tile_h, tile_w, tile_h))
+
+    def photo_puzzle_piece_displays(photo, size):
+        layout = photo_puzzle_layout(photo, size)
+        tile_w = layout["tile_width"]
+        tile_h = layout["tile_height"]
+        scaled_photo = im.FactorScale(photo, layout["scale"])
+        pieces = []
+        for piece in range(size * size):
+            row, col = divmod(piece, size)
+            pieces.append(im.Crop(scaled_photo, (col * tile_w, row * tile_h, tile_w, tile_h)))
+        return pieces
 
     def read_renpy_text(path):
         data = renpy.file(path).read()
@@ -1677,7 +1694,7 @@ screen photo_gift_difficulty_screen():
 
             textbutton _("Voltar") action Return("back") xalign 0.5
 
-screen sliding_photo_puzzle(photo, pieces, size, difficulty_name):
+screen sliding_photo_puzzle(photo, pieces, size, difficulty_name, piece_displays):
     modal True
     zorder 120
 
@@ -1714,9 +1731,9 @@ screen sliding_photo_puzzle(photo, pieces, size, difficulty_name):
                             xysize (tile_width, tile_height)
                             background Solid("#0d1117")
                             hover_background Solid("#1f6feb44")
-                            action Return(("move", index))
+                            action [Function(puzzle_move_in_place, pieces, index, size), Function(renpy.restart_interaction)]
 
-                            add puzzle_piece_display(photo, piece, size) xysize (tile_width, tile_height)
+                            add piece_displays[piece] xysize (tile_width, tile_height)
 
             hbox:
                 spacing 18
@@ -2193,18 +2210,16 @@ label photo_gift_phase(stage="shop", gift=None):
     $ puzzle_reward = difficulty["reward"]
     $ difficulty_name = difficulty["name"]
     $ puzzle_pieces = shuffled_photo_puzzle(puzzle_size, difficulty["moves"])
+    $ puzzle_piece_displays = photo_puzzle_piece_displays(photo_path, puzzle_size)
     $ skipped_puzzle = False
 
     system_line "Você separa as fotos, tenta fazer um mosaico bonito e descobre que romantismo também tem complexidade combinatória."
 
-    while not puzzle_solved(puzzle_pieces):
-        call screen sliding_photo_puzzle(photo_path, puzzle_pieces, puzzle_size, difficulty_name)
-        $ puzzle_action, puzzle_index = _return
-        if puzzle_action == "skip":
-            $ skipped_puzzle = True
-            $ puzzle_pieces = list(range(puzzle_size * puzzle_size))
-        elif puzzle_action == "move":
-            $ puzzle_pieces = puzzle_move(puzzle_pieces, puzzle_index, puzzle_size)
+    call screen sliding_photo_puzzle(photo_path, puzzle_pieces, puzzle_size, difficulty_name, puzzle_piece_displays)
+    $ puzzle_action, puzzle_index = _return
+    if puzzle_action == "skip":
+        $ skipped_puzzle = True
+        $ puzzle_pieces = list(range(puzzle_size * puzzle_size))
 
     scene black
     show expression scaled_photo_display(photo_path, puzzle_size) as completed_photo at truecenter
