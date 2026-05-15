@@ -141,7 +141,7 @@ label whatsapp_te_amo_excerpt:
     wa_a "KKKKK, meu Deus. Esqueci que você tinha que treinar."
 
     show heitor home amused
-    h "Romance universitário: declaração, banho, treino e erro de arredondamento."
+    h "Treino, estudo, pesquisa... e até uns beijinhos! Vida fácil!"
 
     show ana home happy
     a "Funciona porque é nosso."
