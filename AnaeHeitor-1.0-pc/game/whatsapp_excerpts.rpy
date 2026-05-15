@@ -185,7 +185,7 @@ label whatsapp_australia_excerpt:
     show heitor home soft_smile at pov_left
     show ana home sad at other_right
 
-    wa_note "Austrália --- Brasil"
+    wa_note "Austrália -------------------------------------- Brasil\nMucho longe..."
 
     wa_a "Eu fico com saudade todo dia."
 

@@ -122,6 +122,7 @@ image bg hamburgueria = im.Scale("bg hamburgueria.png", 1920, 1080)
 # The game starts here.
 label start:
 
+    $ play_bgm("heitor_default")
     $ current_pov = "heitor"
     $ heitor_progress = 0
     $ ana_progress = 30
@@ -400,6 +401,7 @@ label start:
 
 label raio_x:
 
+    $ play_bgm("ana_default")
     scene bg bedroom_night
     with fade
 
@@ -499,6 +501,7 @@ label mensagem_normal:
 
 label picles:
 
+    $ play_bgm("date_fun")
     scene bg party
     with fade
 
@@ -683,6 +686,7 @@ label picles:
 
 label ep_yoshi:
 
+    $ play_bgm("study_debug")
     scene bg ap_heitor_day
     with fade
 
@@ -785,6 +789,7 @@ label ep_yoshi:
 
     pause 2.0
 
+    $ duck_music()
     show ana college sad
 
     ana_thought "Mas nada aconteceu."
@@ -799,11 +804,13 @@ label ep_yoshi:
     ana_thought "Eu fui embora e me esqueci desse assunto. Nada nunca aconteceria entre a gente."
 
     hide ana
+    $ restore_music()
 
     jump mensagem_onibus
 
 label mensagem_onibus:
 
+    $ play_bgm("ana_sad")
     scene bg bus
     with fade
 
@@ -946,7 +953,7 @@ label mensagem_onibus:
 
 label primeiro_beijo:
     $ first_kiss_done = True
-    $ unlock_achievement("first_kiss")
+    $ play_bgm("romance_soft")
 
     pause 1.5
 
@@ -1120,6 +1127,7 @@ label primeiro_beijo:
     $ set_love_cap_stage("pedido_namoro")
     $ add_love(10, "primeiro beijo")
     $ add_love(24, "primeiro beijo", person="heitor")
+    $ unlock_achievement("first_kiss")
     if endgame_replay_mode:
         return
     call change_pov("heitor", "Preparando o pedido")
@@ -1129,6 +1137,7 @@ label primeiro_beijo:
 
 label pedido_namoro:
     $ current_pov = "heitor"
+    $ play_bgm("choice_tension")
 
     scene bg hamburgueria
     with fade
@@ -1255,6 +1264,7 @@ label pedido_namoro:
     show ana college super_happy at pov_left
     show heitor nervous at other_right
 
+    $ duck_music()
     menu:
         "Eu já estava esperando isso.":
 
@@ -1289,8 +1299,9 @@ label pedido_namoro:
 
 label aceita_namoro:
 
+    $ restore_music()
     $ dating_started = True
-    $ unlock_achievement("dating_started")
+    $ play_bgm("romance_soft")
 
     call quick_change_pov("heitor")
     show heitor nervous
@@ -1332,6 +1343,7 @@ label aceita_namoro:
     scene black
     with fade
 
+    $ duck_music()
     show ana college super_happy at pov_left
 
     pause 1.5
@@ -1342,8 +1354,10 @@ label aceita_namoro:
 
     hide ana
 
+    $ restore_music()
     $ set_love_cap_stage("primeiro_eu_te_amo")
     $ add_love(12, "pedido de namoro")
+    $ unlock_achievement("dating_started")
     if endgame_replay_mode:
         return
     call change_pov("ana", "Namoro oficial")
@@ -1353,6 +1367,7 @@ label aceita_namoro:
 
 label primeiro_eu_te_amo:
 
+    $ play_bgm("romance_soft")
     scene bg ap_heitor_night
     with fade
 
@@ -1375,6 +1390,7 @@ label primeiro_eu_te_amo:
 
     pause 0.8
 
+    $ duck_music()
     ana_thought "Eu comecei a pensar."
 
     pause 1.0
@@ -1387,6 +1403,7 @@ label primeiro_eu_te_amo:
 
     pause 0.8
 
+    $ restore_music()
     h "O que foi?"
 
     pause 1.2
@@ -1421,6 +1438,7 @@ label primeiro_eu_te_amo:
 
     h "Porque eu também te amo."
 
+    $ restore_music()
     pause 3.5
 
     show ana college super_happy
@@ -1450,6 +1468,7 @@ label primeiro_eu_te_amo:
 
     pause 1.5
 
+    $ duck_music()
     ana_thought "Não era cedo."
 
     pause 1.2
@@ -1458,6 +1477,7 @@ label primeiro_eu_te_amo:
 
     pause 2.0
 
+    $ restore_music()
     call whatsapp_te_amo_excerpt
 
     hide ana
@@ -1472,6 +1492,7 @@ label primeiro_eu_te_amo:
 
 label ano_feliz:
 
+    $ play_bgm("funny_win")
     scene black
     with fade
 
@@ -1530,6 +1551,7 @@ label ano_feliz:
 label jogar_juntos:
 
     $ complete_memory("jogar_juntos", love=5)
+    $ play_bgm("date_fun")
 
     scene bg sala_game
     with fade
@@ -1563,6 +1585,7 @@ label jogar_juntos:
 label ver_series:
 
     $ complete_memory("ver_series", love=5)
+    $ play_bgm("daily_light")
 
     scene bg sofa_series
     with fade
@@ -1594,6 +1617,7 @@ label ver_series:
 label jantar_sushi:
 
     $ complete_memory("jantar_sushi", love=6)
+    $ play_bgm("romance_soft")
 
     scene bg sushi
     with fade
@@ -1619,6 +1643,7 @@ label jantar_sushi:
 label visitar_familia:
 
     $ complete_memory("visitar_familia", love=7)
+    $ play_bgm("daily_light")
 
     menu:
         "Minas":
@@ -1645,6 +1670,7 @@ label visitar_familia:
 label festa_formatura:
 
     $ complete_memory("festa_formatura", love=7)
+    $ play_bgm("funny_win")
 
     scene bg festa
     with fade
@@ -1670,6 +1696,7 @@ label festa_formatura:
 label preparando_mala:
 
     call change_pov("heitor", "A mala para a Austrália")
+    $ play_bgm("ana_sad")
 
     scene bg ap_heitor_day
     with fade
@@ -1744,6 +1771,7 @@ label preparando_mala:
 label despedida_aeroporto:
 
     call change_pov("ana", "Aeroporto: modo coração apertado")
+    $ play_bgm("airport_tension")
     $ current_country_label = "🇧🇷 Brasil"
 
     scene bg airport
@@ -1856,6 +1884,7 @@ label despedida_aeroporto:
     scene black
     with fade
 
+    $ duck_music()
     show ana home sad at pov_left
 
     ana_thought "Acho que meu coração nunca sofreu tanto na vida."
@@ -1865,6 +1894,7 @@ label despedida_aeroporto:
 
     pause 2.0
 
+    $ restore_music()
     $ set_love_cap_stage("post_australia")
     $ career_phase = "virtualisurg_frontend"
     $ current_country_label = "🇦🇺 Austrália"

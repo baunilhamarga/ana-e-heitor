@@ -12,8 +12,9 @@ label post_australia_route:
 
 label whatsapp_mosaic_intro:
     $ special_day_label = "📅 Presente"
-    $ current_country_label = "🇫🇷 França"
+    $ current_country_label = "🇧🇷 Brasil"
     call change_pov("heitor", "Continuando a história")
+    $ play_bgm("heitor_default")
 
     scene bg desktop_code
     with fade
@@ -21,7 +22,9 @@ label whatsapp_mosaic_intro:
     show heitor focused at pov_left
     show ana college thinking at other_right
 
-    h "Eu abri nosso histórico do WhatsApp."
+    h "Não sei se você lembrava, mas nossa história acabava aqui no jogo anterior."
+
+    h "Então eu reabri nosso histórico do WhatsApp."
 
     show ana college surprised
     a "Você fez o quê?"
@@ -65,7 +68,7 @@ label whatsapp_mosaic_intro:
     show ana college soft at other_right
 
     show ana college soft
-    a "Então você vai usar mensagem real?"
+    a "Então você vai usar mensagens reais?"
 
     h "Sim, mas só alguns trechos. Não tem mais graça assim?"
 
@@ -80,6 +83,7 @@ label australia_distance_arc:
     $ set_love_cap_stage("post_australia")
     $ current_country_label = "🇦🇺 Austrália"
     call change_pov("heitor", "Austrália: fuso e saudade")
+    $ play_bgm("distance_sad")
 
     scene bg airport
     with fade
@@ -95,9 +99,11 @@ label australia_distance_arc:
 
     heitor_thought "A Austrália era longe de um jeito quase ofensivo."
 
+    $ duck_music()
     heitor_thought "Quando eu acordava, ela às vezes estava dormindo. Quando ela tinha tempo, eu estava tentando não parecer um zumbi no estágio."
 
     heitor_thought "A vida tinha me preparado para muita coisa. Menos para saudade."
+    $ restore_music()
 
     call whatsapp_australia_excerpt
 
@@ -123,6 +129,7 @@ label australia_distance_arc:
 
     call change_pov("ana", "Brasil: saudade em horário local")
     $ current_country_label = "🇧🇷 Brasil"
+    $ play_bgm("ana_sad")
 
     scene bg bedroom_night
     with fade
@@ -163,8 +170,9 @@ label australia_distance_arc:
 
 label france_departure_arc:
     $ set_love_cap_stage("france_departure")
-    $ current_country_label = "🇧🇷 Brasil"
+    $ current_country_label = "🇫🇷 França"
     call change_pov("ana", "França: o segundo grande aeroporto")
+    $ play_bgm("distance_sad")
 
     scene bg ap_heitor_day
     with fade
@@ -194,9 +202,12 @@ label france_departure_arc:
     show heitor home soft_smile at other_right
 
     show ana home serious
+    $ duck_music()
     ana_thought "O problema é saber que é tão pouco tempo comigo e ele já vai."
+    $ restore_music()
 
     call change_pov("heitor", "Checklist do duplo diploma")
+    $ play_bgm("study_debug")
 
     scene bg desktop_code
     with dissolve
@@ -205,9 +216,11 @@ label france_departure_arc:
 
     heitor_thought "Documentos. Passaporte. Adaptador. Casaco. Coragem."
 
+    $ duck_music()
     heitor_thought "Saudade."
 
     heitor_thought "Essa não tem como esquecer, vem de qualquer forma."
+    $ restore_music()
 
     show ana home soft at other_right
 
@@ -219,6 +232,7 @@ label france_departure_arc:
     a "Ha-ha Para."
 
     call change_pov("ana", "Última noite antes da França")
+    $ play_bgm("ana_sad")
 
     scene bg bedroom_night
     with fade
@@ -240,6 +254,7 @@ label france_departure_arc:
     h "Eu sinto muito."
 
     call change_pov("heitor", "Última chamada")
+    $ play_bgm("airport_tension")
 
     scene bg airport
     with fade
@@ -247,13 +262,16 @@ label france_departure_arc:
     show heitor home serious at pov_left
     show ana home sad at other_right
 
+    $ duck_music()
     heitor_thought "Eu queria dizer a frase perfeita. Uma frase que coubesse tudo: orgulho, medo, plano, amor."
 
     heitor_thought "Obviamente eu pensei em branco."
+    $ restore_music()
 
     h "Eu volto."
 
     call change_pov("ana", "Última resposta")
+    $ play_bgm("romance_soft")
 
     scene bg airport
     with dissolve
@@ -291,6 +309,7 @@ label birthday_finale:
     $ special_day_label = "📅 Presente"
     $ current_country_label = "🇫🇷 França"
     call change_pov("heitor", "Presente de aniversário")
+    $ play_bgm("birthday")
 
     scene bg ap_heitor_night
     with fade

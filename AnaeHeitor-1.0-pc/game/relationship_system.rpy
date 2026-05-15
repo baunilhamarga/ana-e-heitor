@@ -32,6 +32,7 @@ default completed_memories = []
 default inventory = []
 default purchased_gifts = []
 default photo_gift_completed = False
+default photo_gift_completion_count = 0
 default mother_money_day = 0
 default mother_money_requests_today = 0
 default rhythm_play_count = 0
@@ -121,6 +122,26 @@ init python:
             "sm": "ddr/sosseguei.sm",
             "duration": 197.695,
         },
+    }
+
+    bgm_tracks = {
+        "heitor_default": "audio/pwaa/13. Initial Investigation 2001.mp3",
+        "ana_default": "audio/pwaa/14. Maya Fey - Turnabout Sisters 2001.mp3",
+        "daily_light": "audio/pwaa/19. Simple Folk.mp3",
+        "date_fun": "audio/pwaa/19. Simple Folk.mp3",
+        "game_fun": "audio/pwaa/31. The Blue Badger - I Want to Protect You.mp3",
+        "study_debug": "audio/pwaa/05. Tricks and Deductions.mp3",
+        "work_money": "audio/pwaa/06. Phoenix Wright - Objection! 2001.mp3",
+        "choice_tension": "audio/pwaa/04. Cross-Examination - Moderato 2001.mp3",
+        "playful_push": "audio/pwaa/07. Cross-Examination - Allegro 2001.mp3",
+        "funny_win": "audio/pwaa/25. Victory! - Our First Win.mp3",
+        "romance_soft": "audio/pwaa/27. The Ballad of Turnabout Sisters.mp3",
+        "ana_sad": "audio/pwaa/17. Reminiscences - Maya's Sorrow.mp3",
+        "distance_sad": "audio/pwaa/22. Reminiscences - The DL-6 Incident.mp3",
+        "airport_tension": "audio/pwaa/10. Suspense.mp3",
+        "big_transition": "audio/pwaa/26. Phoenix Wright_ Ace Attorney - Ending.mp3",
+        "birthday": "audio/pwaa/27. The Ballad of Turnabout Sisters.mp3",
+        "endgame": "audio/pwaa/30. Ema Skye - Turnabout Sisters 2005.mp3",
     }
 
     time_slots = ["Manhã", "Tarde", "Noite", "Madrugada"]
@@ -423,6 +444,21 @@ init python:
             "description": "Completou o mosaico difícil.",
         },
         {
+            "id": "photo_gift_five",
+            "name": "Fotogênica",
+            "description": "Completou 5 mosaicos de foto.",
+        },
+        {
+            "id": "photo_no_skip",
+            "name": "Artista",
+            "description": "Completou um mosaico sem pular.",
+        },
+        {
+            "id": "daily_sushi",
+            "name": "Grelhado ou sashimi?",
+            "description": "Visitou o Sushi no Dia a dia.",
+        },
+        {
             "id": "propaganda_seen",
             "name": "Propaganda desbloqueada",
             "description": "Jogou Jorge e Mateus no minigame de ritmo.",
@@ -433,9 +469,34 @@ init python:
             "description": "Desbloqueou todas as músicas do minigame de ritmo.",
         },
         {
+            "id": "ddr_master",
+            "name": "DDR Master",
+            "description": "Tentou jogar uma música na sua dificuldade mais difícil.",
+        },
+        {
+            "id": "rhythm_perfect",
+            "name": "Perfeccionista",
+            "description": "Atingiu pontuação perfeita em qualquer música.",
+        },
+        {
+            "id": "heitor_money_10000",
+            "name": "Falei que dinheiro a gente faz",
+            "description": "Acumulou R$ 10.000,00 no POV do Heitor.",
+        },
+        {
+            "id": "full_love_both",
+            "name": "Tim amo<>Também",
+            "description": "Atingiu 100 de Amor com Ana e Heitor.",
+        },
+        {
             "id": "endgame_mode",
             "name": "Pós-jogo infinito",
             "description": "Entrou no modo Dia a dia infinito.",
+        },
+        {
+            "id": "endgame_memory_replay",
+            "name": "Como é que foi mesmo?",
+            "description": "Reviveu uma memória no modo Pós-jogo.",
         },
     ]
 
@@ -547,6 +608,29 @@ init python:
         if key == "ana":
             return "heitor"
         return "ana"
+
+    def bgm_for_pov():
+        if current_pov == "ana":
+            return "ana_default"
+        return "heitor_default"
+
+    def play_bgm(track_id=None, fadein=1.2, fadeout=1.2):
+        track = bgm_tracks.get(track_id or bgm_for_pov())
+        if not track:
+            return
+        renpy.music.play(track, channel="music", loop=True, fadein=fadein, fadeout=fadeout, if_changed=True)
+
+    def stop_bgm(fadeout=1.2):
+        renpy.music.stop(channel="music", fadeout=fadeout)
+
+    def set_music_volume(volume, delay=0.8):
+        renpy.music.set_volume(volume, delay=delay, channel="music")
+
+    def duck_music(delay=0.8):
+        set_music_volume(0.38, delay)
+
+    def restore_music(delay=0.8):
+        set_music_volume(1.0, delay)
 
     def time_slot():
         normalize_time_state()
@@ -928,6 +1012,20 @@ init python:
         store = ensure_achievement_store()
         return sum(1 for achievement in achievement_data if store.get(achievement["id"]))
 
+    def confirm_message_pt(message):
+        translations = {
+            "Are you sure you want to return to the main menu?\nThis will lose unsaved progress.": "Tem certeza que quer voltar ao menu principal?\nO progresso não salvo será perdido.",
+            "Are you sure you want to quit?": "Tem certeza que quer sair?",
+            "Are you sure you want to overwrite your save?": "Tem certeza que quer sobrescrever este save?",
+            "Are you sure you want to load this save?": "Tem certeza que quer carregar este save?",
+            "Are you sure you want to delete this save?": "Tem certeza que quer apagar este save?",
+            "Are you sure you want to end the replay?": "Tem certeza que quer encerrar o replay?",
+            "Are you sure you want to begin skipping?": "Tem certeza que quer começar a pular?",
+            "Are you sure you want to skip to the next choice?": "Tem certeza que quer pular até a próxima escolha?",
+            "Are you sure you want to skip unseen dialogue to the next choice?": "Tem certeza que quer pular diálogos não vistos até a próxima escolha?",
+        }
+        return translations.get(message, message)
+
     def queue_notification(message, duration=None):
         global notification_sequence
         if duration is None:
@@ -958,6 +1056,8 @@ init python:
 
         if applied > 0:
             set_progress_for(key, current + applied)
+            if heitor_progress >= 100 and ana_progress >= 100:
+                unlock_achievement("full_love_both")
             if reason:
                 queue_notification("{color=%s}+%d %s para %s: %s{/color}" % (pov_color(key), applied, progress_label(person=key), pov_data[key]["name"], popup_reason(reason)))
         elif amount and reason:
@@ -995,6 +1095,8 @@ init python:
     def add_money(amount, reason=None, person=None):
         key = person or current_pov
         set_money_for(key, money_for(key) + amount)
+        if key == "heitor" and money_for(key) >= 10000:
+            unlock_achievement("heitor_money_10000")
         if amount and reason:
             queue_notification("💰 +%s para %s: %s" % (format_money(amount), pov_data[key]["name"], popup_reason(reason)))
 
@@ -1834,7 +1936,7 @@ screen endgame_location_picker():
             spacing 18
 
             text _("Dia a dia") color pov_color() size 46 xalign 0.5
-            text _("🏆 História concluída, mas você pode continuar jogando infinitamente nesse modo para rever eventos ou ver o que tiver perdido.") color "#f5c84b" size 23 xmaximum 1120 xalign 0.5 text_align 0.5
+            text _("🏆 História concluída, mas você pode continuar jogando infinitamente nesse modo para rever eventos, ver o que tiver perdido ou caçar todas as conquistas.") color "#f5c84b" size 23 xmaximum 1120 xalign 0.5 text_align 0.5
 
             grid 2 4:
                 spacing 16
@@ -2007,7 +2109,7 @@ screen code_bug_screen(puzzle):
 
 screen gift_shop_screen():
     modal True
-    zorder 100
+    zorder 60
 
     add Solid("#090d16ee")
 
@@ -2029,25 +2131,26 @@ screen gift_shop_screen():
                     $ gift_ready = gift_is_available(gift)
                     button:
                         xfill True
-                        yminimum 84
+                        ysize 92
                         background Solid("#232d42" if gift_ready else "#202532")
                         hover_background Solid("#33405d" if gift_ready else "#202532")
                         sensitive gift_ready
                         action Return(gift["id"])
 
-                        hbox:
-                            spacing 20
-                            yalign 0.5
-                            text "%s %s" % (gift.get("emoji", ""), gift["name"]) color ("#ffffff" if gift_ready else "#7f8797") size 26 xminimum 390
-                            text format_money(gift["cost"]) color ("#f0a7bb" if gift_ready else "#7f8797") size 24 xminimum 95
-                            text "+%d %s" % (gift["love"], progress_label(person=other_pov())) color ("#89c7f5" if gift_ready else "#7f8797") size 24 xminimum 160
-                            text gift_status_text(gift) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 20
+                        fixed:
+                            xfill True
+                            yfill True
+
+                            text "%s %s" % (gift.get("emoji", ""), gift["name"]) color ("#ffffff" if gift_ready else "#7f8797") size 21 xpos 20 xsize 400 yalign 0.5
+                            text format_money(gift["cost"]) color ("#f0a7bb" if gift_ready else "#7f8797") size 21 xpos 430 xsize 112 text_align 0.5 yalign 0.5 layout "nobreak"
+                            text "+%d %s" % (gift["love"], progress_label(person=other_pov())) color ("#89c7f5" if gift_ready else "#7f8797") size 20 xpos 550 xsize 185 text_align 0.5 yalign 0.5
+                            text gift_status_text(gift) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 17 xpos 752 xsize 300 yalign 0.5
 
             textbutton _("Voltar") action Return("back") xalign 0.5
 
 screen photo_gift_difficulty_screen():
     modal True
-    zorder 115
+    zorder 60
 
     add Solid("#080c14f2")
 
@@ -2090,7 +2193,7 @@ screen photo_gift_difficulty_screen():
 
 screen sliding_photo_puzzle(photo, pieces, size, difficulty_name, piece_displays):
     modal True
-    zorder 120
+    zorder 60
 
     default puzzle_layout = photo_puzzle_layout(photo, size)
     default tile_width = puzzle_layout["tile_width"]
@@ -2296,6 +2399,7 @@ screen rhythm_game_screen():
 
 label change_pov(who, title=""):
     $ current_pov = who
+    $ play_bgm(bgm_for_pov())
     window hide
     call screen pov_card(who, title)
     window show
@@ -2322,6 +2426,7 @@ label relationship_gate(gate_name, needed, hint):
 label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint=None):
     $ set_love_cap_stage(stage)
     $ apply_free_time_start(stage)
+    $ play_bgm("daily_light")
     if free_time_has_continue_requirements(stage, needed, target_person) and not free_time_can_continue(stage, needed, target_person):
         $ gate_person = target_person or resolved_continue_requirements(stage, needed, target_person).get("person", other_pov())
         $ gate_state_text = free_time_continue_hint(stage, needed, target_person)
@@ -2332,6 +2437,7 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
     $ keep_looping = True
 
     while keep_looping:
+        $ play_bgm("daily_light")
         window hide
         $ show_free_turn_scene()
         call screen location_picker(stage, needed, target_person)
@@ -2363,6 +2469,7 @@ label endgame_loop:
     $ endgame_mode = True
     $ endgame_replay_mode = False
     $ unlock_achievement("endgame_mode")
+    $ play_bgm("endgame")
     $ special_day_label = "🏆 Pós-jogo"
     $ first_kiss_done = True
     $ dating_started = True
@@ -2370,6 +2477,7 @@ label endgame_loop:
     show screen relationship_hud
 
     while True:
+        $ play_bgm("endgame")
         window hide
         $ show_free_turn_scene()
         call screen endgame_location_picker
@@ -2413,6 +2521,7 @@ label endgame_loop:
 
 label endgame_replay_memory(memory_label):
     $ endgame_replay_mode = True
+    $ unlock_achievement("endgame_memory_replay")
     call expression memory_label
     $ endgame_replay_mode = False
     $ special_day_label = "🏆 Pós-jogo"
@@ -2449,6 +2558,7 @@ label ana_distance_missing_beat(stage, love=3, reason="saudade da presença"):
     return
 
 label ana_distance_poli_interaction(stage="campus"):
+    $ play_bgm("ana_sad")
     $ show_free_action_scene("bg desktop_code")
     with fade
 
@@ -2472,6 +2582,7 @@ label ana_distance_poli_interaction(stage="campus"):
     return
 
 label ana_distance_bandejao_interaction(stage="campus"):
+    $ play_bgm("ana_sad")
     $ show_free_action_scene("bg bandejao")
     with fade
 
@@ -2497,6 +2608,7 @@ label ana_distance_bandejao_interaction(stage="campus"):
     return
 
 label ana_distance_home_interaction(stage="home"):
+    $ play_bgm("ana_sad")
     $ show_free_action_scene(bedroom_background())
     with fade
 
@@ -2545,6 +2657,7 @@ label ana_distance_home_interaction(stage="home"):
 
 label ana_distance_debug_ep(stage="campus"):
     $ score = 0
+    $ play_bgm("study_debug")
 
     system_line "Debug do EP. Agora com chamada mental de suporte técnico ausente."
 
@@ -2578,6 +2691,7 @@ label poli_interaction(stage="campus"):
         call ana_distance_poli_interaction(stage)
         return
 
+    $ play_bgm("study_debug")
     $ show_free_action_scene("bg desktop_code")
     with fade
 
@@ -2619,6 +2733,7 @@ label bandejao_interaction(stage="campus"):
         call ana_distance_bandejao_interaction(stage)
         return
 
+    $ play_bgm("daily_light")
     $ show_free_action_scene("bg bandejao")
     with fade
 
@@ -2662,6 +2777,7 @@ label heitor_home_interaction(stage="home"):
         call ana_distance_home_interaction(stage)
         return
 
+    $ play_bgm("game_fun")
     $ show_free_action_scene(heitor_home_background())
     with fade
 
@@ -2737,15 +2853,21 @@ label rhythm_skill_phase(stage="home"):
 
     call screen rhythm_difficulty_screen(rhythm_track_id)
     $ rhythm_chart = _return
+    $ rhythm_charts_for_track = sm_charts(rhythm_track_id)
+    if rhythm_charts_for_track and rhythm_chart["id"] == rhythm_charts_for_track[-1]["id"]:
+        $ unlock_achievement("ddr_master")
 
     $ start_rhythm_state(rhythm_track_id, rhythm_chart)
     $ renpy.music.play(rhythm_tracks[rhythm_track_id]["music"], channel="music", loop=False)
     call screen rhythm_game_screen
     $ renpy.music.stop(channel="music", fadeout=0.5)
+    $ play_bgm("game_fun", fadein=1.0, fadeout=0.0)
 
     $ rhythm_points = rhythm_reward()
     $ rhythm_acc = rhythm_accuracy()
     $ rhythm_record_result(rhythm_chart)
+    if rhythm_acc >= 98:
+        $ unlock_achievement("rhythm_perfect")
     $ rhythm_unlock_next_song(rhythm_track_id)
     $ rhythm_unlock_next_chart(rhythm_track_id, rhythm_chart)
 
@@ -2780,6 +2902,7 @@ label rhythm_skill_phase(stage="home"):
     return
 
 label gift_phase(stage="shop"):
+    $ play_bgm("daily_light")
     $ show_free_action_scene("bg desktop_code")
     with fade
 
@@ -2813,6 +2936,8 @@ label gift_phase(stage="shop"):
             $ purchased_gifts.append(gift_id)
         if gift_id == "earrings":
             $ unlock_achievement("earrings_bought")
+        if gift_id == "sushi_date":
+            $ unlock_achievement("daily_sushi")
         $ add_partner_love(gift_love, gift_name)
         $ advance_free_time(stage)
         if ana_distance_day(stage) and gift_id == "sushi_date":
@@ -2889,15 +3014,22 @@ label photo_gift_phase(stage="shop", gift=None):
 
     hide completed_photo
     $ photo_gift_completed = True
+    $ photo_gift_completion_count += 1
     $ unlock_achievement("photo_gift")
     if difficulty_id == "dificil":
         $ unlock_achievement("photo_gift_hard")
+    if photo_gift_completion_count >= 5:
+        $ unlock_achievement("photo_gift_five")
+    if not skipped_puzzle:
+        $ unlock_achievement("photo_no_skip")
     $ inventory.append(gift_name)
     $ add_partner_love(final_reward, gift_name)
     $ advance_free_time(stage, 2)
     return
 
 label money_phase(stage="money"):
+    if not ana_distance_day(stage):
+        $ play_bgm("work_money")
     $ show_free_action_scene("bg desktop_code")
     with fade
 
@@ -3036,6 +3168,7 @@ label mother_money_phase(stage="money"):
     return
 
 label minigame_bandejao(stage="campus"):
+    $ play_bgm("choice_tension")
     system_line "Escolha uma estratégia para sobreviver ao bandejão."
 
     menu:
@@ -3072,6 +3205,7 @@ label minigame_bandejao(stage="campus"):
 
 label minigame_debug_ep(stage="campus"):
     $ score = 0
+    $ play_bgm("study_debug")
 
     system_line "Debug emocional do EP. Ache os bugs antes da madrugada."
 
