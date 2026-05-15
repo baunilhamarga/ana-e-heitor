@@ -539,7 +539,7 @@ init python:
             "lines": [
                 "{color=#c084fc}#include{/color} {color=#f0f6fc}<stdio.h>{/color}",
                 "{color=#89c7f5}int{/color} main({color=#89c7f5}void{/color}) {{",
-                "    {color=#89c7f5}int{/color} notas[[5] = {{ {color=#f8d66d}8{/color}, {color=#f8d66d}7{/color}, {color=#f8d66d}9{/color}, {color=#f8d66d}6{/color}, {color=#f8d66d}10{/color} }};",
+                "    {color=#89c7f5}int{/color} notas[[5] = {{ {color=#f8d66d}8{/color}, {color=#f8d66d}7{/color}, {color=#f8d66d}9{/color}, {color=#f8d66d}6{/color}, {color=#f8d66d}10{/color} };",
                 "    {color=#89c7f5}int{/color} soma = {color=#f8d66d}0{/color};",
                 "    {color=#ff7b72}for{/color} ({color=#89c7f5}int{/color} i = {color=#f8d66d}0{/color}; i <= {color=#f8d66d}5{/color}; i++) {{",
                 "        soma += notas[[i];",
