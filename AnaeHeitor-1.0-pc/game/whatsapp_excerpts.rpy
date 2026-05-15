@@ -45,7 +45,7 @@ label whatsapp_academic_excerpt:
     show heitor focused at pov_left
     show ana college thinking at other_right
 
-    wa_note "Trechos do primeiro chat que já pareciam roteiro de Poli."
+    wa_note "O primeiro chat foi tão grande que parecia um relatório de Lab Digi."
 
     wa_h "Bate saudade de desenhar às vezes, mas não há tempo pra tudo."
 
@@ -59,9 +59,13 @@ label whatsapp_academic_excerpt:
 
     wa_h "A gente sempre se junta pra fazer Física, Ronaldo, Yoshi, estudar pras coisas. É divertido."
 
+    call quick_change_pov("ana")
+    $ current_country_label = "🇧🇷 Brasil"
     show ana college annoyed
     ana_thought "Repare que nesse ponto ele ainda achava EP divertido."
 
+    call quick_change_pov("heitor")
+    $ current_country_label = "🇫🇷 França"
     show heitor college amused
     heitor_thought "Era antes de alguns enunciados cometerem crimes."
 
@@ -119,7 +123,7 @@ label whatsapp_romancezinho_excerpt:
     wa_a "Conhecer outras pessoas dá mó trabalho."
 
     show ana college embarrassed
-    ana_thought "Ana, oficialmente investigando o mercado e reclamando do custo de aquisição."
+    heitor_thought "Ela investiga o mercado nesse exato momento e ainda reclama do custo."
 
     return
 
@@ -170,7 +174,7 @@ label whatsapp_travel_paperwork_excerpt:
     wa_h "Também."
 
     show ana college annoyed
-    ana_thought "A parte menos romântica de amar alguém é descobrir que o amor também tem PDF, comprovante e prazo."
+    ana_thought "Eu não aguento maaaaiiisss. Por que ele precisa ir embora de novo?"
 
     return
 
@@ -181,13 +185,13 @@ label whatsapp_australia_excerpt:
     show heitor home soft_smile at pov_left
     show ana home sad at other_right
 
-    wa_note "Austrália - fuso horário, saudade e festa junina transcontinental."
+    wa_note "Austrália --- Brasil"
 
     wa_a "Eu fico com saudade todo dia."
 
     wa_h "Eu também."
 
-    wa_a "No fim de semana quer tentar alguma coisa, amor?"
+    wa_h "Eu fui numa festa junina na Austrália, quem diria. Nem no Brasil eu iria."
 
     wa_h "Comi um potinho minúsculo de canjica por dez dólares."
 
@@ -203,9 +207,13 @@ label whatsapp_australia_excerpt:
 
     wa_h "Também. Bom dia."
 
+    call quick_change_pov("ana")
+    $ current_country_label = "🇧🇷 Brasil"
     show ana home soft
     ana_thought "Era sempre assim: boa noite de um lado, bom dia do outro."
 
+    call quick_change_pov("heitor")
+    $ current_country_label = "🇦🇺 Austrália"
     show heitor home soft_smile
     heitor_thought "E uma canjica superfaturada tentando fazer ponte entre os fusos."
 

@@ -11,7 +11,9 @@ label post_australia_route:
     return
 
 label whatsapp_mosaic_intro:
-    call change_pov("heitor", "O histórico virou dataset")
+    $ special_day_label = "📅 Presente"
+    $ current_country_label = "🇫🇷 França"
+    call change_pov("heitor", "Continuando a história")
 
     scene bg desktop_code
     with fade
@@ -24,29 +26,33 @@ label whatsapp_mosaic_intro:
     show ana college surprised
     a "Você fez o quê?"
 
-    show heitor college amused
-    h "Nada invasivo. Só o suficiente para confirmar uma hipótese."
-
     show ana college annoyed
-    a "Se a hipótese for que eu mando muita mensagem, isso já era consenso científico."
+    a "Se era pra confirmar que eu mando pouca mensagem, isso já era consenso."
+
+    show heitor college amused
+    h "Nada invasivo. Só o suficiente para continuar o melhor presente que eu já recebi."
 
     h "Foram 39.475 mensagens no arquivo exportado."
 
     show ana college embarrassed
     a "..."
 
-    a "Tá, talvez eu tenha uma leve tendência comunicativa."
+    a "Tá, até que é bastante."
 
     h "E mais de cinco mil mídias entre fotos, vídeos, áudios, GIFs e figurinhas."
 
+    h "E sabe quantas dessas figurinhas são repetidas de um cachorro com sorrisão mostrando os dentes?"
+
+    show ana college annoyed
+    a "Ah, para! Não sei, são quantas?"
+
+    h "Também não sei, mas são muitas."
+
     show ana college happy
-    a "As figurinhas são parte fundamental da nossa infraestrutura emocional."
 
-    heitor_thought "Eu queria discordar, mas alguns sistemas críticos realmente rodam em figurinha."
+    h "Não foi pra transformar tudo em ata."
 
-    h "O plano não é transformar tudo em ata de reunião."
-
-    h "É escolher as memórias que explicam a gente: as conversas gigantes, os dias de saudade, os surtos acadêmicos e os aeroportos."
+    h "É escolher as memórias que explicam a gente: as conversas gigantes, os dias de saudade, os surtos e os aeroportos."
 
     call whatsapp_academic_excerpt
 
@@ -61,24 +67,26 @@ label whatsapp_mosaic_intro:
     show ana college soft
     a "Então você vai usar mensagem real?"
 
-    h "Sim, mas só trechos escolhidos. Um print emocional, não um dump de produção."
+    h "Sim, mas só alguns trechos. Não tem mais graça assim?"
 
     show ana college super_happy
-    a "Finalmente uma arquitetura com LGPD romântica."
+    a "Uai."
 
     $ add_love(5, "histórico do WhatsApp mapeado")
+    $ special_day_label = ""
     return
 
 label australia_distance_arc:
     $ set_love_cap_stage("post_australia")
-    call change_pov("heitor", "Austrália: fuso, saudade e Wi-Fi")
+    $ current_country_label = "🇦🇺 Austrália"
+    call change_pov("heitor", "Austrália: fuso e saudade")
 
     scene bg airport
     with fade
 
     show heitor home serious at pov_left
 
-    heitor_thought "Eu tinha prometido voltar. O problema das promessas é que elas continuam fazendo barulho dentro da mala."
+    heitor_thought "Eu ia voltar. Mas o problema era que eu ia sair de novo logo depois."
 
     scene bg desktop_code
     with dissolve
@@ -89,7 +97,7 @@ label australia_distance_arc:
 
     heitor_thought "Quando eu acordava, ela às vezes estava dormindo. Quando ela tinha tempo, eu estava tentando não parecer um zumbi no estágio."
 
-    heitor_thought "Engenharia de computação tinha me preparado para muita coisa. Menos para calcular saudade com fuso horário."
+    heitor_thought "A vida tinha me preparado para muita coisa. Menos para saudade."
 
     call whatsapp_australia_excerpt
 
@@ -101,7 +109,7 @@ label australia_distance_arc:
     menu:
         "Mandar bom dia":
             h "Bom dia, amor."
-            heitor_thought "Tecnicamente talvez fosse boa noite. Mas a intenção compila."
+            heitor_thought "Tecnicamente talvez fosse boa noite. Mas vale a intenção."
             $ add_love(3, "bom dia transcontinental")
 
         "Mandar boa noite":
@@ -110,10 +118,11 @@ label australia_distance_arc:
             $ add_love(3, "boa noite transcontinental")
 
         "Mandar bom dia e boa noite":
-            h "Bom dia e boa noite, para garantir cobertura total de fuso."
+            h "Bom dia e boa noite, para garantir."
             $ add_love(5, "redundância afetiva")
 
     call change_pov("ana", "Brasil: saudade em horário local")
+    $ current_country_label = "🇧🇷 Brasil"
 
     scene bg bedroom_night
     with fade
@@ -128,7 +137,7 @@ label australia_distance_arc:
     ana_thought "Eu olhava o relógio do celular como se ele fosse mudar de ideia e aproximar a Austrália."
 
     show ana home embarrassed
-    ana_thought "Spoiler: o relógio é muito pouco colaborativo."
+    ana_thought "Spoiler: não rolou."
 
     show heitor home soft_smile at other_right
 
@@ -147,11 +156,14 @@ label australia_distance_arc:
     ana_thought "A gente não dependia de estar no mesmo lugar para continuar escolhendo a mesma pessoa."
 
     $ add_love(8, "três meses de distância")
+    if endgame_replay_mode:
+        return
     call free_time_phase("distancia_australia")
     return
 
 label france_departure_arc:
     $ set_love_cap_stage("france_departure")
+    $ current_country_label = "🇧🇷 Brasil"
     call change_pov("ana", "França: o segundo grande aeroporto")
 
     scene bg ap_heitor_day
@@ -163,7 +175,7 @@ label france_departure_arc:
     ana_thought "Depois da Austrália eu achei que aeroportos já tinham gastado toda a capacidade dramática."
 
     show ana home serious
-    ana_thought "A França discordou."
+    ana_thought "Mas a França chamou."
 
     h "É o duplo diploma."
 
@@ -182,7 +194,7 @@ label france_departure_arc:
     show heitor home soft_smile at other_right
 
     show ana home serious
-    ana_thought "O problema é que saber não diminui a mala."
+    ana_thought "O problema é saber que é tão pouco tempo comigo e ele já vai."
 
     call change_pov("heitor", "Checklist do duplo diploma")
 
@@ -193,16 +205,18 @@ label france_departure_arc:
 
     heitor_thought "Documentos. Passaporte. Adaptador. Casaco. Coragem."
 
-    heitor_thought "Coragem não coube em nenhuma pasta, então eu fingi que estava no drive."
+    heitor_thought "Saudade."
+
+    heitor_thought "Essa não tem como esquecer, vem de qualquer forma."
 
     show ana home soft at other_right
 
-    a "Você está fazendo cara de quem vai explicar um sistema distribuído para não falar de sentimento."
+    a "Que cara é essa? No que você tá pensando?"
 
-    h "O sistema é distribuído. Metade fica aqui."
+    h "Nada, olha só. Cabeça oca."
 
     show ana home embarrassed
-    a "Isso foi bonito. Irritantemente bonito."
+    a "Ha-ha Para."
 
     call change_pov("ana", "Última noite antes da França")
 
@@ -211,22 +225,19 @@ label france_departure_arc:
 
     show ana home sad at pov_left
 
-    ana_thought "Eu queria ser adulta, elegante e perfeitamente compreensiva."
+    ana_thought "Eu queria ser adulta e perfeitamente compreensiva."
 
-    ana_thought "Consegui aproximadamente uma dessas coisas por três minutos."
+    ana_thought "Quase consegui por três minutos."
 
     show heitor gentle at other_right
 
     h "A gente já passou por distância."
 
-    a "Essa frase devia vir com nota de rodapé."
+    a "Passar por distância não torna a próxima grátis."
 
-    h "Nota de rodapé?"
+    show heitor thoughtful
 
-    a "Sim. 'Passar por distância não torna a próxima grátis'."
-
-    show heitor soft_laugh
-    h "Justo."
+    h "Eu sinto muito."
 
     call change_pov("heitor", "Última chamada")
 
@@ -254,7 +265,7 @@ label france_departure_arc:
 
     h "Eu sei."
 
-    a "E vou mandar mensagem demais."
+    a "Eu vou melhorar, vou mandar mensagem."
 
     h "Eu conto com isso."
 
@@ -277,6 +288,8 @@ label france_departure_arc:
 
 label birthday_finale:
     $ set_love_cap_stage("birthday_finale")
+    $ special_day_label = "📅 Presente"
+    $ current_country_label = "🇫🇷 França"
     call change_pov("heitor", "Presente de aniversário")
 
     scene bg ap_heitor_night
@@ -297,28 +310,74 @@ label birthday_finale:
     h "Então eu tentei continuar o projeto com o cuidado que ele merece: mais leve, mais bobo, com mais escolhas, mas sem fingir que as partes difíceis não existiram."
 
     show ana home soft
-    a "E com dinheiro da minha mãe?"
+    a "E cheio de joguinhos?"
 
-    h "Feature essencial. Alta fidelidade histórica."
+    h "Essencial. Você viu que eu coloquei Jorge e Mateus?"
 
-    show ana home happy
-    a "Aprovado."
+    if any(key.startswith("propaganda_") for key in rhythm_best_results.keys()):
+        # If the player has already seen the Jorge e Mateus DDR minigame, this line will be shown instead.
+        a "Simmmm, eu quase gritei quando eu vi."
+
+        h "Eu achei que você ia gostar."
+
+        show ana home happy
+        a "Aprovado."
+
+        h "Espero que você tenha gostado de jogos de ritmo. É um dos meus tipos favoritos porque fica difícil muito rápido."
+    else:
+        # If the player has not already seen the Jorge e Mateus DDR minigame.
+        a "O que???? Sério? Onde? Quando? Eu não vi isso!"
+
+        h "É um dos minigames, tente achar."
+
+        h "Espero que você goste de jogos de ritmo. É um dos meus tipos favoritos porque fica difícil muito rápido."
+
+        a "Como assim é bom porque fica difícil? Não é pra ser o contrário?"
+
+        h "Se fosse fácil não teria graça."
+
+        a "Maluco."
+
+    # End of branching for Jorge e Mateus DDR minigame.
+
+    h "E os mosaicos com nossas fotos? Gostou?" 
+
+    if photo_gift_completed or "Fazer um presente caprichado com fotos" in inventory:
+        # If the player has already chosen the mosaic gift and played the minigame, this line will be shown instead.
+        a "Amei! São as mesmas fotos da minha capinha de celular."
+
+        h "Que coincidência, não é?"
+
+        a "Ah para."
+    else:
+        # If the player has not yet chosen the mosaic gift and played the minigame, this line will be shown.
+        a "Mosaicos? Que mosaicos?"
+
+        h "Caramba, tente me dar mais presentes."
+
+    # End of branching for mosaic gift and minigame.
+
+    a "Mas e nossas aventuras na França?"
+
+    h "Bem, isso fica pra um próximo presente. Sem tempo irmão."
 
     h "Feliz aniversário, Ana."
 
-    h "Essa versão ainda deixa espaço para a gente escrever o resto. Talvez um dia com os dois POVs completos."
+    h "Essa versão ainda deixa espaço para a gente escrever o resto. Talvez um dia com os dois POVs completos para tudo."
 
     h "Mas por enquanto, essa parte é minha:"
 
-    h "Eu amo você. No bandejão, no aeroporto, no fuso horário errado e em qualquer branch que a vida abrir."
+    h "Eu amo você. Na Poli, no Crossing, na Supélec, em Aachen, em qualquer fuso horário e em qualquer ramo que a vida abrir."
 
     show ana home emotional
-    a "Eu também amo você."
 
     scene black
     with fade
 
-    system_line "Fim desta versão. A história continua."
+    system_line "A vida continua."
 
-    hide screen relationship_hud
+    $ special_day_label = ""
+    if endgame_replay_mode:
+        return
+    jump endgame_loop
     return

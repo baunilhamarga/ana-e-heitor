@@ -129,6 +129,8 @@ label start:
     $ ana_money = 200
     $ current_day = 1
     $ time_slot_index = 1
+    $ current_country_label = "🇧🇷 Brasil"
+    $ special_day_label = ""
     $ first_kiss_done = False
     $ career_phase = "btg"
     $ set_love_cap_stage("intro")
@@ -390,6 +392,8 @@ label start:
     ana_thought "Ótimo. Diagnóstico feito com zero dados e cem por cento de convicção."
 
     $ advance_dialog_section("primeira conversa no bandejão")
+    if endgame_replay_mode:
+        return
     call free_time_phase("primeiro_contato")
 
     jump raio_x
@@ -458,6 +462,8 @@ label mensagem_raiox:
 
     $ set_love_cap_stage("mensagens_iniciais")
     $ add_love(5, "mensagens iniciais")
+    if endgame_replay_mode:
+        return
     call free_time_phase("mensagens_iniciais")
 
     hide ana
@@ -485,6 +491,8 @@ label mensagem_normal:
 
     $ set_love_cap_stage("mensagens_iniciais")
     $ add_love(3, "oi estrategicamente simples")
+    if endgame_replay_mode:
+        return
     call free_time_phase("mensagens_iniciais")
 
     jump picles
@@ -597,6 +605,8 @@ label picles:
             scene black
             with fade
 
+            if endgame_replay_mode:
+                return
             jump ep_yoshi
 
 
@@ -631,6 +641,8 @@ label picles:
             scene black
             with fade
 
+            if endgame_replay_mode:
+                return
             jump ep_yoshi
 
 
@@ -665,6 +677,8 @@ label picles:
             scene black
             with fade
 
+            if endgame_replay_mode:
+                return
             jump ep_yoshi
 
 label ep_yoshi:
@@ -926,6 +940,8 @@ label mensagem_onibus:
 
     $ set_love_cap_stage("ep_yoshi")
     $ add_love(8, "EP salvo na madrugada")
+    if endgame_replay_mode:
+        return
     call free_time_phase("primeiro_beijo", 24, "heitor")
 
 label primeiro_beijo:
@@ -1103,6 +1119,8 @@ label primeiro_beijo:
     $ set_love_cap_stage("pedido_namoro")
     $ add_love(10, "primeiro beijo")
     $ add_love(24, "primeiro beijo", person="heitor")
+    if endgame_replay_mode:
+        return
     call change_pov("heitor", "Preparando o pedido")
     call free_time_phase("pedido_namoro")
 
@@ -1324,6 +1342,8 @@ label aceita_namoro:
 
     $ set_love_cap_stage("primeiro_eu_te_amo")
     $ add_love(12, "pedido de namoro")
+    if endgame_replay_mode:
+        return
     call change_pov("ana", "Namoro oficial")
     call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.")
 
@@ -1442,6 +1462,8 @@ label primeiro_eu_te_amo:
 
     $ set_love_cap_stage("australia")
     $ add_love(12, "primeiro eu te amo")
+    if endgame_replay_mode:
+        return
 
     jump ano_feliz
 
@@ -1478,6 +1500,8 @@ label ano_feliz:
             jump festa_formatura
 
         "Continuar...":
+            if endgame_replay_mode:
+                return
             call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
             jump preparando_mala
 
@@ -1494,6 +1518,8 @@ label ano_feliz:
 
     hide ana
 
+    if endgame_replay_mode:
+        return
     call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
 
     jump preparando_mala
@@ -1509,7 +1535,7 @@ label jogar_juntos:
 
     show heitor focused at other_right
 
-    ana_thought "Nosso primeiro jogo juntos."
+    ana_thought "Nosso primeiro jogo completo juntos."
 
     a "It Takes Two."
 
@@ -1527,6 +1553,8 @@ label jogar_juntos:
 
     ana_thought "Eu ria mais do que jogava, mas ele estava sempre muito paciente comigo."
 
+    if endgame_replay_mode:
+        return
     jump ano_feliz
 
 label ver_series:
@@ -1556,6 +1584,8 @@ label ver_series:
 
     ana_thought "Mas era nosso."
 
+    if endgame_replay_mode:
+        return
     jump ano_feliz
 
 label jantar_sushi:
@@ -1579,6 +1609,8 @@ label jantar_sushi:
 
     pause 1.5
 
+    if endgame_replay_mode:
+        return
     jump ano_feliz
 
 label visitar_familia:
@@ -1603,6 +1635,8 @@ label visitar_familia:
 
     pause 1.5
 
+    if endgame_replay_mode:
+        return
     jump ano_feliz
 
 label festa_formatura:
@@ -1626,6 +1660,8 @@ label festa_formatura:
 
     pause 1.5
 
+    if endgame_replay_mode:
+        return
     jump ano_feliz
 
 label preparando_mala:
@@ -1689,6 +1725,7 @@ label preparando_mala:
     scene black
     with fade
 
+    call quick_change_pov("ana")
     show ana home sad at other_right
 
     ana_thought "A mala ficou pronta."
@@ -1703,7 +1740,8 @@ label preparando_mala:
 
 label despedida_aeroporto:
 
-    call change_pov("ana", "Aeroporto: modo coração em produção")
+    call change_pov("ana", "Aeroporto: modo coração apertado")
+    $ current_country_label = "🇧🇷 Brasil"
 
     scene bg airport
     with fade
@@ -1826,5 +1864,8 @@ label despedida_aeroporto:
 
     $ set_love_cap_stage("post_australia")
     $ career_phase = "virtualisurg_frontend"
+    $ current_country_label = "🇦🇺 Austrália"
     $ add_love(8, "promessa no aeroporto")
+    if endgame_replay_mode:
+        return
     jump post_australia_route

@@ -15,6 +15,10 @@ default heitor_money = 25
 default ana_money = 200
 default current_day = 1
 default time_slot_index = 0
+default special_day_label = ""
+default current_country_label = "🇧🇷 Brasil"
+default endgame_mode = False
+default endgame_replay_mode = False
 default queued_notifications = []
 default notification_sequence = 0
 default first_kiss_done = False
@@ -27,6 +31,7 @@ default unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
 default completed_memories = []
 default inventory = []
 default purchased_gifts = []
+default photo_gift_completed = False
 default mother_money_day = 0
 default mother_money_requests_today = 0
 default rhythm_play_count = 0
@@ -139,26 +144,31 @@ init python:
         {
             "id": "poli",
             "name": "Poli",
+            "emoji": "📚",
             "subtitle": "Listas, corredores e decisões discutíveis.",
         },
         {
             "id": "bandejao",
             "name": "Bandejão",
+            "emoji": "🍽️",
             "subtitle": "Fila, arroz e decisões difíceis.",
         },
         {
             "id": "heitor_home",
             "name": "Rolê em casa",
+            "emoji": "🏠",
             "subtitle": "Código, sofá e uma chance alta de anime.",
         },
         {
             "id": "shop",
             "name": "Presentes",
+            "emoji": "🎁",
             "subtitle": "Pequenas compras, grandes efeitos colaterais.",
         },
         {
             "id": "work",
             "name": "Fazer dinheiro",
+            "emoji": "💵",
             "subtitle": "IC, estágio e a opção economicamente materna.",
         },
     ]
@@ -167,6 +177,7 @@ init python:
         {
             "id": "handmade_note",
             "name": "Bilhete escrito no desespero",
+            "emoji": "📝",
             "cost": 0,
             "love": 4,
             "line": "Custo zero, vulnerabilidade altíssima.",
@@ -174,6 +185,7 @@ init python:
         {
             "id": "chocolate",
             "name": "Chocolate da Cacau Show",
+            "emoji": "🍫",
             "cost": 30,
             "love": 6,
             "line": "O clássico. Funciona porque funciona.",
@@ -181,6 +193,7 @@ init python:
         {
             "id": "snack",
             "name": "Lanchinho antes da aula",
+            "emoji": "🥪",
             "cost": 12,
             "love": 4,
             "line": "Pequeno e barato.",
@@ -188,6 +201,7 @@ init python:
         {
             "id": "earrings",
             "name": "Brincos bonitinhos",
+            "emoji": "💎",
             "cost": 300,
             "love": 10,
             "line": "Dinheiro a gente faz... Pode render um sorriso enorme.",
@@ -195,6 +209,7 @@ init python:
         {
             "id": "sushi_date",
             "name": "Jantar de sushi",
+            "emoji": "🍣",
             "cost": 99.99,
             "love": 13,
             "line": "Salmãozinho grelhado, sashimi, camarão com catupiry? Humm...",
@@ -202,6 +217,7 @@ init python:
         {
             "id": "photo_gift",
             "name": "Fazer um presente caprichado com fotos",
+            "emoji": "🖼️",
             "cost": 10,
             "love": 24,
             "line": "Tesoura emocional, fotos e capricho de verdade.",
@@ -251,8 +267,8 @@ init python:
         "primeiro_beijo": 140,       # 2024-03-11, chat recalls the kiss and the fallen phone.
         "pedido_namoro": 154,        # Two weeks after the first kiss in the script.
         "primeiro_eu_te_amo": 164,   # 2024-04-04, first recurring "te amo" cluster.
-        "australia": 266,            # 2024-07-15, airport/Australia departure window.
-        "post_australia": 266,
+        "australia": 549,            # Around 13 months after the dating start event.
+        "post_australia": 639,       # Roughly 3 months after the Australia departure.
         "distancia_australia": 714,  # 2025-10-06, France/double-degree arrival window.
         "france_departure": 714,
     }
@@ -297,8 +313,68 @@ init python:
         "mensagens_iniciais": "Antes da próxima memória, falta se aproximar um pouco mais do Heitor. Tentem se conhecer melhor.",
         "primeiro_beijo": "Antes da próxima memória, ainda falta a coragem certa para aquele momento fazer sentido. Tentem criar mais clima.",
         "pedido_namoro": "Depois do primeiro beijo, ainda precisa caber um pouco de rotina: mensagens, encontros baratos e coragem acumulada.",
-        "distancia_australia": "Antes da próxima memória, a distância precisa virar rotina: mensagens, paciência e carinho acumulado.",
+        "distancia_australia": "Antes da próxima memória, a distância precisa virar rotina: mensagens e paciência",
     }
+
+    endgame_memory_data = [
+        {"name": "Introdução - Bandejão", "label": "endgame_intro_replay"},
+        {"name": "Raio-x e primeiras mensagens", "label": "mensagem_raiox"},
+        {"name": "Picles", "label": "picles"},
+        {"name": "EP do Yoshi", "label": "ep_yoshi"},
+        {"name": "Primeiro beijo", "label": "primeiro_beijo"},
+        {"name": "Pedido de namoro", "label": "pedido_namoro"},
+        {"name": "Primeiro eu te amo", "label": "primeiro_eu_te_amo"},
+        {"name": "Um ano feliz", "label": "ano_feliz"},
+        {"name": "Austrália", "label": "despedida_aeroporto"},
+        {"name": "Distância da Austrália", "label": "australia_distance_arc"},
+        {"name": "França", "label": "france_departure_arc"},
+        {"name": "Final de aniversário", "label": "birthday_finale"},
+    ]
+
+    endgame_state_data = [
+        {
+            "name": "🇧🇷 Brasil - Ana",
+            "pov": "ana",
+            "stage": "primeiro_eu_te_amo",
+            "country": "🇧🇷 Brasil",
+            "career": "btg",
+        },
+        {
+            "name": "🇧🇷 Brasil - Heitor",
+            "pov": "heitor",
+            "stage": "primeiro_eu_te_amo",
+            "country": "🇧🇷 Brasil",
+            "career": "btg",
+        },
+        {
+            "name": "🇦🇺 Austrália - Ana com saudade",
+            "pov": "ana",
+            "stage": "distancia_australia",
+            "country": "🇧🇷 Brasil",
+            "career": "virtualisurg_frontend",
+        },
+        {
+            "name": "🇦🇺 Austrália - Heitor",
+            "pov": "heitor",
+            "stage": "distancia_australia",
+            "country": "🇦🇺 Austrália",
+            "career": "virtualisurg_frontend",
+        },
+        {
+            "name": "🇫🇷 França - Ana",
+            "pov": "ana",
+            "stage": "france_departure",
+            "country": "🇧🇷 Brasil",
+            "career": "virtualisurg_xr",
+        },
+        {
+            "name": "🇫🇷 França - Heitor",
+            "pov": "heitor",
+            "stage": "france_departure",
+            "country": "🇫🇷 França",
+            "career": "virtualisurg_xr",
+        },
+    ]
 
     career_data = {
         "btg": {
@@ -326,7 +402,7 @@ init python:
             "love": 3,
             "title": "Entrega de XR na VirtualiSurg concluída.",
             "reason": "bug em realidade estendida",
-            "repeat_reason": "protótipo de XR sem tontura",
+            "repeat_reason": "XR sem tontura",
         },
     }
 
@@ -410,6 +486,7 @@ init python:
         return "ana"
 
     def time_slot():
+        normalize_time_state()
         return time_slots[time_slot_index % len(time_slots)]
 
     def time_slot_icon():
@@ -420,6 +497,11 @@ init python:
             "Madrugada": "🌌",
         }
         return icons.get(time_slot(), "🕒")
+
+    def day_status_text():
+        if special_day_label:
+            return special_day_label
+        return "📅 Dia %d" % current_day
 
     def bandejao_is_open():
         return time_slot() not in ("Noite", "Madrugada")
@@ -570,6 +652,9 @@ init python:
             return custom_hint
         return free_time_blocked_hints.get(stage, "Antes da próxima memória, falta cumprir alguns requisitos no dia a dia.")
 
+    def ana_distance_day(stage):
+        return current_pov == "ana" and stage == "distancia_australia"
+
     def possessive_name(person):
         if person == "ana":
             return "da Ana"
@@ -706,13 +791,13 @@ init python:
             "jogo de aventura": "Jogo de aventura. Cooperação sob pressão.",
             "jantar improvisado": "Jantar improvisado.",
             "parmegiana do Tavares": "Tavares: Heitor defende, Ana tolera.",
-            "plantão no Crossing": "Crossing Research Lab. Pesquisa também paga.",
+            "plantão no Crossing": "Crossing. Pesquisa também paga.",
             "debug sem pânico": "Debug sem pânico. Amor também tem breakpoint.",
             "debug caótico": "Debug caótico.",
             "EP salvo na madrugada": "EP salvo na madrugada. Yoshi não venceu hoje.",
             "mensagens iniciais": "Mensagem vai, mensagem vem.",
             "oi estrategicamente simples": "Um oi simples. Risco baixo, coração alto.",
-            "histórico do WhatsApp mapeado": "Histórico mapeado. Dataset emocional carregado.",
+            "histórico do WhatsApp mapeado": "Histórico mapead.",
             "bom dia transcontinental": "Bom dia atravessou o fuso.",
             "boa noite transcontinental": "Boa noite atravessou o fuso.",
             "redundância afetiva": "Bom dia e boa noite.",
@@ -832,6 +917,7 @@ init python:
 
     def advance_time(blocks=1):
         global current_day, time_slot_index
+        normalize_time_state()
         for _i in range(blocks):
             if time_slot_index < 2:
                 time_slot_index += 1
@@ -839,7 +925,13 @@ init python:
                 time_slot_index = 0
                 current_day += 1
 
+    def normalize_time_state():
+        global current_day, time_slot_index
+        current_day = max(1, int(current_day))
+        time_slot_index = int(time_slot_index) % len(time_slots)
+
     def current_time_block():
+        normalize_time_state()
         return (current_day - 1) * len(time_slots) + time_slot_index
 
     def set_time_block(block_index):
@@ -847,6 +939,7 @@ init python:
         block_index = max(0, block_index)
         current_day = (block_index // len(time_slots)) + 1
         time_slot_index = block_index % len(time_slots)
+        normalize_time_state()
 
     def story_time_block_target(stage):
         target_day = story_day_target(stage)
@@ -867,7 +960,10 @@ init python:
         cap_block = time_tuple_to_block(free_time_action_caps.get(stage))
         if cap_block is not None:
             return cap_block
-        return story_time_block_target(stage)
+        target_block = story_time_block_target(stage)
+        if target_block is not None and target_block % len(time_slots) == 3:
+            return target_block - 1
+        return target_block
 
     def advance_free_time(stage, blocks=1):
         target_block = free_time_action_cap_block(stage)
@@ -896,7 +992,7 @@ init python:
     def gift_is_visible(gift):
         if gift["id"] == "photo_gift" and not dating_started:
             return False
-        if gift["id"] == "earrings" and current_pov == "heitor" and gift["id"] in purchased_gifts:
+        if gift["id"] == "earrings" and (current_pov == "ana" or gift["id"] in purchased_gifts):
             return False
         return True
 
@@ -908,8 +1004,10 @@ init python:
         return current_money() >= gift["cost"]
 
     def gift_status_text(gift):
-        if gift["id"] == "earrings" and current_pov == "heitor" and gift["id"] in purchased_gifts:
+        if gift["id"] == "earrings" and gift["id"] in purchased_gifts:
             return "Já comprado para o pedido."
+        if gift["id"] == "sushi_date" and ana_distance_day(current_love_cap_stage):
+            return "Sushi sozinha. Bom, mas com uma cadeira sobrando."
         if gift["id"] == "snack" and time_slot() == "Noite":
             return "Lanchinho antes da aula não combina com noite."
         if current_money() < gift["cost"]:
@@ -1357,7 +1455,7 @@ screen relationship_hud():
             yalign 0.5
 
             text "[pov_name()]" color pov_color() size 24 layout "nobreak"
-            text "📅 Dia [current_day]" color "#f6f7fb" size 24 layout "nobreak"
+            text "[day_status_text()]" color "#f6f7fb" size 24 layout "nobreak"
             text "[time_slot_icon()] [time_slot()]" color "#f6f7fb" size 24 layout "nobreak"
 
             hbox:
@@ -1368,6 +1466,7 @@ screen relationship_hud():
                 text "[current_progress()]/[progress_max]" color "#f6f7fb" size 18 layout "nobreak" yalign 0.5
 
             text "💵 [current_money_text()]" color "#f6f7fb" size 22 layout "nobreak"
+            text "[current_country_label]" color "#f6f7fb" size 24 layout "nobreak"
 
 screen notification_stack():
     zorder 130
@@ -1533,7 +1632,7 @@ screen location_picker(stage, needed=0, target_person=None):
                                 spacing 7
                                 xalign 0.5
                                 yalign 0.5
-                                text loc["name"] color ("#ffffff" if loc_ready else "#7f8797") size 32 xalign 0.5
+                                text "%s %s" % (loc.get("emoji", ""), loc["name"]) color ("#ffffff" if loc_ready else "#7f8797") size 32 xalign 0.5
                                 if loc_id == "bandejao":
                                     if bandejao_closed:
                                         text _("O bandejão está fechado agora.") color "#a2a9b8" size 20 xalign 0.5
@@ -1554,11 +1653,150 @@ screen location_picker(stage, needed=0, target_person=None):
                         spacing 8
                         xalign 0.5
                         yalign 0.5
-                        text _("Continuar história") color ("#ffffff" if continue_ready else "#7f8797") size 32 xalign 0.5
+                        text _("➡️ Continuar história") color ("#ffffff" if continue_ready else "#7f8797") size 32 xalign 0.5
                         if stage != "primeiro_contato":
                             text free_time_continue_hint(stage, needed, target_person) color ("#f7d7e2" if continue_ready else "#a2a9b8") size 20 xalign 0.5 text_align 0.5
                             if continue_ready and continue_will_pass_time(stage):
                                 text _("Isso passará o tempo.") color "#cfd7e6" size 18 xalign 0.5 text_align 0.5
+
+screen endgame_location_picker():
+    modal True
+    zorder 70
+
+    default locked_location_id = None
+    default locked_location_hint = ""
+
+    add Solid(free_turn_overlay())
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        background Solid(pov_dark())
+        padding (34, 30)
+
+        vbox:
+            spacing 18
+
+            text _("Dia a dia") color pov_color() size 46 xalign 0.5
+            text _("🏆 História concluída, mas você pode continuar jogando infinitamente nesse modo para rever eventos ou ver o que tiver perdido.") color "#f5c84b" size 23 xmaximum 1120 xalign 0.5 text_align 0.5
+
+            grid 2 4:
+                spacing 16
+                xalign 0.5
+
+                for loc in location_data:
+                    if loc["id"] in unlocked_locations:
+                        $ loc_id = loc["id"]
+                        $ loc_ready = location_available(loc["id"])
+                        $ bandejao_closed = loc_id == "bandejao" and not bandejao_is_open()
+                        button:
+                            xsize 540
+                            ysize 118
+                            background Solid("#232d42" if loc_ready else "#202532")
+                            hover_background Solid("#33405d" if loc_ready else "#2b3140")
+                            action If(loc_ready, Return(loc_id), [SetScreenVariable("locked_location_id", loc_id), SetScreenVariable("locked_location_hint", locked_location_message(loc_id))])
+
+                            vbox:
+                                spacing 5
+                                xalign 0.5
+                                yalign 0.5
+                                text "%s %s" % (loc.get("emoji", ""), loc["name"]) color ("#ffffff" if loc_ready else "#7f8797") size 29 xalign 0.5
+                                if loc_id == "bandejao":
+                                    if bandejao_closed:
+                                        text _("O bandejão está fechado agora.") color "#a2a9b8" size 18 xalign 0.5
+                                    else:
+                                        text _("Gasta R$ 2,00") color ("#f7d7e2" if loc_ready else "#a2a9b8") size 18 xalign 0.5
+                                if (not loc_ready) and (not bandejao_closed) and locked_location_id == loc_id and locked_location_hint:
+                                    text locked_location_hint color "#f7d7e2" size 17 xalign 0.5 text_align 0.5
+
+                button:
+                    xsize 540
+                    ysize 118
+                    background Solid("#232d42")
+                    hover_background Solid("#33405d")
+                    action Return("switch_pov")
+                    text _("🔁 Trocar POV") color "#ffffff" size 29 xalign 0.5 yalign 0.5
+
+                button:
+                    xsize 540
+                    ysize 118
+                    background Solid("#232d42")
+                    hover_background Solid("#33405d")
+                    action Return("memories")
+                    text _("📖 Reviver memórias") color "#ffffff" size 29 xalign 0.5 yalign 0.5
+
+                button:
+                    xsize 540
+                    ysize 118
+                    background Solid("#232d42")
+                    hover_background Solid("#33405d")
+                    action Return("configure")
+                    text _("⚙️ Configurar estado") color "#ffffff" size 29 xalign 0.5 yalign 0.5
+
+screen endgame_memory_screen():
+    modal True
+    zorder 120
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 1040
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 18
+            text _("Reviver memórias") color "#ffffff" size 42 xalign 0.5
+
+            grid 2 6:
+                spacing 12
+                xalign 0.5
+
+                for memory in endgame_memory_data:
+                    button:
+                        xsize 450
+                        ysize 74
+                        background Solid("#232d42")
+                        hover_background Solid("#33405d")
+                        action Return(memory["label"])
+                        text memory["name"] color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
+
+            textbutton _("Voltar") action Return("back") xalign 0.5
+
+screen endgame_state_screen():
+    modal True
+    zorder 120
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 1040
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 18
+            text _("Configurar estado") color "#ffffff" size 42 xalign 0.5
+            text _("Use para testar variações de POV, país, carreira e fase do dia a dia.") color "#cfd7e6" size 23 xmaximum 900 xalign 0.5 text_align 0.5
+
+            grid 2 3:
+                spacing 12
+                xalign 0.5
+
+                for state in endgame_state_data:
+                    button:
+                        xsize 450
+                        ysize 92
+                        background Solid("#232d42")
+                        hover_background Solid("#33405d")
+                        action Return(state)
+                        text state["name"] color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
+
+            textbutton _("Voltar") action Return("back") xalign 0.5
 
 screen code_bug_screen(puzzle):
     modal True
@@ -1644,7 +1882,7 @@ screen gift_shop_screen():
                         hbox:
                             spacing 20
                             yalign 0.5
-                            text gift["name"] color ("#ffffff" if gift_ready else "#7f8797") size 26 xminimum 390
+                            text "%s %s" % (gift.get("emoji", ""), gift["name"]) color ("#ffffff" if gift_ready else "#7f8797") size 26 xminimum 390
                             text format_money(gift["cost"]) color ("#f0a7bb" if gift_ready else "#7f8797") size 24 xminimum 95
                             text "+%d %s" % (gift["love"], progress_label(person=other_pov())) color ("#89c7f5" if gift_ready else "#7f8797") size 24 xminimum 160
                             text gift_status_text(gift) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 20
@@ -1965,7 +2203,224 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
 
     return
 
+label endgame_loop:
+    $ endgame_mode = True
+    $ endgame_replay_mode = False
+    $ special_day_label = "🏆 Pós-jogo"
+    $ first_kiss_done = True
+    $ dating_started = True
+    $ unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
+    show screen relationship_hud
+
+    while True:
+        window hide
+        $ show_free_turn_scene()
+        call screen endgame_location_picker
+        window auto
+        $ selected_location = _return
+        $ endgame_stage = current_love_cap_stage
+
+        if selected_location == "poli":
+            call poli_interaction(endgame_stage)
+        elif selected_location == "bandejao":
+            $ paid_bandejao = spend_money(2, "bandejão")
+            if paid_bandejao:
+                call bandejao_interaction(endgame_stage)
+        elif selected_location == "heitor_home":
+            call heitor_home_interaction(endgame_stage)
+        elif selected_location == "shop":
+            call gift_phase(endgame_stage)
+        elif selected_location == "work":
+            call money_phase(endgame_stage)
+        elif selected_location == "switch_pov":
+            $ next_pov = other_pov()
+            call quick_change_pov(next_pov)
+        elif selected_location == "memories":
+            call screen endgame_memory_screen
+            $ memory_label = _return
+            if memory_label != "back":
+                call endgame_replay_memory(memory_label)
+        elif selected_location == "configure":
+            call screen endgame_state_screen
+            $ state = _return
+            if state != "back":
+                $ current_pov = state["pov"]
+                $ current_country_label = state["country"]
+                $ career_phase = state["career"]
+                $ set_love_cap_stage(state["stage"])
+                $ first_kiss_done = True
+                $ dating_started = True
+                $ queue_notification("Estado ajustado para testar variações.")
+
+    return
+
+label endgame_replay_memory(memory_label):
+    $ endgame_replay_mode = True
+    call expression memory_label
+    $ endgame_replay_mode = False
+    $ special_day_label = "🏆 Pós-jogo"
+    show screen relationship_hud
+    return
+
+label endgame_intro_replay:
+    call change_pov("heitor", "Uma rara ida ao Bandejão Central")
+
+    scene bg bandejao
+    with fade
+
+    show heitor college neutral at pov_left
+    show ana college neutral at other_right
+
+    a "Engraçado… a gente é da mesma sala há meses."
+
+    show heitor college soft_smile
+    h "Pois é."
+
+    ana_thought "Ficamos conversando o jantar inteiro. Me dissociei um pouco dos arredores."
+
+    ana_thought "Todos os amigos conversavam entre si, mas havia algo me impedindo de olhar em outra direção."
+
+    ana_thought "Talvez um pouco mais. Ele era tão fofo..."
+
+    return
+
+label ana_distance_missing_beat(stage, love=3, reason="saudade da presença"):
+    ana_thought "No fim, a parte mais estranha era perceber o espaço exato que ele ocupava quando estava por perto."
+    ana_thought "Eu sentia falta dele ali."
+    $ add_partner_love(love, reason)
+    $ advance_free_time(stage)
+    return
+
+label ana_distance_poli_interaction(stage="campus"):
+    $ show_free_action_scene("bg desktop_code")
+    with fade
+
+    show ana college thinking at pov_left
+
+    menu:
+        "Resolver uma lista sozinha":
+            a "Ok. Uma lista, uma Ana e zero Heitor para falar que isso é tranquilo."
+            ana_thought "Eu abri uma conversa antiga nossa só para lembrar do jeito que ele explicava as coisas."
+            ana_thought "A resposta não veio dali, mas a calma um pouco sim."
+            call ana_distance_missing_beat(stage, 4, "lista com saudade")
+
+        "Fazer debug do EP":
+            call ana_distance_debug_ep(stage)
+
+        "Reclamar da Poli":
+            a "Hoje a reclamação vai ter que ser em formato monólogo."
+            ana_thought "Era ridículo como até reclamar da graduação ficava melhor quando ele estava do lado."
+            call ana_distance_missing_beat(stage, 3, "reclamação em modo saudade")
+
+    return
+
+label ana_distance_bandejao_interaction(stage="campus"):
+    $ show_free_action_scene("bg bandejao")
+    with fade
+
+    show ana college neutral at pov_left
+
+    menu:
+        "Bandejão speedrun":
+            a "Eu fui na Física só porque era mais perto."
+            show ana college annoyed
+            a "O arroz continua duro. Ele ia estar feliz. Eu, menos."
+            call ana_distance_missing_beat(stage, 4, "Física sem Heitor")
+
+        "Comida barata e conversa boa":
+            a "O prato até estava bom."
+            ana_thought "Mas a mesa parecia grande demais para uma pessoa só."
+            call ana_distance_missing_beat(stage, 4, "bandejão sem companhia")
+
+        "Debater o ranking dos bandejões":
+            a "Central é melhor. Isso nem é debate."
+            ana_thought "Eu quase mandei mensagem para ele só para brigar com a defesa absurda da Física."
+            call ana_distance_missing_beat(stage, 3, "ranking à distância")
+
+    return
+
+label ana_distance_home_interaction(stage="home"):
+    $ show_free_action_scene(bedroom_background())
+    with fade
+
+    show ana home neutral at pov_left
+
+    menu:
+        "Assistir algo no sofá":
+            a "Hoje eu vou entender a história."
+            pause 0.4
+            show ana home sad
+            a "Ou vou pausar no meio porque não tem ninguém para eu perguntar o que está acontecendo."
+            call ana_distance_missing_beat(stage, 5, "sofá com lugar sobrando")
+
+        "Jogar alguma coisa":
+            menu:
+                "Jogo de habilidade":
+                    call rhythm_skill_phase(stage)
+                    ana_thought "Ganhar era legal. Ter ele rindo do meu desespero teria sido melhor."
+
+                "Jogo de história":
+                    a "É tipo um filme, só que com botão."
+                    ana_thought "Eu conseguia ouvir ele respondendo que isso era justamente a melhor parte."
+                    call ana_distance_missing_beat(stage, 3, "filme com botão sem debate")
+
+                "Jogo de aventura":
+                    a "Se eu cair aqui, ninguém vai falar 'pula agora' com toda a confiança do mundo."
+                    ana_thought "Que ódio. Eu sentia falta até disso."
+                    call ana_distance_missing_beat(stage, 4, "aventura em modo solo")
+
+        "Cozinhar algo barato (R$ 10,00)" if current_money() >= 10:
+            $ spend_money(10, "jantar barato")
+            a "A receita tem três passos."
+            show ana home embarrassed
+            a "Eu errei em quatro mesmo sem ele aqui para chamar de versão beta."
+            call ana_distance_missing_beat(stage, 4, "jantar improvisado à distância")
+
+        "Pedir Tavares no iFood (R$ 18,00)" if current_money() >= 18:
+            $ spend_money(18, "Tavares no iFood")
+            a "Frango parmegiana do Tavares."
+            show ana home neutral
+            a "Ele defenderia isso com argumentos econômicos muito fortes."
+            ana_thought "Eu ainda não entendia totalmente. Mas entendia a saudade."
+            call ana_distance_missing_beat(stage, 3, "Tavares sem advogado")
+
+    return
+
+label ana_distance_debug_ep(stage="campus"):
+    $ score = 0
+
+    system_line "Debug do EP. Agora com chamada mental de suporte técnico ausente."
+
+    $ code_puzzle = pick_code_bug_puzzle()
+    call screen code_bug_screen(code_puzzle)
+    $ selected_code_line = _return
+
+    if selected_code_line == code_puzzle["answer"]:
+        $ score += 2
+        $ code_result_text = code_puzzle["success"]
+    else:
+        $ code_result_text = code_puzzle["failure"]
+
+    system_line "[code_result_text]"
+
+    if score >= 2:
+        show ana college soft
+        a "Tá. Eu consegui."
+        ana_thought "Eu queria poder mandar a tela para ele e fingir que era só pelo EP."
+        call ana_distance_missing_beat(stage, 6, "debug com saudade")
+    else:
+        show ana college embarrassed
+        a "Não resolveu tudo."
+        ana_thought "E a cadeira vazia do lado não ajudou em nada."
+        call ana_distance_missing_beat(stage, 3, "debug sem dupla")
+
+    return
+
 label poli_interaction(stage="campus"):
+    if ana_distance_day(stage):
+        call ana_distance_poli_interaction(stage)
+        return
+
     $ show_free_action_scene("bg desktop_code")
     with fade
 
@@ -1974,7 +2429,8 @@ label poli_interaction(stage="campus"):
         show ana college thinking at other_right
     else:
         show ana college thinking at pov_left
-        show heitor focused at other_right
+        if not ana_distance_day(stage):
+            show heitor focused at other_right
 
     $ poli_complaint_label = "Ouvir reclamação da Poli" if current_pov == "heitor" else "Reclamar da Poli"
 
@@ -2002,6 +2458,10 @@ label poli_interaction(stage="campus"):
     return
 
 label bandejao_interaction(stage="campus"):
+    if ana_distance_day(stage):
+        call ana_distance_bandejao_interaction(stage)
+        return
+
     $ show_free_action_scene("bg bandejao")
     with fade
 
@@ -2041,6 +2501,10 @@ label bandejao_interaction(stage="campus"):
     return
 
 label heitor_home_interaction(stage="home"):
+    if ana_distance_day(stage):
+        call ana_distance_home_interaction(stage)
+        return
+
     $ show_free_action_scene(heitor_home_background())
     with fade
 
@@ -2128,7 +2592,20 @@ label rhythm_skill_phase(stage="home"):
     $ rhythm_unlock_next_song(rhythm_track_id)
     $ rhythm_unlock_next_chart(rhythm_track_id, rhythm_chart)
 
-    if rhythm_acc >= 85:
+    if ana_distance_day(stage):
+        if rhythm_acc >= 85:
+            show ana college super_happy
+            a "Eu apertei coisa demais e funcionou!"
+            ana_thought "Ele ia fazer uma cara orgulhosa idiota. Eu senti falta exatamente dessa cara."
+        elif rhythm_acc >= 55:
+            show ana college happy
+            a "Não foi perfeito, mas foi divertido."
+            ana_thought "Faltou ele cantar alguma coisa fora de hora."
+        else:
+            show ana college embarrassed
+            a "Eu acho que dancei mais com a cara do que com os dedos."
+            ana_thought "E nem tinha ele aqui para transformar o desastre em piada."
+    elif rhythm_acc >= 85:
         h "Ok, isso foi bonito."
         show ana college super_happy
         a "Eu apertei coisa demais e funcionou!"
@@ -2179,7 +2656,18 @@ label gift_phase(stage="shop"):
             $ purchased_gifts.append(gift_id)
         $ add_partner_love(gift_love, gift_name)
         $ advance_free_time(stage)
-        system_line "Você entregou: [gift_name]."
+        if ana_distance_day(stage) and gift_id == "sushi_date":
+            show ana college neutral at pov_left
+            a "Eu fui comer sushi sozinha."
+            show ana college sad
+            a "Continuava gostoso."
+            ana_thought "Mas ninguém estava ali para trocar salmão grelhado por sashimi comigo."
+            ana_thought "A cadeira vazia parecia saber exatamente o quanto eu sentia falta dele."
+        elif ana_distance_day(stage):
+            system_line "Você separou para mandar depois: [gift_name]."
+            ana_thought "A graça era imaginar a reação dele. A parte difícil era não ter essa reação na minha frente."
+        else:
+            system_line "Você entregou: [gift_name]."
     else:
         system_line "A carteira olhou para o preço e pediu análise assintótica."
 
@@ -2213,7 +2701,10 @@ label photo_gift_phase(stage="shop", gift=None):
     $ puzzle_piece_displays = photo_puzzle_piece_displays(photo_path, puzzle_size)
     $ skipped_puzzle = False
 
-    system_line "Você separa as fotos, tenta fazer um mosaico bonito e descobre que romantismo também tem complexidade combinatória."
+    if ana_distance_day(stage):
+        system_line "Você separa as fotos, tenta fazer um mosaico bonito e descobre que saudade também tem complexidade combinatória."
+    else:
+        system_line "Você separa as fotos, tenta fazer um mosaico bonito e descobre que romantismo também tem complexidade combinatória."
 
     call screen sliding_photo_puzzle(photo_path, puzzle_pieces, puzzle_size, difficulty_name, puzzle_piece_displays)
     $ puzzle_action, puzzle_index = _return
@@ -2233,7 +2724,12 @@ label photo_gift_phase(stage="shop", gift=None):
         $ final_reward = puzzle_reward
         system_line "O mosaico fecha certinho. Presente barato, capricho caríssimo."
 
+    if ana_distance_day(stage):
+        ana_thought "Eu queria ver ele olhando as fotos comigo, apontando alguma lembrança boba que eu quase tinha esquecido."
+        ana_thought "A foto mostrava uma memória de nós dois. O quarto, não."
+
     hide completed_photo
+    $ photo_gift_completed = True
     $ inventory.append(gift_name)
     $ add_partner_love(final_reward, gift_name)
     $ advance_free_time(stage, 2)
@@ -2254,7 +2750,12 @@ label money_phase(stage="money"):
         menu:
             "Trabalhar na IC":
                 a "Eu não fiz quase nada e eles elogiam o que eu fiz como se fosse a melhor coisa do mundo."
-                h "Meu Deus, 2h de reunião! Vocês tão pesquisando mesmo ou batendo papo?"
+                if ana_distance_day(stage):
+                    ana_thought "Eu quase mandei para ele: '2h de reunião'."
+                    ana_thought "Ele provavelmente ia perguntar se era pesquisa mesmo ou bate-papo."
+                    ana_thought "Só imaginar a resposta dele já deixou a sala um pouco menos vazia."
+                else:
+                    h "Meu Deus, 2h de reunião! Vocês tão pesquisando mesmo ou batendo papo?"
                 $ add_money(32, "bolsa de IC")
                 $ advance_free_time(stage, 2)
 
@@ -2271,7 +2772,7 @@ label money_phase(stage="money"):
                     $ add_money(32, "bolsa de IC")
                     $ advance_free_time(stage, 2)
 
-                "Ir para o Crossing Research Lab":
+                "Trabalhar para o Crossing":
                     call heitor_crossing_phase(stage)
         else:
             menu:
@@ -2295,18 +2796,25 @@ label ana_internship_phase(stage="money"):
         $ show_free_action_scene("bg desktop_code")
         with dissolve
         show ana college happy at pov_left
-        show heitor focused at other_right
+        if not ana_distance_day(stage):
+            show heitor focused at other_right
     elif career_phase == "virtualisurg_frontend":
-        h "Nossa, como eu amo front-end, quero trabalhar com isso pro resto da vida."
+        if not ana_distance_day(stage):
+            h "Nossa, como eu amo front-end, quero trabalhar com isso pro resto da vida."
         show ana college happy
         a "Finalmente centralizei a div, que dia produtivo."
     else:
-        h "XR na VirtualiSurg. Agora o bug pode estar no código ou no espaço."
+        if not ana_distance_day(stage):
+            h "Muito bem."
         show ana college sad
         a "Que saudade do front..."
-    h "Dinheiro a gente faz..."
-    show ana college annoyed
-    a "Até parece"
+    if ana_distance_day(stage):
+        ana_thought "Eu queria contar cada detalhe para ele sem depender de fuso, mensagem e horário quebrado."
+        ana_thought "No fim do dia, a falta dele fazia mais barulho que qualquer notificação."
+    else:
+        h "Dinheiro a gente faz..."
+        show ana college annoyed
+        a "Até parece"
 
     $ advance_free_time(stage, 2)
     return
@@ -2315,11 +2823,11 @@ label heitor_crossing_phase(stage="money"):
     show heitor focused at pov_left
     show ana college thinking at other_right
 
-    h "Hoje eu tenho plantão no Crossing."
-    a "Crossing Research Lab?"
-    h "Sim. Pesquisa, reunião, código e aquela esperança acadêmica de que tudo vai compilar antes de acabar o dia."
+    h "Tenho que fazer o paper do Crossing."
+    a "Ainda ta nisso, já não tinha acabado?"
+    h "Alguém tem que trabalhar nessa casa."
     show ana college happy
-    a "Se pagar, já é melhor que muito EP."
+    a "Larga isso, já deu."
 
     $ add_money(70, "plantão no Crossing")
     $ add_partner_love(2, "plantão no Crossing")
@@ -2348,6 +2856,10 @@ label mother_money_phase(stage="money"):
         else:
             $ add_money(200, "Aline salvou o dia")
             system_line "Não demora muito para o pix cair."
+
+        if ana_distance_day(stage):
+            ana_thought "Eu queria contar para ele que a nanãe tinha salvado o dia de novo."
+            ana_thought "Até uma besteira dessas parecia melhor quando ele estava por perto para rir comigo."
         
         $ advance_free_time(stage)
     else:
