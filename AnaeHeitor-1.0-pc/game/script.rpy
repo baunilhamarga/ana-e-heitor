@@ -1102,28 +1102,30 @@ label primeiro_beijo:
 
     $ set_love_cap_stage("pedido_namoro")
     $ add_love(10, "primeiro beijo")
-    call relationship_gate("pedido_namoro", 38, "Depois do primeiro beijo, ainda precisa caber um pouco de rotina: mensagens, encontros baratos e coragem acumulada.")
+    $ add_love(24, "primeiro beijo", person="heitor")
+    call change_pov("heitor", "Preparando o pedido")
+    call free_time_phase("pedido_namoro")
 
     jump pedido_namoro
 
 label pedido_namoro:
+    $ current_pov = "heitor"
 
     scene bg hamburgueria
     with fade
 
     pause 1.0
 
-    show ana college happy at pov_left
-
-    show heitor nervous at other_right
+    show heitor nervous at pov_left
+    show ana college happy at other_right
 
     pause 0.5
 
-    ana_thought "Duas semanas depois do primeiro beijo…"
+    heitor_thought "Duas semanas depois do primeiro beijo…"
 
     pause 1.0
 
-    ana_thought "Ele me chamou pra ir numa hamburgueria."
+    heitor_thought "Eu chamei ela pra ir numa hamburgueria."
 
     pause 1.2
 
@@ -1139,6 +1141,10 @@ label pedido_namoro:
 
     pause 0.8
 
+    call quick_change_pov("ana")
+    show ana college happy at pov_left
+    show heitor nervous at other_right
+
     ana_thought "Ele tava estranho."
 
     pause 0.8
@@ -1147,7 +1153,10 @@ label pedido_namoro:
 
     pause 1.2
 
+    call quick_change_pov("heitor")
+    show heitor nervous at pov_left
     show ana college neutral
+    show ana college neutral at other_right
 
     a "Você tá bem?"
 
@@ -1199,12 +1208,19 @@ label pedido_namoro:
 
     pause 2.0
 
+    call quick_change_pov("ana")
+    show ana college super_happy at pov_left
+    show heitor nervous at other_right
+
     ana_thought "Eu já sabia o que era, afinal tínhamos conversado sobre isso e eu disse que aceitaria caso ele me pedisse do jeito certo." 
     ana_thought "Mas sendo honesta, qualquer pedido seria perfeito. Ele era perfeito."
 
     pause 2.0
 
+    call quick_change_pov("heitor")
     show heitor nervous
+    show heitor nervous at pov_left
+    show ana college super_happy at other_right
 
     pause 1.0
 
@@ -1215,6 +1231,10 @@ label pedido_namoro:
     h "Quer namorar comigo?"
 
     pause 2.5
+
+    call quick_change_pov("ana")
+    show ana college super_happy at pov_left
+    show heitor nervous at other_right
 
     menu:
         "Eu já estava esperando isso.":
@@ -1250,7 +1270,12 @@ label pedido_namoro:
 
 label aceita_namoro:
 
+    $ dating_started = True
+
+    call quick_change_pov("heitor")
     show heitor nervous
+    show heitor nervous at pov_left
+    show ana college super_happy at other_right
 
     pause 1.0
 
@@ -1258,7 +1283,10 @@ label aceita_namoro:
 
     pause 1.0
 
+    call quick_change_pov("ana")
     show ana college super_happy
+    show ana college super_happy at pov_left
+    show heitor nervous at other_right
 
     a "É óbvio que é um sim."
 
@@ -1296,6 +1324,7 @@ label aceita_namoro:
 
     $ set_love_cap_stage("primeiro_eu_te_amo")
     $ add_love(12, "pedido de namoro")
+    call change_pov("ana", "Namoro oficial")
     call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.")
 
     jump primeiro_eu_te_amo

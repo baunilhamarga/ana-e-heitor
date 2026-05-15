@@ -18,12 +18,15 @@ default time_slot_index = 0
 default queued_notifications = []
 default notification_sequence = 0
 default first_kiss_done = False
+default dating_started = False
+default date_gate_notice_seen = False
 default current_love_cap_stage = "intro"
 default last_code_bug_puzzle = -1
 default career_phase = "btg"
 default unlocked_locations = ["poli", "bandejao", "heitor_home", "shop", "work"]
 default completed_memories = []
 default inventory = []
+default purchased_gifts = []
 default mother_money_day = 0
 default mother_money_requests_today = 0
 
@@ -88,7 +91,7 @@ init python:
         {
             "id": "chocolate",
             "name": "Chocolate da Cacau Show",
-            "cost": 18,
+            "cost": 30,
             "love": 6,
             "line": "O clássico. Funciona porque funciona.",
         },
@@ -97,23 +100,51 @@ init python:
             "name": "Lanchinho antes da aula",
             "cost": 12,
             "love": 4,
-            "line": "Pequeno, barato e emocionalmente estratégico.",
+            "line": "Pequeno e barato.",
         },
         {
             "id": "earrings",
             "name": "Brincos bonitinhos",
-            "cost": 45,
+            "cost": 300,
             "love": 10,
-            "line": "Perigoso. Pode render um sorriso enorme.",
+            "line": "Dinheiro a gente faz... Pode render um sorriso enorme.",
         },
         {
             "id": "sushi_date",
             "name": "Jantar de sushi",
-            "cost": 70,
+            "cost": 99.99,
             "love": 13,
-            "line": "Investimento alto. Retorno emocional excelente.",
+            "line": "Salmãozinho grelhado, sashimi, camarão com catupiry? Humm...",
+        },
+        {
+            "id": "photo_gift",
+            "name": "Fazer um presente caprichado com fotos",
+            "cost": 10,
+            "love": 24,
+            "line": "Tesoura emocional, fotos e capricho de verdade.",
         },
     ]
+
+    photo_gift_difficulties = {
+        "facil": {
+            "name": "Fácil",
+            "size": 3,
+            "reward": 14,
+            "moves": 28,
+        },
+        "medio": {
+            "name": "Médio",
+            "size": 4,
+            "reward": 18,
+            "moves": 52,
+        },
+        "dificil": {
+            "name": "Difícil",
+            "size": 5,
+            "reward": 24,
+            "moves": 85,
+        },
+    }
 
     love_cap_data = {
         "intro": {"heitor": 8, "ana": 40},
@@ -121,8 +152,8 @@ init python:
         "mensagens_iniciais": {"heitor": 22, "ana": 50},
         "ep_yoshi": {"heitor": 24, "ana": 54},
         "primeiro_beijo": {"heitor": 28, "ana": 56},
-        "pedido_namoro": {"heitor": 42, "ana": 68},
-        "primeiro_eu_te_amo": {"heitor": 60, "ana": 80},
+        "pedido_namoro": {"heitor": 55, "ana": 68},
+        "primeiro_eu_te_amo": {"heitor": 70, "ana": 80},
         "australia": {"heitor": 82, "ana": 92},
         "post_australia": {"heitor": 88, "ana": 94},
         "distancia_australia": {"heitor": 92, "ana": 96},
@@ -174,6 +205,9 @@ init python:
         "distancia_australia": {
             "love": 90,
             "person": "heitor",
+        },
+        "pedido_namoro": {
+            "gifts": ["chocolate", "earrings"],
         },
     }
 
@@ -427,13 +461,20 @@ init python:
         requirements = resolved_continue_requirements(stage, needed, target_person)
         love_needed = requirements.get("love", 0)
         money_needed = requirements.get("money", 0)
+        gift_needed = requirements.get("gifts", [])
         love_person = requirements.get("person", target_person or other_pov())
 
         if love_needed and progress_for(love_person) < love_needed:
             return False
         if money_needed and current_money() < money_needed:
             return False
+        if gift_needed and not all(gift_id in purchased_gifts for gift_id in gift_needed):
+            return False
         return True
+
+    def free_time_has_continue_requirements(stage="campus", needed=0, target_person=None):
+        requirements = resolved_continue_requirements(stage, needed, target_person)
+        return bool(requirements.get("love", 0) or requirements.get("money", 0) or requirements.get("gifts", []))
 
     def possessive_name(person):
         if person == "ana":
@@ -465,6 +506,16 @@ init python:
             else:
                 all_met = False
                 parts.append("saldo: %s/%s, falta %s" % (format_money(current_cash), format_money(money_needed), format_money(money_needed - current_cash)))
+
+        gift_needed = requirements.get("gifts", [])
+        for gift_id in gift_needed:
+            gift = gift_by_id(gift_id)
+            gift_name = gift["name"] if gift else gift_id
+            if gift_id in purchased_gifts:
+                parts.append("%s comprado" % gift_name)
+            else:
+                all_met = False
+                parts.append("comprar %s" % gift_name)
 
         if not parts:
             return "Requisito: nenhum."
@@ -522,11 +573,11 @@ init python:
         score = progress_for(person) if value is None else value
         if score < 10:
             return "Curiosidade"
-        if score < 25:
+        if score < 24:
             return "Atenção"
-        if score < 45:
+        if score < 42:
             return "Interesse"
-        if score < 65:
+        if score < 62:
             return "Carinho"
         if score < 80:
             return "Paixão"
@@ -547,6 +598,8 @@ init python:
             "bandejão": "Bandejão pago.",
             "hamburgueria": "Hamburgueria paga.",
             "lanche improvisado": "Lanche pago. O plano B também alimenta.",
+            "jantar barato": "Jantar barato pago.",
+            "Tavares no iFood": "Tavares pago. Barato, honesto e polêmico.",
             "memória desbloqueada": "Memória desbloqueada.",
             "lista em dupla": "Lista em dupla.",
             "reclamação acadêmica": "Reclamar também aproxima.",
@@ -554,7 +607,9 @@ init python:
             "debate duvidoso": "Ranking de bandejão.",
             "sofá e série": "Sofá e série. Entender o plot é opcional.",
             "jogo em dupla": "Jogo em dupla.",
-            "jantar improvisado": "Jantar improvisado. Tecnicamente comestível.",
+            "jantar improvisado": "Jantar improvisado.",
+            "parmegiana do Tavares": "Tavares: Heitor defende, Ana tolera.",
+            "plantão no Crossing": "Crossing Research Lab. Pesquisa também paga.",
             "debug sem pânico": "Debug sem pânico. Amor também tem breakpoint.",
             "debug caótico": "Debug caótico.",
             "EP salvo na madrugada": "EP salvo na madrugada. Yoshi não venceu hoje.",
@@ -741,6 +796,100 @@ init python:
                 return gift
         return None
 
+    def gift_is_visible(gift):
+        if gift["id"] == "photo_gift" and not dating_started:
+            return False
+        if gift["id"] == "earrings" and current_pov == "heitor" and gift["id"] in purchased_gifts:
+            return False
+        return True
+
+    def gift_is_available(gift):
+        if not gift_is_visible(gift):
+            return False
+        if gift["id"] == "snack" and time_slot() == "Noite":
+            return False
+        return current_money() >= gift["cost"]
+
+    def gift_status_text(gift):
+        if gift["id"] == "earrings" and current_pov == "heitor" and gift["id"] in purchased_gifts:
+            return "Já comprado para o pedido."
+        if gift["id"] == "snack" and time_slot() == "Noite":
+            return "Lanchinho antes da aula não combina com noite."
+        if current_money() < gift["cost"]:
+            return "Saldo insuficiente."
+        return gift["line"]
+
+    def gift_photo_files():
+        return sorted([
+            path for path in renpy.list_files()
+            if path.startswith("images/gift_photos/")
+            and path.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+        ])
+
+    def pick_gift_photo():
+        photos = gift_photo_files()
+        if not photos:
+            return None
+        return py_random.SystemRandom().choice(photos)
+
+    def puzzle_adjacent(index, blank, size):
+        row, col = divmod(index, size)
+        blank_row, blank_col = divmod(blank, size)
+        return abs(row - blank_row) + abs(col - blank_col) == 1
+
+    def shuffled_photo_puzzle(size, moves):
+        pieces = list(range(size * size))
+        blank = len(pieces) - 1
+        rng = py_random.SystemRandom()
+        previous_blank = None
+        for _i in range(moves):
+            candidates = [i for i in range(len(pieces)) if puzzle_adjacent(i, blank, size) and i != previous_blank]
+            if not candidates:
+                candidates = [i for i in range(len(pieces)) if puzzle_adjacent(i, blank, size)]
+            index = rng.choice(candidates)
+            pieces[blank], pieces[index] = pieces[index], pieces[blank]
+            previous_blank, blank = blank, index
+        if pieces == list(range(size * size)):
+            pieces[blank], pieces[blank - 1] = pieces[blank - 1], pieces[blank]
+        return pieces
+
+    def puzzle_move(pieces, index, size):
+        new_pieces = list(pieces)
+        blank = new_pieces.index(len(new_pieces) - 1)
+        if puzzle_adjacent(index, blank, size):
+            new_pieces[blank], new_pieces[index] = new_pieces[index], new_pieces[blank]
+        return new_pieces
+
+    def puzzle_solved(pieces):
+        return pieces == list(range(len(pieces)))
+
+    def photo_puzzle_layout(photo, size):
+        source_w, source_h = renpy.image_size(photo)
+        max_w, max_h = 820, 620
+        scale = min(float(max_w) / source_w, float(max_h) / source_h, 1.0)
+        display_w = max(size, int(source_w * scale))
+        display_h = max(size, int(source_h * scale))
+        tile_w = max(1, display_w // size)
+        tile_h = max(1, display_h // size)
+        return {
+            "scale": scale,
+            "width": tile_w * size,
+            "height": tile_h * size,
+            "tile_width": tile_w,
+            "tile_height": tile_h,
+        }
+
+    def scaled_photo_display(photo, size):
+        layout = photo_puzzle_layout(photo, size)
+        return im.Crop(im.FactorScale(photo, layout["scale"]), (0, 0, layout["width"], layout["height"]))
+
+    def puzzle_piece_display(photo, piece, size):
+        layout = photo_puzzle_layout(photo, size)
+        tile_w = layout["tile_width"]
+        tile_h = layout["tile_height"]
+        row, col = divmod(piece, size)
+        return im.Crop(im.FactorScale(photo, layout["scale"]), (col * tile_w, row * tile_h, tile_w, tile_h))
+
     def complete_memory(memory_id, love=0, money_reward=0):
         if memory_id in completed_memories:
             return False
@@ -867,28 +1016,35 @@ transform other_right:
     yalign 1.0
     zoom 0.92
 
-screen gate_notice(title, needed, hint, target_name=""):
+screen gate_notice(title, needed, hint, target_person="", show_date_hint=False, state_text=""):
     modal True
     zorder 110
+
+    default target_label = progress_label(person=target_person) if target_person else progress_label()
+    default target_owner = possessive_name(target_person) if target_person else ""
 
     add Solid("#070b13dd")
 
     frame:
         xalign 0.5
         yalign 0.5
-        xsize 980
+        xmaximum 1040
         background Solid("#182033")
         padding (42, 36)
 
         vbox:
             spacing 18
             text title color "#ffffff" size 42 xalign 0.5 text_align 0.5
-            text hint color "#dfe7f3" size 28 xalign 0.5 text_align 0.5
-            if target_name:
-                text _("Love necessário de [target_name]: [needed]") color "#f0a7bb" size 26 xalign 0.5
+            text hint color "#dfe7f3" size 28 xmaximum 920 xalign 0.5 text_align 0.5
+            if show_date_hint:
+                text _("Agora vocês podem sair em encontros ♡ Que fofos!") color "#dfe7f3" size 24 xmaximum 920 xalign 0.5 text_align 0.5
+            if state_text:
+                text state_text color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
+            elif target_person:
+                text _("[target_label] [target_owner]: [needed]") color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
             else:
-                text _("Love necessário: [needed]") color "#f0a7bb" size 26 xalign 0.5
-            textbutton _("Abrir turno livre") action Return(True) xalign 0.5
+                text _("[target_label] necessário: [needed]") color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
+            textbutton _("Abrir dia a dia") action Return(True) xalign 0.5
 
 screen location_picker(stage, needed=0, target_person=None):
     modal True
@@ -909,7 +1065,7 @@ screen location_picker(stage, needed=0, target_person=None):
         vbox:
             spacing 22
 
-            text _("Turno livre") color pov_color() size 46 xalign 0.5
+            text _("Dia a dia") color pov_color() size 46 xalign 0.5
             text _("Escolha uma ação antes da próxima memória.") color "#cfd7e6" size 26 xalign 0.5
 
             grid 2 3:
@@ -1030,22 +1186,120 @@ screen gift_shop_screen():
             text _("Saldo de [pov_name()]: [current_money_text()]") color "#cfd7e6" size 26 xalign 0.5
 
             for gift in gift_data:
-                button:
-                    xfill True
-                    yminimum 84
-                    background Solid("#232d42")
-                    hover_background Solid("#33405d")
-                    action Return(gift["id"])
+                if gift_is_visible(gift):
+                    $ gift_ready = gift_is_available(gift)
+                    button:
+                        xfill True
+                        yminimum 84
+                        background Solid("#232d42" if gift_ready else "#202532")
+                        hover_background Solid("#33405d" if gift_ready else "#202532")
+                        sensitive gift_ready
+                        action Return(gift["id"])
 
-                    hbox:
-                        spacing 20
-                        yalign 0.5
-                        text gift["name"] color "#ffffff" size 26 xminimum 390
-                        text format_money(gift["cost"]) color "#f0a7bb" size 24 xminimum 95
-                        text "+%d love" % gift["love"] color "#89c7f5" size 24 xminimum 135
-                        text gift["line"] color "#cbd5e1" size 20
+                        hbox:
+                            spacing 20
+                            yalign 0.5
+                            text gift["name"] color ("#ffffff" if gift_ready else "#7f8797") size 26 xminimum 390
+                            text format_money(gift["cost"]) color ("#f0a7bb" if gift_ready else "#7f8797") size 24 xminimum 95
+                            text "+%d %s" % (gift["love"], progress_label(person=other_pov())) color ("#89c7f5" if gift_ready else "#7f8797") size 24 xminimum 160
+                            text gift_status_text(gift) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 20
 
             textbutton _("Voltar") action Return("back") xalign 0.5
+
+screen photo_gift_difficulty_screen():
+    modal True
+    zorder 115
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 980
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 22
+            xalign 0.5
+
+            text _("Presente com fotos") color "#ffffff" size 44 xalign 0.5 text_align 0.5
+            text _("Escolha o tamanho do mosaico. Se pular, o capricho vale metade.") color "#cfd7e6" size 24 xmaximum 820 xalign 0.5 text_align 0.5
+
+            hbox:
+                spacing 18
+                xalign 0.5
+
+                for key in ["facil", "medio", "dificil"]:
+                    $ difficulty = photo_gift_difficulties[key]
+                    button:
+                        xsize 250
+                        ysize 140
+                        background Solid("#232d42")
+                        hover_background Solid("#33405d")
+                        action Return(key)
+
+                        vbox:
+                            spacing 8
+                            xalign 0.5
+                            yalign 0.5
+                            text difficulty["name"] color "#ffffff" size 30 xalign 0.5
+                            text "%dx%d" % (difficulty["size"], difficulty["size"]) color "#cfd7e6" size 22 xalign 0.5
+                            text "+%d %s" % (difficulty["reward"], progress_label(person=other_pov())) color "#89c7f5" size 22 xalign 0.5
+
+            textbutton _("Voltar") action Return("back") xalign 0.5
+
+screen sliding_photo_puzzle(photo, pieces, size, difficulty_name):
+    modal True
+    zorder 120
+
+    default puzzle_layout = photo_puzzle_layout(photo, size)
+    default tile_width = puzzle_layout["tile_width"]
+    default tile_height = puzzle_layout["tile_height"]
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        background Solid("#151c2c")
+        padding (28, 24)
+
+        vbox:
+            spacing 18
+            xalign 0.5
+
+            text _("Monte o mosaico - [difficulty_name]") color "#ffffff" size 38 xalign 0.5
+
+            grid size size:
+                spacing 2
+                xalign 0.5
+
+                for index, piece in enumerate(pieces):
+                    if piece == len(pieces) - 1:
+                        button:
+                            xysize (tile_width, tile_height)
+                            background Solid("#0d1117")
+                            action NullAction()
+                    else:
+                        button:
+                            xysize (tile_width, tile_height)
+                            background Solid("#0d1117")
+                            hover_background Solid("#1f6feb44")
+                            action Return(("move", index))
+
+                            add puzzle_piece_display(photo, piece, size) xysize (tile_width, tile_height)
+
+            hbox:
+                spacing 18
+                xalign 0.5
+
+                textbutton _("Pular"):
+                    action Return(("skip", None))
+
+                if puzzle_solved(pieces):
+                    textbutton _("Finalizar"):
+                        action Return(("done", None))
 
 label change_pov(who, title=""):
     $ current_pov = who
@@ -1066,14 +1320,18 @@ label quick_change_pov(who):
 label relationship_gate(gate_name, needed, hint):
     $ set_love_cap_stage(gate_name)
     $ gate_person = other_pov()
-    $ gate_person_name = pov_data[gate_person]["name"]
-
     if progress_for(gate_person) < needed:
-        call screen gate_notice(_("Memória bloqueada"), needed, hint, gate_person_name)
+        $ show_date_hint = not date_gate_notice_seen
+        $ gate_state_text = free_time_continue_hint(gate_name, needed, gate_person)
+        call screen gate_notice(_("Memória bloqueada"), needed, hint, gate_person, show_date_hint, gate_state_text)
+        if show_date_hint:
+            $ date_gate_notice_seen = True
 
     while progress_for(gate_person) < needed:
         $ missing_love = needed - progress_for(gate_person)
-        system_line "Ainda faltam [missing_love] pontos de love de [gate_person_name] para esta memória fazer sentido."
+        $ missing_label = progress_label(person=gate_person)
+        $ missing_owner = possessive_name(gate_person)
+        system_line "Ainda faltam [missing_love] pontos de [missing_label] [missing_owner] para a próxima memória."
         call free_time_phase(gate_name, needed, gate_person)
 
     return
@@ -1081,6 +1339,10 @@ label relationship_gate(gate_name, needed, hint):
 label free_time_phase(stage="campus", needed=0, target_person=None):
     $ set_love_cap_stage(stage)
     $ apply_free_time_start(stage)
+    if free_time_has_continue_requirements(stage, needed, target_person) and not free_time_can_continue(stage, needed, target_person):
+        $ gate_person = target_person or resolved_continue_requirements(stage, needed, target_person).get("person", other_pov())
+        $ gate_state_text = free_time_continue_hint(stage, needed, target_person)
+        call screen gate_notice(_("Memória bloqueada"), needed, _("Antes da próxima memória, falta cumprir alguns requisitos no dia a dia."), gate_person, False, gate_state_text)
     $ keep_looping = True
 
     while keep_looping:
@@ -1160,7 +1422,7 @@ label bandejao_interaction(stage="campus"):
         "Bandejão speedrun":
             call minigame_bandejao(stage)
 
-        "Almoço gratuito e conversa boa":
+        "Comida barata e conversa boa":
             if first_kiss_done:
                 a "O prato é imprevisível, mas pelo menos a companhia é boa."
                 h "Meu plano era sentar perto de você mesmo."
@@ -1210,10 +1472,26 @@ label heitor_home_interaction(stage="home"):
             $ add_partner_love(5, "jogo em dupla")
             $ advance_free_time(stage)
 
-        "Cozinhar algo barato":
+        "Cozinhar algo barato (R$ 10,00)" if current_money() >= 10:
+            $ spend_money(10, "jantar barato")
             h "A receita tem três passos."
             a "Então em algum momento vamos errar quatro."
+            h "Se der errado, a gente chama de versão beta."
+            show ana college happy
+            a "Desde que a versão beta seja comestível."
             $ add_partner_love(4, "jantar improvisado")
+            $ advance_free_time(stage)
+
+        "Pedir Tavares no iFood (R$ 18,00)" if current_money() >= 18:
+            $ spend_money(18, "Tavares no iFood")
+            h "Frango parmegiana do Tavares?"
+            show ana college neutral
+            a "Você gosta disso num nível que eu nunca vou entender."
+            h "É barato, vem bastante e resolve o jantar. Três requisitos, três aprovações."
+            show ana college happy
+            a "Tá bom. Não é meu favorito, mas dá pra viver."
+            heitor_thought "Vitória absoluta do custo-benefício."
+            $ add_partner_love(3, "parmegiana do Tavares")
             $ advance_free_time(stage)
 
     return
@@ -1233,6 +1511,10 @@ label gift_phase(stage="shop"):
     if gift is None:
         return
 
+    if gift_id == "photo_gift":
+        call photo_gift_phase(stage, gift)
+        return
+
     $ gift_name = gift["name"]
     $ gift_cost = gift["cost"]
     $ gift_love = gift["love"]
@@ -1244,12 +1526,70 @@ label gift_phase(stage="shop"):
 
     if bought_gift:
         $ inventory.append(gift_name)
+        if gift_id not in purchased_gifts:
+            $ purchased_gifts.append(gift_id)
         $ add_partner_love(gift_love, gift_name)
         $ advance_free_time(stage)
         system_line "Você entregou: [gift_name]."
     else:
         system_line "A carteira olhou para o preço e pediu análise assintótica."
 
+    return
+
+label photo_gift_phase(stage="shop", gift=None):
+    call screen photo_gift_difficulty_screen
+    $ difficulty_id = _return
+
+    if difficulty_id == "back":
+        return
+
+    $ photo_path = pick_gift_photo()
+    if photo_path is None:
+        system_line "As fotos ainda não foram encontradas. O presente ficou no mundo das ideias por enquanto."
+        return
+
+    $ gift_name = gift["name"]
+    $ gift_cost = gift["cost"]
+    $ bought_gift = spend_money(gift_cost, gift_name)
+
+    if not bought_gift:
+        system_line "A carteira olhou para o preço e pediu análise assintótica."
+        return
+
+    $ difficulty = photo_gift_difficulties[difficulty_id]
+    $ puzzle_size = difficulty["size"]
+    $ puzzle_reward = difficulty["reward"]
+    $ difficulty_name = difficulty["name"]
+    $ puzzle_pieces = shuffled_photo_puzzle(puzzle_size, difficulty["moves"])
+    $ skipped_puzzle = False
+
+    system_line "Você separa as fotos, tenta fazer um mosaico bonito e descobre que romantismo também tem complexidade combinatória."
+
+    while not puzzle_solved(puzzle_pieces):
+        call screen sliding_photo_puzzle(photo_path, puzzle_pieces, puzzle_size, difficulty_name)
+        $ puzzle_action, puzzle_index = _return
+        if puzzle_action == "skip":
+            $ skipped_puzzle = True
+            $ puzzle_pieces = list(range(puzzle_size * puzzle_size))
+        elif puzzle_action == "move":
+            $ puzzle_pieces = puzzle_move(puzzle_pieces, puzzle_index, puzzle_size)
+
+    scene black
+    show expression scaled_photo_display(photo_path, puzzle_size) as completed_photo at truecenter
+    with dissolve
+    pause 1.5
+
+    if skipped_puzzle:
+        $ final_reward = max(1, int(puzzle_reward / 2))
+        system_line "Ficou meio torto, mas foi feito com carinho. Meio esforço, metade do brilho."
+    else:
+        $ final_reward = puzzle_reward
+        system_line "O mosaico fecha certinho. Presente barato, capricho caríssimo."
+
+    hide completed_photo
+    $ inventory.append(gift_name)
+    $ add_partner_love(final_reward, gift_name)
+    $ advance_free_time(stage, 2)
     return
 
 label money_phase(stage="money"):
@@ -1263,21 +1603,35 @@ label money_phase(stage="money"):
         show ana college thinking at pov_left
         show heitor focused at other_right
 
-    menu:
-        "Trabalhar na IC":
-            if current_pov == "ana":
+    if current_pov == "ana":
+        menu:
+            "Trabalhar na IC":
                 a "Eu não fiz quase nada e eles elogiam o que eu fiz como se fosse a melhor coisa do mundo."
                 h "Meu Deus, 2h de reunião! Vocês tão pesquisando mesmo ou batendo papo?"
-            else:
-                h "Mais uma noite sem dormir, é hoje que eu termino esse paper."
-            $ add_money(32, "bolsa de IC")
-            $ advance_free_time(stage, 2)
+                $ add_money(32, "bolsa de IC")
+                $ advance_free_time(stage, 2)
 
-        "Pegar uma janela de estágio" if current_pov == "ana":
-            call ana_internship_phase(stage)
+            "Pegar uma janela de estágio":
+                call ana_internship_phase(stage)
 
-        "Pedir ajuda para a nanãe" if current_pov == "ana":
-            call mother_money_phase(stage)
+            "Pedir ajuda para a nanãe":
+                call mother_money_phase(stage)
+    else:
+        if career_phase != "btg":
+            menu:
+                "Trabalhar na IC":
+                    h "Mais uma noite sem dormir, é hoje que eu termino esse paper."
+                    $ add_money(32, "bolsa de IC")
+                    $ advance_free_time(stage, 2)
+
+                "Ir para o Crossing Research Lab":
+                    call heitor_crossing_phase(stage)
+        else:
+            menu:
+                "Trabalhar na IC":
+                    h "Mais uma noite sem dormir, é hoje que eu termino esse paper."
+                    $ add_money(32, "bolsa de IC")
+                    $ advance_free_time(stage, 2)
 
     return
 
@@ -1307,6 +1661,21 @@ label ana_internship_phase(stage="money"):
     show ana college annoyed
     a "Até parece"
 
+    $ advance_free_time(stage, 2)
+    return
+
+label heitor_crossing_phase(stage="money"):
+    show heitor focused at pov_left
+    show ana college thinking at other_right
+
+    h "Hoje eu tenho plantão no Crossing."
+    a "Crossing Research Lab?"
+    h "Sim. Pesquisa, reunião, código e aquela esperança acadêmica de que tudo vai compilar antes de acabar o dia."
+    show ana college happy
+    a "Se pagar, já é melhor que muito EP."
+
+    $ add_money(70, "plantão no Crossing")
+    $ add_partner_love(2, "plantão no Crossing")
     $ advance_free_time(stage, 2)
     return
 
@@ -1356,7 +1725,7 @@ label minigame_bandejao(stage="campus"):
             if current_pov == "ana":
                 $ add_love(6, "Física sem fila", person="heitor")
             else:
-                system_line "Ana registrou que eficiência e almoço bom continuam sendo métricas diferentes."
+                system_line "Ana que eficiência não compensa comida ruim, mas estar com ele sim."
 
         "Prato mais gostoso":
             show ana college super_happy
