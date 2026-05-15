@@ -29,11 +29,94 @@ default inventory = []
 default purchased_gifts = []
 default mother_money_day = 0
 default mother_money_requests_today = 0
+default rhythm_play_count = 0
+default rhythm_prop_unlock = False
+default rhythm_state = {}
+default rhythm_unlocked_song_index = 0
+default rhythm_unlocked_difficulties = {}
+default rhythm_best_results = {}
+default rhythm_locked_song_clicks = {}
+default rhythm_locked_difficulty_clicks = {}
 
 init python:
     import time as pytime
     import random as py_random
     import re as py_re
+
+    rhythm_lanes = [
+        {"id": "left", "key": "←", "x": 150},
+        {"id": "down", "key": "↓", "x": 300},
+        {"id": "up", "key": "↑", "x": 450},
+        {"id": "right", "key": "→", "x": 600},
+    ]
+
+    rhythm_arrow_crops = {
+        "left": (982, 38, 150, 150),
+        "down": (1850, 150, 156, 156),
+        "up": (1850, 2, 156, 156),
+        "right": (1210, 40, 150, 150),
+    }
+
+    rhythm_receptor_crops = {
+        "left": (310, 238, 150, 150),
+        "down": (2, 236, 150, 150),
+        "up": (788, 236, 150, 150),
+        "right": (158, 238, 150, 150),
+    }
+
+    rhythm_hit_crops = {
+        "left": (1430, 35, 150, 150),
+        "down": (38, 42, 157, 153),
+        "up": (515, 39, 155, 148),
+        "right": (1665, 35, 150, 150),
+    }
+
+    rhythm_song_order = ["din_don_dan", "butterfly", "kiss", "propaganda", "batom_e_cereja", "sosseguei"]
+
+    rhythm_tracks = {
+        "din_don_dan": {
+            "title": "Din Don Dan",
+            "artist": "Ryu☆ feat. Mayumi Morinaga",
+            "music": "ddr/din_don_dan.ogg",
+            "sm": "ddr/din_don_dan.sm",
+            "duration": 108.008,
+        },
+        "butterfly": {
+            "title": "Butterfly",
+            "artist": "SMiLE.dk",
+            "music": "ddr/butterfly.ogg",
+            "sm": "ddr/butterfly.sm",
+            "duration": 93.989,
+        },
+        "kiss": {
+            "title": "I Was Made For Lovin' You",
+            "artist": "Kiss",
+            "music": "ddr/kiss.mp3",
+            "sm": "ddr/kiss.sm",
+            "duration": 238.263,
+        },
+        "propaganda": {
+            "title": "Propaganda",
+            "artist": "Jorge & Mateus",
+            "music": "ddr/propaganda.mp3",
+            "sm": "ddr/propaganda.sm",
+            "duration": 139.442,
+        },
+        "batom_e_cereja": {
+            "title": "Batom de Cereja",
+            "artist": "Israel & Rodolffo",
+            "music": "ddr/batom_e_cereja.mp3",
+            "sm": "ddr/batom_e_cereja.sm",
+            "duration": 177.502,
+        },
+        "sosseguei": {
+            "title": "Sosseguei",
+            "artist": "Jorge & Mateus",
+            "music": "ddr/sosseguei.mp3",
+            "sm": "ddr/sosseguei.sm",
+            "duration": 197.695,
+        },
+    }
 
     time_slots = ["Manhã", "Tarde", "Noite", "Madrugada"]
 
@@ -65,7 +148,7 @@ init python:
         },
         {
             "id": "heitor_home",
-            "name": "Casa do Heitor",
+            "name": "Rolê em casa",
             "subtitle": "Código, sofá e uma chance alta de anime.",
         },
         {
@@ -75,7 +158,7 @@ init python:
         },
         {
             "id": "work",
-            "name": "Ganhar dinheiro",
+            "name": "Fazer dinheiro",
             "subtitle": "IC, estágio e a opção economicamente materna.",
         },
     ]
@@ -200,7 +283,6 @@ init python:
         "mensagens_iniciais": {
             "love": 14,
             "person": "heitor",
-            "money": 25,
         },
         "distancia_australia": {
             "love": 90,
@@ -209,6 +291,13 @@ init python:
         "pedido_namoro": {
             "gifts": ["chocolate", "earrings"],
         },
+    }
+
+    free_time_blocked_hints = {
+        "mensagens_iniciais": "Antes da próxima memória, falta se aproximar um pouco mais do Heitor. Tentem se conhecer melhor.",
+        "primeiro_beijo": "Antes da próxima memória, ainda falta a coragem certa para aquele momento fazer sentido. Tentem criar mais clima.",
+        "pedido_namoro": "Depois do primeiro beijo, ainda precisa caber um pouco de rotina: mensagens, encontros baratos e coragem acumulada.",
+        "distancia_australia": "Antes da próxima memória, a distância precisa virar rotina: mensagens, paciência e carinho acumulado.",
     }
 
     career_data = {
@@ -476,6 +565,11 @@ init python:
         requirements = resolved_continue_requirements(stage, needed, target_person)
         return bool(requirements.get("love", 0) or requirements.get("money", 0) or requirements.get("gifts", []))
 
+    def free_time_blocked_hint(stage="campus", custom_hint=None):
+        if custom_hint:
+            return custom_hint
+        return free_time_blocked_hints.get(stage, "Antes da próxima memória, falta cumprir alguns requisitos no dia a dia.")
+
     def possessive_name(person):
         if person == "ana":
             return "da Ana"
@@ -607,6 +701,9 @@ init python:
             "debate duvidoso": "Ranking de bandejão.",
             "sofá e série": "Sofá e série. Entender o plot é opcional.",
             "jogo em dupla": "Jogo em dupla.",
+            "jogo de habilidade": "Jogo de habilidade. Setas sobreviveram.",
+            "jogo de história": "Jogo de história. Cinema com botão.",
+            "jogo de aventura": "Jogo de aventura. Cooperação sob pressão.",
             "jantar improvisado": "Jantar improvisado.",
             "parmegiana do Tavares": "Tavares: Heitor defende, Ana tolera.",
             "plantão no Crossing": "Crossing Research Lab. Pesquisa também paga.",
@@ -890,6 +987,335 @@ init python:
         row, col = divmod(piece, size)
         return im.Crop(im.FactorScale(photo, layout["scale"]), (col * tile_w, row * tile_h, tile_w, tile_h))
 
+    def read_renpy_text(path):
+        data = renpy.file(path).read()
+        if isinstance(data, bytes):
+            return data.decode("utf-8", "ignore")
+        return data
+
+    def sm_tag(content, tag, default=""):
+        match = py_re.search(r"#%s:([^;]*);" % tag, content, py_re.I)
+        if match:
+            return match.group(1).strip()
+        return default
+
+    def sm_bpm(content):
+        bpms = sm_tag(content, "BPMS", "0=120")
+        first = bpms.split(",")[0]
+        if "=" in first:
+            first = first.split("=", 1)[1]
+        try:
+            return float(first)
+        except Exception:
+            return 120.0
+
+    def sm_bpm_segments(content):
+        raw_bpms = sm_tag(content, "BPMS", "0=120")
+        segments = []
+        for item in raw_bpms.split(","):
+            if "=" not in item:
+                continue
+            beat_text, bpm_text = item.split("=", 1)
+            try:
+                segments.append((float(beat_text.strip()), float(bpm_text.strip())))
+            except Exception:
+                pass
+        if not segments:
+            segments = [(0.0, 120.0)]
+        return sorted(segments, key=lambda segment: segment[0])
+
+    def sm_beat_to_seconds(beat, bpm_segments):
+        total = 0.0
+        for index, segment in enumerate(bpm_segments):
+            start_beat, bpm = segment
+            end_beat = bpm_segments[index + 1][0] if index + 1 < len(bpm_segments) else beat
+            if beat <= start_beat:
+                break
+            covered_beats = min(beat, end_beat) - start_beat
+            if covered_beats > 0:
+                total += covered_beats * (60.0 / bpm)
+            if beat < end_beat:
+                break
+        return total
+
+    def sm_offset(content):
+        try:
+            return float(sm_tag(content, "OFFSET", "0"))
+        except Exception:
+            return 0.0
+
+    def sm_charts(track_id):
+        track = rhythm_tracks[track_id]
+        content = read_renpy_text(track["sm"])
+        charts = []
+        for chart_index, block in enumerate(content.split("#NOTES:")[1:]):
+            block = block.split(";", 1)[0]
+            fields = block.split(":", 5)
+            if len(fields) < 6:
+                continue
+            style = fields[0].strip()
+            difficulty = fields[2].strip() or "Edit"
+            meter = fields[3].strip() or "?"
+            if "dance-single" not in style:
+                continue
+            charts.append({
+                "id": "%s_%02d_%s" % (track_id, chart_index, difficulty.lower().replace(" ", "_")),
+                "track_id": track_id,
+                "index": chart_index,
+                "difficulty": difficulty,
+                "meter": meter,
+                "notes": fields[5],
+            })
+        return sorted(charts, key=lambda chart: int(chart["meter"]) if str(chart["meter"]).isdigit() else 99)
+
+    def rhythm_chart_unlocked(track_id, chart):
+        unlocked = rhythm_unlocked_difficulties.get(track_id, 0)
+        charts = sm_charts(track_id)
+        for index, candidate in enumerate(charts):
+            if candidate["id"] == chart["id"]:
+                return index <= unlocked
+        return False
+
+    def rhythm_unlock_next_chart(track_id, chart):
+        charts = sm_charts(track_id)
+        current_index = 0
+        for index, candidate in enumerate(charts):
+            if candidate["id"] == chart["id"]:
+                current_index = index
+                break
+        rhythm_unlocked_difficulties[track_id] = max(rhythm_unlocked_difficulties.get(track_id, 0), min(current_index + 1, len(charts) - 1))
+
+    def rhythm_track_unlocked(track_id):
+        try:
+            return rhythm_song_order.index(track_id) <= rhythm_unlocked_song_index
+        except ValueError:
+            return False
+
+    def rhythm_unlock_next_song(track_id):
+        global rhythm_unlocked_song_index
+        try:
+            index = rhythm_song_order.index(track_id)
+        except ValueError:
+            return
+        rhythm_unlocked_song_index = max(rhythm_unlocked_song_index, min(index + 1, len(rhythm_song_order) - 1))
+
+    def rhythm_song_entries():
+        entries = []
+        for index, track_id in enumerate(rhythm_song_order):
+            if index <= rhythm_unlocked_song_index:
+                entries.append({"track_id": track_id, "locked": False, "message": ""})
+            elif index == rhythm_unlocked_song_index + 1:
+                previous_id = rhythm_song_order[index - 1]
+                entries.append({
+                    "track_id": track_id,
+                    "locked": True,
+                    "message": "🔒 Jogue %s para desbloquear" % rhythm_tracks[previous_id]["title"],
+                })
+                break
+        return entries
+
+    def rhythm_result_tag(accuracy):
+        if accuracy >= 98:
+            return "💎 Perfect"
+        if accuracy >= 85:
+            return "🌟 Great"
+        if accuracy >= 40:
+            return "✅ Pass"
+        return "💥 Fail"
+
+    def rhythm_chart_result_text(chart):
+        result = rhythm_best_results.get(chart["id"])
+        if not result:
+            return "🏁 Sem score"
+        return "%s  Max %d" % (rhythm_result_tag(result.get("accuracy", 0)), result.get("score", 0))
+
+    def rhythm_record_result(chart):
+        current = rhythm_best_results.get(chart["id"], {"score": -1, "accuracy": 0})
+        score = rhythm_state.get("score", 0)
+        accuracy = rhythm_accuracy()
+        if score > current.get("score", -1):
+            rhythm_best_results[chart["id"]] = {"score": score, "accuracy": accuracy}
+
+    def rhythm_locked_song_press(track_id):
+        global rhythm_unlocked_song_index
+        rhythm_locked_song_clicks[track_id] = rhythm_locked_song_clicks.get(track_id, 0) + 1
+        if rhythm_locked_song_clicks[track_id] >= 10:
+            try:
+                index = rhythm_song_order.index(track_id)
+            except ValueError:
+                return
+            rhythm_unlocked_song_index = max(rhythm_unlocked_song_index, index)
+            rhythm_locked_song_clicks[track_id] = 0
+            queue_notification("Ok, não precisa spammar, pode jogar.")
+            renpy.restart_interaction()
+
+    def rhythm_locked_difficulty_press(track_id, chart):
+        key = chart["id"]
+        rhythm_locked_difficulty_clicks[key] = rhythm_locked_difficulty_clicks.get(key, 0) + 1
+        if rhythm_locked_difficulty_clicks[key] >= 10:
+            charts = sm_charts(track_id)
+            unlock_index = rhythm_unlocked_difficulties.get(track_id, 0)
+            for index, candidate in enumerate(charts):
+                if candidate["id"] == chart["id"]:
+                    unlock_index = index
+                    break
+            rhythm_unlocked_difficulties[track_id] = max(rhythm_unlocked_difficulties.get(track_id, 0), unlock_index)
+            rhythm_locked_difficulty_clicks[key] = 0
+            queue_notification("Ok, não precisa spammar, pode jogar.")
+            renpy.restart_interaction()
+
+    def sm_chart_notes(track_id, chart):
+        content = read_renpy_text(rhythm_tracks[track_id]["sm"])
+        max_time = rhythm_tracks[track_id].get("duration", 600.0)
+        bpm_segments = sm_bpm_segments(content)
+        offset = sm_offset(content)
+        notes = []
+        measures = [m for m in chart["notes"].replace("\r", "").split(",") if m.strip()]
+        for measure_index, measure in enumerate(measures):
+            rows = [row.strip() for row in measure.split("\n") if row.strip() and not row.strip().startswith("//")]
+            if not rows:
+                continue
+            for row_index, row in enumerate(rows):
+                if len(row) < 4:
+                    continue
+                note_beat = (measure_index * 4.0) + ((row_index * 4.0) / float(len(rows)))
+                note_time = sm_beat_to_seconds(note_beat, bpm_segments) - offset
+                if note_time < 0 or note_time > max_time:
+                    continue
+                for col, char in enumerate(row[:4]):
+                    if char in ("1", "2", "4"):
+                        notes.append({"time": note_time, "lane": rhythm_lanes[col]["id"], "hit": False, "miss": False})
+        return notes
+
+    def start_rhythm_state(track_id, chart):
+        global rhythm_state
+        notes = sm_chart_notes(track_id, chart)
+        rhythm_state = {
+            "track_id": track_id,
+            "title": rhythm_tracks[track_id]["title"],
+            "difficulty": chart["difficulty"],
+            "meter": chart["meter"],
+            "notes": notes,
+            "start": pytime.time() + 1.25,
+            "score": 0,
+            "combo": 0,
+            "max_combo": 0,
+            "hits": 0,
+            "misses": 0,
+            "judgement": "Prepare...",
+            "hit_effects": [],
+            "done": False,
+        }
+        return rhythm_state
+
+    def rhythm_now():
+        if not rhythm_state:
+            return 0.0
+        return pytime.time() - rhythm_state.get("start", pytime.time())
+
+    def rhythm_update():
+        if not rhythm_state or rhythm_state.get("done"):
+            return
+        now = rhythm_now()
+        for note in rhythm_state["notes"]:
+            if not note["hit"] and not note["miss"] and now - note["time"] > 0.28:
+                note["miss"] = True
+                rhythm_state["misses"] += 1
+                rhythm_state["combo"] = 0
+                rhythm_state["judgement"] = "Errou"
+        notes_finished = rhythm_state["notes"] and all(note["hit"] or note["miss"] for note in rhythm_state["notes"])
+        if notes_finished:
+            rhythm_state["judgement"] = "Música terminando..."
+            if not renpy.music.is_playing(channel="music"):
+                rhythm_state["done"] = True
+
+    def rhythm_hit(lane):
+        if not rhythm_state or rhythm_state.get("done"):
+            return
+        now = rhythm_now()
+        candidates = [
+            note for note in rhythm_state["notes"]
+            if note["lane"] == lane and not note["hit"] and not note["miss"] and abs(note["time"] - now) <= 0.28
+        ]
+        if not candidates:
+            rhythm_state["combo"] = 0
+            rhythm_state["judgement"] = "Fora do tempo"
+            return
+        note = min(candidates, key=lambda item: abs(item["time"] - now))
+        delta = abs(note["time"] - now)
+        note["hit"] = True
+        rhythm_state["hit_effects"].append({"lane": lane, "until": now + 0.14})
+        rhythm_state["hits"] += 1
+        rhythm_state["combo"] += 1
+        rhythm_state["max_combo"] = max(rhythm_state["max_combo"], rhythm_state["combo"])
+        if delta <= 0.08:
+            rhythm_state["score"] += 1000
+            rhythm_state["judgement"] = "Perfeito"
+        elif delta <= 0.16:
+            rhythm_state["score"] += 700
+            rhythm_state["judgement"] = "Bom"
+        else:
+            rhythm_state["score"] += 400
+            rhythm_state["judgement"] = "Quase"
+
+    def rhythm_visible_notes():
+        now = rhythm_now()
+        visible = []
+        lane_x = dict((lane["id"], lane["x"]) for lane in rhythm_lanes)
+        for note in rhythm_state.get("notes", []):
+            if note["hit"] or note["miss"]:
+                continue
+            delta = note["time"] - now
+            if -0.25 <= delta <= 2.0:
+                visible.append({
+                    "x": lane_x[note["lane"]],
+                    "y": 49 + int(delta * 265),
+                    "lane": note["lane"],
+                })
+        return visible
+
+    def rhythm_visible_hit_effects():
+        now = rhythm_now()
+        effects = []
+        lane_x = dict((lane["id"], lane["x"]) for lane in rhythm_lanes)
+        kept = []
+        for effect in rhythm_state.get("hit_effects", []):
+            if effect["until"] >= now:
+                kept.append(effect)
+                effects.append({
+                    "x": lane_x[effect["lane"]],
+                    "lane": effect["lane"],
+                })
+        rhythm_state["hit_effects"] = kept
+        return effects
+
+    def rhythm_arrow_display(lane):
+        return im.Crop("NOTE_assets.png", rhythm_arrow_crops[lane])
+
+    def rhythm_receptor_display(lane):
+        return im.Crop("NOTE_assets.png", rhythm_receptor_crops[lane])
+
+    def rhythm_hit_display(lane):
+        return im.Crop("NOTE_assets.png", rhythm_hit_crops[lane])
+
+    def rhythm_accuracy():
+        if not rhythm_state:
+            return 0
+        total = rhythm_state.get("hits", 0) + rhythm_state.get("misses", 0)
+        if total <= 0:
+            return 0
+        return int((rhythm_state["hits"] * 100) / total)
+
+    def rhythm_reward():
+        accuracy = rhythm_accuracy()
+        if accuracy >= 85:
+            return 6
+        if accuracy >= 65:
+            return 4
+        if accuracy >= 40:
+            return 2
+        return 1
+
     def complete_memory(memory_id, love=0, money_reward=0):
         if memory_id in completed_memories:
             return False
@@ -935,18 +1361,20 @@ screen notification_stack():
         vbox:
             xalign 0.98
             ypos 92
-            xmaximum 760
+            xmaximum 1840
             spacing 8
 
             for toast in queued_notifications:
                 frame at stacked_notify_appear:
                     xalign 1.0
+                    xmaximum 1840
                     background Solid("#101827ee")
                     padding (18, 10)
 
                     text toast[1]:
                         color "#f6f7fb"
                         size 22
+                        layout "nobreak"
                         text_align 1.0
                         xalign 1.0
 
@@ -1301,6 +1729,160 @@ screen sliding_photo_puzzle(photo, pieces, size, difficulty_name):
                     textbutton _("Finalizar"):
                         action Return(("done", None))
 
+screen rhythm_song_screen():
+    modal True
+    zorder 120
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 900
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 22
+            xalign 0.5
+
+            text _("Escolha a música") color "#ffffff" size 44 xalign 0.5
+            text _("Jogue uma música para desbloquear a próxima.") color "#cfd7e6" size 24 xalign 0.5 text_align 0.5
+
+            for entry in rhythm_song_entries():
+                $ track_id = entry["track_id"]
+                $ track = rhythm_tracks[track_id]
+                $ song_ready = not entry["locked"]
+                button:
+                    xsize 720
+                    ysize 92
+                    background Solid("#232d42" if song_ready else "#202532")
+                    hover_background Solid("#33405d" if song_ready else "#202532")
+                    action If(song_ready, Return(track_id), Function(rhythm_locked_song_press, track_id))
+
+                    vbox:
+                        spacing 5
+                        yalign 0.5
+                        xalign 0.5
+                        text track["title"] color ("#ffffff" if song_ready else "#7f8797") size 30 xalign 0.5
+                        if song_ready:
+                            text track["artist"] color "#cfd7e6" size 20 xalign 0.5
+                        else:
+                            text entry["message"] color "#a2a9b8" size 20 xalign 0.5
+
+screen rhythm_difficulty_screen(track_id):
+    modal True
+    zorder 120
+
+    add Solid("#080c14f2")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xmaximum 980
+        background Solid("#151c2c")
+        padding (34, 30)
+
+        vbox:
+            spacing 18
+            xalign 0.5
+
+            text rhythm_tracks[track_id]["title"] color "#ffffff" size 44 xalign 0.5
+            text _("Escolha a dificuldade") color "#cfd7e6" size 24 xalign 0.5
+
+            grid 2 3:
+                spacing 14
+                xalign 0.5
+
+                for chart in sm_charts(track_id):
+                    $ chart_ready = rhythm_chart_unlocked(track_id, chart)
+                    button:
+                        xsize 360
+                        ysize 116
+                        background Solid("#232d42" if chart_ready else "#202532")
+                        hover_background Solid("#33405d" if chart_ready else "#202532")
+                        action If(chart_ready, Return(chart), Function(rhythm_locked_difficulty_press, track_id, chart))
+
+                        vbox:
+                            spacing 4
+                            xalign 0.5
+                            yalign 0.5
+                            text chart["difficulty"] color ("#ffffff" if chart_ready else "#7f8797") size 28 xalign 0.5
+                            text _("Nível %s" % chart["meter"]) color ("#cfd7e6" if chart_ready else "#7f8797") size 20 xalign 0.5
+                            text rhythm_chart_result_text(chart) color ("#f7d7e2" if chart_ready else "#7f8797") size 18 xalign 0.5
+
+screen rhythm_game_screen():
+    modal True
+    zorder 125
+
+    timer 0.03 repeat True action [Function(rhythm_update), If(rhythm_state.get("done"), Return(True), Function(renpy.restart_interaction))]
+
+    key "K_LEFT" action [Function(rhythm_hit, "left"), Function(renpy.restart_interaction)]
+    key "K_DOWN" action [Function(rhythm_hit, "down"), Function(renpy.restart_interaction)]
+    key "K_UP" action [Function(rhythm_hit, "up"), Function(renpy.restart_interaction)]
+    key "K_RIGHT" action [Function(rhythm_hit, "right"), Function(renpy.restart_interaction)]
+
+    add Solid("#070b13f4")
+
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize 900
+        ysize 820
+        background Solid("#111827")
+        padding (32, 28)
+
+        vbox:
+            spacing 16
+            xalign 0.5
+
+            text "%s - %s" % (rhythm_state["title"], rhythm_state["difficulty"]) color "#ffffff" size 36 xalign 0.5
+
+            hbox:
+                spacing 34
+                xalign 0.5
+                text _("Score %d" % rhythm_state["score"]) color "#cfd7e6" size 22
+                text _("Combo %d" % rhythm_state["combo"]) color "#cfd7e6" size 22
+                text rhythm_state["judgement"] color pov_color() size 22
+
+            fixed:
+                xysize (760, 640)
+                xalign 0.5
+
+                add Solid("#0b1020")
+
+                for lane in rhythm_lanes:
+                    vbox:
+                        xpos lane["x"]
+                        xanchor 0.5
+                        ypos 0
+                        ysize 640
+                        add Solid("#1f293755") xsize 88 ysize 640
+
+                    add rhythm_receptor_display(lane["id"]):
+                        xpos lane["x"]
+                        ypos 42
+                        xanchor 0.5
+                        xysize (78, 78)
+
+                add Solid("#f0a7bb66") xpos 76 ypos 81 xsize 596 ysize 4
+
+                for effect in rhythm_visible_hit_effects():
+                    add rhythm_hit_display(effect["lane"]):
+                        xpos effect["x"]
+                        ypos 32
+                        xanchor 0.5
+                        xysize (98, 98)
+
+                for note in rhythm_visible_notes():
+                    add rhythm_arrow_display(note["lane"]):
+                        xpos note["x"]
+                        ypos note["y"]
+                        xanchor 0.5
+                        xysize (64, 64)
+
+            text _("Use as setas do teclado.") color "#cfd7e6" size 22 xalign 0.5
+
 label change_pov(who, title=""):
     $ current_pov = who
     window hide
@@ -1320,29 +1902,22 @@ label quick_change_pov(who):
 label relationship_gate(gate_name, needed, hint):
     $ set_love_cap_stage(gate_name)
     $ gate_person = other_pov()
-    if progress_for(gate_person) < needed:
-        $ show_date_hint = not date_gate_notice_seen
-        $ gate_state_text = free_time_continue_hint(gate_name, needed, gate_person)
-        call screen gate_notice(_("Memória bloqueada"), needed, hint, gate_person, show_date_hint, gate_state_text)
-        if show_date_hint:
-            $ date_gate_notice_seen = True
 
     while progress_for(gate_person) < needed:
-        $ missing_love = needed - progress_for(gate_person)
-        $ missing_label = progress_label(person=gate_person)
-        $ missing_owner = possessive_name(gate_person)
-        system_line "Ainda faltam [missing_love] pontos de [missing_label] [missing_owner] para a próxima memória."
-        call free_time_phase(gate_name, needed, gate_person)
+        call free_time_phase(gate_name, needed, gate_person, hint)
 
     return
 
-label free_time_phase(stage="campus", needed=0, target_person=None):
+label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint=None):
     $ set_love_cap_stage(stage)
     $ apply_free_time_start(stage)
     if free_time_has_continue_requirements(stage, needed, target_person) and not free_time_can_continue(stage, needed, target_person):
         $ gate_person = target_person or resolved_continue_requirements(stage, needed, target_person).get("person", other_pov())
         $ gate_state_text = free_time_continue_hint(stage, needed, target_person)
-        call screen gate_notice(_("Memória bloqueada"), needed, _("Antes da próxima memória, falta cumprir alguns requisitos no dia a dia."), gate_person, False, gate_state_text)
+        $ show_date_hint = stage == "pedido_namoro" and not date_gate_notice_seen
+        call screen gate_notice(_("Memória bloqueada"), needed, free_time_blocked_hint(stage, blocked_hint), gate_person, show_date_hint, gate_state_text)
+        if show_date_hint:
+            $ date_gate_notice_seen = True
     $ keep_looping = True
 
     while keep_looping:
@@ -1384,6 +1959,8 @@ label poli_interaction(stage="campus"):
         show ana college thinking at pov_left
         show heitor focused at other_right
 
+    $ poli_complaint_label = "Ouvir reclamação da Poli" if current_pov == "heitor" else "Reclamar da Poli"
+
     menu:
         "Resolver uma lista juntos":
             a "Se a gente dividir por questão, talvez dê tempo."
@@ -1396,7 +1973,7 @@ label poli_interaction(stage="campus"):
         "Fazer debug do EP":
             call minigame_debug_ep(stage)
 
-        "Reclamar da graduação":
+        "[poli_complaint_label]":
             system_line "A Ana fica 20 minutos reclamando de como ela não leva jeito pra computação."
             show ana college happy
             a "Reclamar deixa tudo um pouco menos pior."
@@ -1467,10 +2044,29 @@ label heitor_home_interaction(stage="home"):
             $ advance_free_time(stage)
 
         "Jogar alguma coisa":
-            a "Eu aviso desde já que os controles são contra mim."
-            h "Claro. O controle acordou e escolheu violência."
-            $ add_partner_love(5, "jogo em dupla")
-            $ advance_free_time(stage)
+            menu:
+                "Jogo de habilidade":
+                    call rhythm_skill_phase(stage)
+
+                "Jogo de história":
+                    a "Esse jogo é meio chato."
+                    h "Chato?"
+                    a "É tipo um filme, só que pior."
+                    h "Você quer dizer: tipo um filme, só que melhor."
+                    show ana college annoyed
+                    a "Eu sabia que você ia defender."
+                    $ add_partner_love(3, "jogo de história")
+                    $ advance_free_time(stage)
+
+                "Jogo de aventura":
+                    a "Eu aviso desde já que eu vou gritar se tiver que pular em alguma coisa."
+                    h "Então vai ser um jogo de aventura bem barulhento."
+                    show ana college happy
+                    a "E você vai falar 'pula agora' como se isso ajudasse."
+                    h "Vai ajudar quando você pular."
+                    a "Eu vou estar pulando!"
+                    $ add_partner_love(4, "jogo de aventura")
+                    $ advance_free_time(stage)
 
         "Cozinhar algo barato (R$ 10,00)" if current_money() >= 10:
             $ spend_money(10, "jantar barato")
@@ -1494,6 +2090,42 @@ label heitor_home_interaction(stage="home"):
             $ add_partner_love(3, "parmegiana do Tavares")
             $ advance_free_time(stage)
 
+    return
+
+label rhythm_skill_phase(stage="home"):
+    $ rhythm_play_count += 1
+    call screen rhythm_song_screen
+    $ rhythm_track_id = _return
+
+    call screen rhythm_difficulty_screen(rhythm_track_id)
+    $ rhythm_chart = _return
+
+    $ start_rhythm_state(rhythm_track_id, rhythm_chart)
+    $ renpy.music.play(rhythm_tracks[rhythm_track_id]["music"], channel="music", loop=False)
+    call screen rhythm_game_screen
+    $ renpy.music.stop(channel="music", fadeout=0.5)
+
+    $ rhythm_points = rhythm_reward()
+    $ rhythm_acc = rhythm_accuracy()
+    $ rhythm_record_result(rhythm_chart)
+    $ rhythm_unlock_next_song(rhythm_track_id)
+    $ rhythm_unlock_next_chart(rhythm_track_id, rhythm_chart)
+
+    if rhythm_acc >= 85:
+        h "Ok, isso foi bonito."
+        show ana college super_happy
+        a "Eu apertei coisa demais e funcionou!"
+    elif rhythm_acc >= 55:
+        show ana college happy
+        a "Não foi perfeito, mas foi divertido."
+        h "🎵 Din don, din don dan 🎵."
+    else:
+        show ana college embarrassed
+        a "Eu acho que dancei mais com a cara do que com os dedos."
+        h "Ainda conta como cardio."
+
+    $ add_partner_love(rhythm_points, "jogo de habilidade")
+    $ advance_free_time(stage)
     return
 
 label gift_phase(stage="shop"):
