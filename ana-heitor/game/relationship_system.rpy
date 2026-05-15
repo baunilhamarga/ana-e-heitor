@@ -718,6 +718,8 @@ init python:
 
     def love_cap_for(person=None, stage=None):
         key = person or current_pov
+        if endgame_mode:
+            return progress_max
         cap_stage = stage or current_love_cap_stage
         caps = love_cap_data.get(cap_stage)
         if caps is None:
