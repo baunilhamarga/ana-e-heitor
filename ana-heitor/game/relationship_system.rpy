@@ -43,6 +43,7 @@ default rhythm_unlocked_difficulties = {}
 default rhythm_best_results = {}
 default rhythm_locked_song_clicks = {}
 default rhythm_locked_difficulty_clicks = {}
+default all_achievements_event_pending = False
 
 init python:
     import time as pytime
@@ -999,6 +1000,7 @@ init python:
         return bool(ensure_achievement_store().get(achievement_id))
 
     def unlock_achievement(achievement_id):
+        global all_achievements_event_pending
         store = ensure_achievement_store()
         if store.get(achievement_id):
             return False
@@ -1006,6 +1008,8 @@ init python:
         if achievement is None:
             return False
         store[achievement_id] = True
+        if unlocked_achievement_count() >= len(achievement_data) and not getattr(persistent, "all_achievements_event_seen", False):
+            all_achievements_event_pending = True
         renpy.save_persistent()
         queue_notification("{color=#f5c84b}🏆 Conquista desbloqueada: %s{/color}" % achievement["name"], duration=7.5)
         return True
@@ -1013,6 +1017,9 @@ init python:
     def unlocked_achievement_count():
         store = ensure_achievement_store()
         return sum(1 for achievement in achievement_data if store.get(achievement["id"]))
+
+    def all_achievements_complete():
+        return unlocked_achievement_count() >= len(achievement_data)
 
     def confirm_message_pt(message):
         translations = {
@@ -2467,10 +2474,30 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
 
     return
 
+label all_achievements_event:
+    $ all_achievements_event_pending = False
+    $ persistent.all_achievements_event_seen = True
+    $ renpy.save_persistent()
+    $ current_pov = "heitor"
+    $ play_bgm("endgame")
+
+    scene bg desktop_code
+    with fade
+
+    show heitor home soft_smile at pov_left
+
+    h "Pegou todas as conquistas?"
+
+    h "Muito bem."
+
+    return
+
 label endgame_loop:
     $ endgame_mode = True
     $ endgame_replay_mode = False
     $ unlock_achievement("endgame_mode")
+    if all_achievements_complete() and not getattr(persistent, "all_achievements_event_seen", False):
+        $ all_achievements_event_pending = True
     $ play_bgm("endgame")
     $ special_day_label = "🏆 Pós-jogo"
     $ first_kiss_done = True
@@ -2480,6 +2507,8 @@ label endgame_loop:
 
     while True:
         $ play_bgm("endgame")
+        if all_achievements_event_pending:
+            call all_achievements_event from _call_all_achievements_event
         window hide
         $ show_free_turn_scene()
         call screen endgame_location_picker
