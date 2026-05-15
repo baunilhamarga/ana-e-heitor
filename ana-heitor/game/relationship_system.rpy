@@ -2419,7 +2419,7 @@ label relationship_gate(gate_name, needed, hint):
     $ gate_person = other_pov()
 
     while progress_for(gate_person) < needed:
-        call free_time_phase(gate_name, needed, gate_person, hint)
+        call free_time_phase(gate_name, needed, gate_person, hint) from _call_free_time_phase
 
     return
 
@@ -2448,20 +2448,20 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
             $ advance_to_story_day(stage)
             $ keep_looping = False
         elif selected_location == "poli":
-            call poli_interaction(stage)
+            call poli_interaction(stage) from _call_poli_interaction
         elif selected_location == "bandejao":
             $ paid_bandejao = spend_money(2, "bandejão")
             if paid_bandejao:
-                call bandejao_interaction(stage)
+                call bandejao_interaction(stage) from _call_bandejao_interaction
         elif selected_location == "heitor_home":
-            call heitor_home_interaction(stage)
+            call heitor_home_interaction(stage) from _call_heitor_home_interaction
         elif selected_location == "shop":
-            call gift_phase(stage)
+            call gift_phase(stage) from _call_gift_phase
         elif selected_location == "work":
             if stage == "primeiro_contato":
-                call mother_money_phase(stage)
+                call mother_money_phase(stage) from _call_mother_money_phase
             else:
-                call money_phase(stage)
+                call money_phase(stage) from _call_money_phase
 
     return
 
@@ -2486,25 +2486,25 @@ label endgame_loop:
         $ endgame_stage = current_love_cap_stage
 
         if selected_location == "poli":
-            call poli_interaction(endgame_stage)
+            call poli_interaction(endgame_stage) from _call_poli_interaction_1
         elif selected_location == "bandejao":
             $ paid_bandejao = spend_money(2, "bandejão")
             if paid_bandejao:
-                call bandejao_interaction(endgame_stage)
+                call bandejao_interaction(endgame_stage) from _call_bandejao_interaction_1
         elif selected_location == "heitor_home":
-            call heitor_home_interaction(endgame_stage)
+            call heitor_home_interaction(endgame_stage) from _call_heitor_home_interaction_1
         elif selected_location == "shop":
-            call gift_phase(endgame_stage)
+            call gift_phase(endgame_stage) from _call_gift_phase_1
         elif selected_location == "work":
-            call money_phase(endgame_stage)
+            call money_phase(endgame_stage) from _call_money_phase_1
         elif selected_location == "switch_pov":
             $ next_pov = other_pov()
-            call quick_change_pov(next_pov)
+            call quick_change_pov(next_pov) from _call_quick_change_pov
         elif selected_location == "memories":
             call screen endgame_memory_screen
             $ memory_label = _return
             if memory_label != "back":
-                call endgame_replay_memory(memory_label)
+                call endgame_replay_memory(memory_label) from _call_endgame_replay_memory
         elif selected_location == "configure":
             call screen endgame_state_screen
             $ state = _return
@@ -2522,14 +2522,14 @@ label endgame_loop:
 label endgame_replay_memory(memory_label):
     $ endgame_replay_mode = True
     $ unlock_achievement("endgame_memory_replay")
-    call expression memory_label
+    call expression memory_label from _call_expression
     $ endgame_replay_mode = False
     $ special_day_label = "🏆 Pós-jogo"
     show screen relationship_hud
     return
 
 label endgame_intro_replay:
-    call change_pov("heitor", "Uma rara ida ao Bandejão Central")
+    call change_pov("heitor", "Uma rara ida ao Bandejão Central") from _call_change_pov
 
     scene bg bandejao
     with fade
@@ -2569,15 +2569,15 @@ label ana_distance_poli_interaction(stage="campus"):
             a "Ok. Uma lista, uma Ana e zero Heitor para falar que isso é tranquilo."
             ana_thought "Eu abri uma conversa antiga nossa só para lembrar do jeito que ele explicava as coisas."
             ana_thought "A resposta não veio dali, mas a calma um pouco sim."
-            call ana_distance_missing_beat(stage, 4, "lista com saudade")
+            call ana_distance_missing_beat(stage, 4, "lista com saudade") from _call_ana_distance_missing_beat
 
         "Fazer debug do EP":
-            call ana_distance_debug_ep(stage)
+            call ana_distance_debug_ep(stage) from _call_ana_distance_debug_ep
 
         "Reclamar da Poli":
             a "Hoje a reclamação vai ter que ser em formato monólogo."
             ana_thought "Era ridículo como até reclamar da graduação ficava melhor quando ele estava do lado."
-            call ana_distance_missing_beat(stage, 3, "reclamação em modo saudade")
+            call ana_distance_missing_beat(stage, 3, "reclamação em modo saudade") from _call_ana_distance_missing_beat_1
 
     return
 
@@ -2593,17 +2593,17 @@ label ana_distance_bandejao_interaction(stage="campus"):
             a "Eu fui na Física só porque era mais perto."
             show ana college annoyed
             a "O arroz continua duro. Ele ia estar feliz. Eu, menos."
-            call ana_distance_missing_beat(stage, 4, "Física sem Heitor")
+            call ana_distance_missing_beat(stage, 4, "Física sem Heitor") from _call_ana_distance_missing_beat_2
 
         "Comida barata e conversa boa":
             a "O prato até estava bom."
             ana_thought "Mas a mesa parecia grande demais para uma pessoa só."
-            call ana_distance_missing_beat(stage, 4, "bandejão sem companhia")
+            call ana_distance_missing_beat(stage, 4, "bandejão sem companhia") from _call_ana_distance_missing_beat_3
 
         "Debater o ranking dos bandejões":
             a "Central é melhor. Isso nem é debate."
             ana_thought "Eu quase mandei mensagem para ele só para brigar com a defesa absurda da Física."
-            call ana_distance_missing_beat(stage, 3, "ranking à distância")
+            call ana_distance_missing_beat(stage, 3, "ranking à distância") from _call_ana_distance_missing_beat_4
 
     return
 
@@ -2620,30 +2620,30 @@ label ana_distance_home_interaction(stage="home"):
             pause 0.4
             show ana home sad
             a "Ou vou pausar no meio porque não tem ninguém para eu perguntar o que está acontecendo."
-            call ana_distance_missing_beat(stage, 5, "sofá com lugar sobrando")
+            call ana_distance_missing_beat(stage, 5, "sofá com lugar sobrando") from _call_ana_distance_missing_beat_5
 
         "Jogar alguma coisa":
             menu:
                 "Jogo de habilidade":
-                    call rhythm_skill_phase(stage)
+                    call rhythm_skill_phase(stage) from _call_rhythm_skill_phase
                     ana_thought "Ganhar era legal. Ter ele rindo do meu desespero teria sido melhor."
 
                 "Jogo de história":
                     a "É tipo um filme, só que com botão."
                     ana_thought "Eu conseguia ouvir ele respondendo que isso era justamente a melhor parte."
-                    call ana_distance_missing_beat(stage, 3, "filme com botão sem debate")
+                    call ana_distance_missing_beat(stage, 3, "filme com botão sem debate") from _call_ana_distance_missing_beat_6
 
                 "Jogo de aventura":
                     a "Se eu cair aqui, ninguém vai falar 'pula agora' com toda a confiança do mundo."
                     ana_thought "Que ódio. Eu sentia falta até disso."
-                    call ana_distance_missing_beat(stage, 4, "aventura em modo solo")
+                    call ana_distance_missing_beat(stage, 4, "aventura em modo solo") from _call_ana_distance_missing_beat_7
 
         "Cozinhar algo barato (R$ 10,00)" if current_money() >= 10:
             $ spend_money(10, "jantar barato")
             a "A receita tem três passos."
             show ana home embarrassed
             a "Eu errei em quatro mesmo sem ele aqui para chamar de versão beta."
-            call ana_distance_missing_beat(stage, 4, "jantar improvisado à distância")
+            call ana_distance_missing_beat(stage, 4, "jantar improvisado à distância") from _call_ana_distance_missing_beat_8
 
         "Pedir Tavares no iFood (R$ 18,00)" if current_money() >= 18:
             $ spend_money(18, "Tavares no iFood")
@@ -2651,7 +2651,7 @@ label ana_distance_home_interaction(stage="home"):
             show ana home neutral
             a "Ele defenderia isso com argumentos econômicos muito fortes."
             ana_thought "Eu ainda não entendia totalmente. Mas entendia a saudade."
-            call ana_distance_missing_beat(stage, 3, "Tavares sem advogado")
+            call ana_distance_missing_beat(stage, 3, "Tavares sem advogado") from _call_ana_distance_missing_beat_9
 
     return
 
@@ -2677,18 +2677,18 @@ label ana_distance_debug_ep(stage="campus"):
         show ana college soft
         a "Tá. Eu consegui."
         ana_thought "Eu queria poder mandar a tela para ele e fingir que era só pelo EP."
-        call ana_distance_missing_beat(stage, 6, "debug com saudade")
+        call ana_distance_missing_beat(stage, 6, "debug com saudade") from _call_ana_distance_missing_beat_10
     else:
         show ana college embarrassed
         a "Não resolveu tudo."
         ana_thought "E a cadeira vazia do lado não ajudou em nada."
-        call ana_distance_missing_beat(stage, 3, "debug sem dupla")
+        call ana_distance_missing_beat(stage, 3, "debug sem dupla") from _call_ana_distance_missing_beat_11
 
     return
 
 label poli_interaction(stage="campus"):
     if ana_distance_day(stage):
-        call ana_distance_poli_interaction(stage)
+        call ana_distance_poli_interaction(stage) from _call_ana_distance_poli_interaction
         return
 
     $ play_bgm("study_debug")
@@ -2715,7 +2715,7 @@ label poli_interaction(stage="campus"):
             $ advance_free_time(stage)
 
         "Fazer debug do EP":
-            call minigame_debug_ep(stage)
+            call minigame_debug_ep(stage) from _call_minigame_debug_ep
 
         "[poli_complaint_label]":
             system_line "A Ana fica 20 minutos reclamando de como ela não leva jeito pra computação."
@@ -2730,7 +2730,7 @@ label poli_interaction(stage="campus"):
 
 label bandejao_interaction(stage="campus"):
     if ana_distance_day(stage):
-        call ana_distance_bandejao_interaction(stage)
+        call ana_distance_bandejao_interaction(stage) from _call_ana_distance_bandejao_interaction
         return
 
     $ play_bgm("daily_light")
@@ -2746,7 +2746,7 @@ label bandejao_interaction(stage="campus"):
 
     menu:
         "Bandejão speedrun":
-            call minigame_bandejao(stage)
+            call minigame_bandejao(stage) from _call_minigame_bandejao
 
         "Comida barata e conversa boa":
             if first_kiss_done:
@@ -2774,7 +2774,7 @@ label bandejao_interaction(stage="campus"):
 
 label heitor_home_interaction(stage="home"):
     if ana_distance_day(stage):
-        call ana_distance_home_interaction(stage)
+        call ana_distance_home_interaction(stage) from _call_ana_distance_home_interaction
         return
 
     $ play_bgm("game_fun")
@@ -2800,7 +2800,7 @@ label heitor_home_interaction(stage="home"):
         "Jogar alguma coisa":
             menu:
                 "Jogo de habilidade":
-                    call rhythm_skill_phase(stage)
+                    call rhythm_skill_phase(stage) from _call_rhythm_skill_phase_1
 
                 "Jogo de história":
                     a "Esse jogo é meio chato."
@@ -2918,7 +2918,7 @@ label gift_phase(stage="shop"):
         return
 
     if gift_id == "photo_gift":
-        call photo_gift_phase(stage, gift)
+        call photo_gift_phase(stage, gift) from _call_photo_gift_phase
         return
 
     $ gift_name = gift["name"]
@@ -3054,10 +3054,10 @@ label money_phase(stage="money"):
                 $ advance_free_time(stage, 2)
 
             "Pegar uma janela de estágio":
-                call ana_internship_phase(stage)
+                call ana_internship_phase(stage) from _call_ana_internship_phase
 
             "Pedir ajuda para a nanãe":
-                call mother_money_phase(stage)
+                call mother_money_phase(stage) from _call_mother_money_phase_1
     else:
         if career_phase != "btg":
             menu:
@@ -3067,7 +3067,7 @@ label money_phase(stage="money"):
                     $ advance_free_time(stage, 2)
 
                 "Trabalhar para o Crossing":
-                    call heitor_crossing_phase(stage)
+                    call heitor_crossing_phase(stage) from _call_heitor_crossing_phase
         else:
             menu:
                 "Trabalhar na IC":
@@ -3086,7 +3086,7 @@ label ana_internship_phase(stage="money"):
     show ana college happy
     a "[job_title]"
     if career_phase == "btg":
-        call whatsapp_btg_excerpt
+        call whatsapp_btg_excerpt from _call_whatsapp_btg_excerpt
         $ show_free_action_scene("bg desktop_code")
         with dissolve
         show ana college happy at pov_left

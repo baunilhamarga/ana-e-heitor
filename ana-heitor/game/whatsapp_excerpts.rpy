@@ -59,12 +59,12 @@ label whatsapp_academic_excerpt:
 
     wa_h "A gente sempre se junta pra fazer Física, Ronaldo, Yoshi, estudar pras coisas. É divertido."
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_11
     $ current_country_label = "🇧🇷 Brasil"
     show ana college annoyed
     ana_thought "Repare que nesse ponto ele ainda achava EP divertido."
 
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_12
     $ current_country_label = "🇫🇷 França"
     show heitor college amused
     heitor_thought "Era antes de alguns enunciados cometerem crimes."
@@ -207,12 +207,12 @@ label whatsapp_australia_excerpt:
 
     wa_h "Também. Bom dia."
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_13
     $ current_country_label = "🇧🇷 Brasil"
     show ana home soft
     ana_thought "Era sempre assim: boa noite de um lado, bom dia do outro."
 
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_14
     $ current_country_label = "🇦🇺 Austrália"
     show heitor home soft_smile
     heitor_thought "E uma canjica superfaturada tentando fazer ponte entre os fusos."

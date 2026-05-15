@@ -44,7 +44,7 @@ Versão expandida com sistema de carinho, turnos livres, presentes, dinheiro, ma
 ## distribution. This must be ASCII-only, and must not contain spaces, colons,
 ## or semicolons.
 
-define build.name = "AnaeHeitor"
+define build.name = "ana-heitor"
 
 
 ## Sounds and music ############################################################

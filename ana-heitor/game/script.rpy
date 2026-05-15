@@ -142,7 +142,7 @@ label start:
     $ mother_money_requests_today = 0
 
     show screen relationship_hud
-    call change_pov("heitor", "Uma rara ida ao Bandejão Central")
+    call change_pov("heitor", "Uma rara ida ao Bandejão Central") from _call_change_pov_1
 
     scene bg bandejao
     with fade
@@ -373,7 +373,7 @@ label start:
     scene black
     with dissolve
 
-    call change_pov("ana", "Depois do bandejão")
+    call change_pov("ana", "Depois do bandejão") from _call_change_pov_2
 
     show ana college thinking at pov_left
 
@@ -395,7 +395,7 @@ label start:
     $ advance_dialog_section("primeira conversa no bandejão")
     if endgame_replay_mode:
         return
-    call free_time_phase("primeiro_contato")
+    call free_time_phase("primeiro_contato") from _call_free_time_phase_1
 
     jump raio_x
 
@@ -430,7 +430,7 @@ label mensagem_raiox:
 
     pause 0.8
 
-    call whatsapp_raiox_excerpt
+    call whatsapp_raiox_excerpt from _call_whatsapp_raiox_excerpt
 
     pause 0.5
 
@@ -466,7 +466,7 @@ label mensagem_raiox:
     $ add_love(5, "mensagens iniciais")
     if endgame_replay_mode:
         return
-    call free_time_phase("mensagens_iniciais")
+    call free_time_phase("mensagens_iniciais") from _call_free_time_phase_2
 
     hide ana
     pause 1.0
@@ -495,7 +495,7 @@ label mensagem_normal:
     $ add_love(3, "oi estrategicamente simples")
     if endgame_replay_mode:
         return
-    call free_time_phase("mensagens_iniciais")
+    call free_time_phase("mensagens_iniciais") from _call_free_time_phase_3
 
     jump picles
 
@@ -517,7 +517,7 @@ label picles:
 
     hide ana
     hide heitor
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_1
     show heitor college neutral at pov_left
     show ana party neutral at other_right
 
@@ -525,7 +525,7 @@ label picles:
 
     hide ana
     hide heitor
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_2
     show ana party neutral at pov_left
     show heitor college neutral at other_right
 
@@ -949,7 +949,7 @@ label mensagem_onibus:
     $ add_love(8, "EP salvo na madrugada")
     if endgame_replay_mode:
         return
-    call free_time_phase("primeiro_beijo", 24, "heitor")
+    call free_time_phase("primeiro_beijo", 24, "heitor") from _call_free_time_phase_4
 
 label primeiro_beijo:
     $ first_kiss_done = True
@@ -1130,8 +1130,8 @@ label primeiro_beijo:
     $ unlock_achievement("first_kiss")
     if endgame_replay_mode:
         return
-    call change_pov("heitor", "Preparando o pedido")
-    call free_time_phase("pedido_namoro")
+    call change_pov("heitor", "Preparando o pedido") from _call_change_pov_3
+    call free_time_phase("pedido_namoro") from _call_free_time_phase_5
 
     jump pedido_namoro
 
@@ -1169,7 +1169,7 @@ label pedido_namoro:
 
     pause 0.8
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_3
     show ana college happy at pov_left
     show heitor nervous at other_right
 
@@ -1181,7 +1181,7 @@ label pedido_namoro:
 
     pause 1.2
 
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_4
     show heitor nervous at pov_left
     show ana college neutral
     show ana college neutral at other_right
@@ -1236,7 +1236,7 @@ label pedido_namoro:
 
     pause 2.0
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_5
     show ana college super_happy at pov_left
     show heitor nervous at other_right
 
@@ -1245,7 +1245,7 @@ label pedido_namoro:
 
     pause 2.0
 
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_6
     show heitor nervous
     show heitor nervous at pov_left
     show ana college super_happy at other_right
@@ -1260,7 +1260,7 @@ label pedido_namoro:
 
     pause 2.5
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_7
     show ana college super_happy at pov_left
     show heitor nervous at other_right
 
@@ -1303,7 +1303,7 @@ label aceita_namoro:
     $ dating_started = True
     $ play_bgm("romance_soft")
 
-    call quick_change_pov("heitor")
+    call quick_change_pov("heitor") from _call_quick_change_pov_8
     show heitor nervous
     show heitor nervous at pov_left
     show ana college super_happy at other_right
@@ -1314,7 +1314,7 @@ label aceita_namoro:
 
     pause 1.0
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_9
     show ana college super_happy
     show ana college super_happy at pov_left
     show heitor nervous at other_right
@@ -1360,8 +1360,8 @@ label aceita_namoro:
     $ unlock_achievement("dating_started")
     if endgame_replay_mode:
         return
-    call change_pov("ana", "Namoro oficial")
-    call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.")
+    call change_pov("ana", "Namoro oficial") from _call_change_pov_4
+    call relationship_gate("primeiro_eu_te_amo", 55, "O namoro começou. Agora vem a parte em que o carinho deixa de ser evento raro e vira rotina.") from _call_relationship_gate
 
     jump primeiro_eu_te_amo
 
@@ -1478,7 +1478,7 @@ label primeiro_eu_te_amo:
     pause 2.0
 
     $ restore_music()
-    call whatsapp_te_amo_excerpt
+    call whatsapp_te_amo_excerpt from _call_whatsapp_te_amo_excerpt
 
     hide ana
 
@@ -1526,7 +1526,7 @@ label ano_feliz:
         "Continuar...":
             if endgame_replay_mode:
                 return
-            call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
+            call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.") from _call_relationship_gate_1
             jump preparando_mala
 
     scene bg ap_heitor_night
@@ -1544,7 +1544,7 @@ label ano_feliz:
 
     if endgame_replay_mode:
         return
-    call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.")
+    call relationship_gate("australia", 78, "Antes da Austrália, vale guardar mais algumas memórias do primeiro ano juntos.") from _call_relationship_gate_2
 
     jump preparando_mala
 
@@ -1695,7 +1695,7 @@ label festa_formatura:
 
 label preparando_mala:
 
-    call change_pov("heitor", "A mala para a Austrália")
+    call change_pov("heitor", "A mala para a Austrália") from _call_change_pov_5
     $ play_bgm("ana_sad")
 
     scene bg ap_heitor_day
@@ -1755,7 +1755,7 @@ label preparando_mala:
     scene black
     with fade
 
-    call quick_change_pov("ana")
+    call quick_change_pov("ana") from _call_quick_change_pov_10
     show ana home sad at other_right
 
     ana_thought "A mala ficou pronta."
@@ -1770,7 +1770,7 @@ label preparando_mala:
 
 label despedida_aeroporto:
 
-    call change_pov("ana", "Aeroporto: modo coração apertado")
+    call change_pov("ana", "Aeroporto: modo coração apertado") from _call_change_pov_6
     $ play_bgm("airport_tension")
     $ current_country_label = "🇧🇷 Brasil"
 

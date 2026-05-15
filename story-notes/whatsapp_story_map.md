@@ -31,4 +31,4 @@ This note intentionally avoids copying private message text. It records only hig
 
 Heitor authorized direct use of raw private lines on 2026-05-14. Use short curated excerpts, polish spelling/punctuation lightly, and keep the original voice. Good candidates for direct adaptation are recurring jokes, date clusters, media-heavy days, and long-distance routines.
 
-Implemented excerpt labels live in `AnaeHeitor-1.0-pc/game/whatsapp_excerpts.rpy`.
+Implemented excerpt labels live in `ana-heitor/game/whatsapp_excerpts.rpy`.

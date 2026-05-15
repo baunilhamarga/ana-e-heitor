@@ -18,6 +18,12 @@ game/saves/
 game/tl/None/
 */game/tl/None/
 build/
+*-dists/
+*/project.json
+*/renpy-graphviz*
+*/renpy-graphviz.*
+/*.exe
+*/*.exe
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

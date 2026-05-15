@@ -4,16 +4,16 @@
 label post_australia_route:
     $ career_phase = "virtualisurg_frontend"
     $ set_love_cap_stage("post_australia")
-    call whatsapp_mosaic_intro
-    call australia_distance_arc
-    call france_departure_arc
-    call birthday_finale
+    call whatsapp_mosaic_intro from _call_whatsapp_mosaic_intro
+    call australia_distance_arc from _call_australia_distance_arc
+    call france_departure_arc from _call_france_departure_arc
+    call birthday_finale from _call_birthday_finale
     return
 
 label whatsapp_mosaic_intro:
     $ special_day_label = "📅 Presente"
     $ current_country_label = "🇧🇷 Brasil"
-    call change_pov("heitor", "Continuando a história")
+    call change_pov("heitor", "Continuando a história") from _call_change_pov_7
     $ play_bgm("heitor_default")
 
     scene bg desktop_code
@@ -57,9 +57,9 @@ label whatsapp_mosaic_intro:
 
     h "É escolher as memórias que explicam a gente: as conversas gigantes, os dias de saudade, os surtos e os aeroportos."
 
-    call whatsapp_academic_excerpt
+    call whatsapp_academic_excerpt from _call_whatsapp_academic_excerpt
 
-    call whatsapp_romancezinho_excerpt
+    call whatsapp_romancezinho_excerpt from _call_whatsapp_romancezinho_excerpt
 
     scene bg desktop_code
     with dissolve
@@ -82,7 +82,7 @@ label whatsapp_mosaic_intro:
 label australia_distance_arc:
     $ set_love_cap_stage("post_australia")
     $ current_country_label = "🇦🇺 Austrália"
-    call change_pov("heitor", "Austrália: fuso e saudade")
+    call change_pov("heitor", "Austrália: fuso e saudade") from _call_change_pov_8
     $ play_bgm("distance_sad")
 
     scene bg airport
@@ -105,7 +105,7 @@ label australia_distance_arc:
     heitor_thought "A vida tinha me preparado para muita coisa. Menos para saudade."
     $ restore_music()
 
-    call whatsapp_australia_excerpt
+    call whatsapp_australia_excerpt from _call_whatsapp_australia_excerpt
 
     scene bg desktop_code
     with dissolve
@@ -127,7 +127,7 @@ label australia_distance_arc:
             h "Bom dia e boa noite, para garantir."
             $ add_love(5, "redundância afetiva")
 
-    call change_pov("ana", "Brasil: saudade em horário local")
+    call change_pov("ana", "Brasil: saudade em horário local") from _call_change_pov_9
     $ current_country_label = "🇧🇷 Brasil"
     $ play_bgm("ana_sad")
 
@@ -165,13 +165,13 @@ label australia_distance_arc:
     $ add_love(8, "três meses de distância")
     if endgame_replay_mode:
         return
-    call free_time_phase("distancia_australia")
+    call free_time_phase("distancia_australia") from _call_free_time_phase_6
     return
 
 label france_departure_arc:
     $ set_love_cap_stage("france_departure")
     $ current_country_label = "🇫🇷 França"
-    call change_pov("ana", "França: o segundo grande aeroporto")
+    call change_pov("ana", "França: o segundo grande aeroporto") from _call_change_pov_10
     $ play_bgm("distance_sad")
 
     scene bg ap_heitor_day
@@ -193,7 +193,7 @@ label france_departure_arc:
 
     a "Eu sei também."
 
-    call whatsapp_travel_paperwork_excerpt
+    call whatsapp_travel_paperwork_excerpt from _call_whatsapp_travel_paperwork_excerpt
 
     scene bg ap_heitor_day
     with dissolve
@@ -206,7 +206,7 @@ label france_departure_arc:
     ana_thought "O problema é saber que é tão pouco tempo comigo e ele já vai."
     $ restore_music()
 
-    call change_pov("heitor", "Checklist do duplo diploma")
+    call change_pov("heitor", "Checklist do duplo diploma") from _call_change_pov_11
     $ play_bgm("study_debug")
 
     scene bg desktop_code
@@ -231,7 +231,7 @@ label france_departure_arc:
     show ana home embarrassed
     a "Ha-ha Para."
 
-    call change_pov("ana", "Última noite antes da França")
+    call change_pov("ana", "Última noite antes da França") from _call_change_pov_12
     $ play_bgm("ana_sad")
 
     scene bg bedroom_night
@@ -253,7 +253,7 @@ label france_departure_arc:
 
     h "Eu sinto muito."
 
-    call change_pov("heitor", "Última chamada")
+    call change_pov("heitor", "Última chamada") from _call_change_pov_13
     $ play_bgm("airport_tension")
 
     scene bg airport
@@ -270,7 +270,7 @@ label france_departure_arc:
 
     h "Eu volto."
 
-    call change_pov("ana", "Última resposta")
+    call change_pov("ana", "Última resposta") from _call_change_pov_14
     $ play_bgm("romance_soft")
 
     scene bg airport
@@ -308,7 +308,7 @@ label birthday_finale:
     $ set_love_cap_stage("birthday_finale")
     $ special_day_label = "📅 Presente"
     $ current_country_label = "🇫🇷 França"
-    call change_pov("heitor", "Presente de aniversário")
+    call change_pov("heitor", "Presente de aniversário") from _call_change_pov_15
     $ play_bgm("birthday")
 
     scene bg ap_heitor_night
