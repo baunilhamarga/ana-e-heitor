@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.heitor-gama.com/sandbox/ana-e-heitor"><strong>🌐 Jogue a versão web aqui</strong></a>
+  <a href="https://www.heitor-gama.com/sandbox/ana-e-heitor"><strong>🌐 Acesse a página do projeto e baixe o jogo aqui</strong></a>
 </p>
 
 <p align="center">
