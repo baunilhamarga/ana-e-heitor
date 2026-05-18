@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <a href="https://www.heitor-gama.com/sandbox/ana-e-heitor"><strong>🌐 Jogue a versão web aqui</strong></a>
+</p>
+
+<p align="center">
   <img alt="Ren'Py" src="https://img.shields.io/badge/Ren'Py-8.5-f47ca7?style=for-the-badge">
   <img alt="Idioma" src="https://img.shields.io/badge/Idioma-PT--BR-89c7f5?style=for-the-badge">
   <img alt="Plataformas" src="https://img.shields.io/badge/Windows%20%2B%20Linux-PC-f5c84b?style=for-the-badge">
@@ -19,6 +23,12 @@
 **Ana e Heitor** é uma edição expandida de um presente em forma de jogo: uma visual novel feita em Ren'Py, reimaginada com mecânicas de dating sim, dois pontos de vista, mini-games, conquistas e um modo pós-jogo infinito.
 
 A história acompanha o começo do relacionamento, a rotina na Escola Politécnica da USP, o primeiro beijo, namoro, distância, Austrália, França e um final de aniversário feito para continuar a brincadeira.
+
+## Créditos e Autoria
+
+Este jogo foi construído de forma colaborativa e afetiva:
+- **Ana:** Concepção da ideia original, roteiro inicial e desenvolvimento de toda a base técnica e narrativa do jogo (Versão 1 - Março).
+- **Heitor:** Expansão de código com mini-games, dual POV e pós-jogo infinito (Versão 2 - Maio).
 
 ## O Que Tem
 
