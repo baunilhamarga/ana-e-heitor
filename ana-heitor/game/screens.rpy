@@ -1178,7 +1178,7 @@ screen confirm(message, yes_action, no_action):
             yalign .5
             spacing 45
 
-            label _(confirm_message_pt(message)):
+            label confirm_message_pt(message):
                 style "confirm_prompt"
                 xalign 0.5
 

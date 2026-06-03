@@ -2454,7 +2454,7 @@ label free_time_phase(stage="campus", needed=0, target_person=None, blocked_hint
         $ gate_person = target_person or resolved_continue_requirements(stage, needed, target_person).get("person", other_pov())
         $ gate_state_text = free_time_continue_hint(stage, needed, target_person)
         $ show_date_hint = stage == "pedido_namoro" and not date_gate_notice_seen
-        call screen gate_notice(_("Memória bloqueada"), needed, free_time_blocked_hint(stage, blocked_hint), gate_person, show_date_hint, gate_state_text)
+        call screen gate_notice("Memória bloqueada", needed, free_time_blocked_hint(stage, blocked_hint), gate_person, show_date_hint, gate_state_text)
         if show_date_hint:
             $ date_gate_notice_seen = True
     $ keep_looping = True
