@@ -744,6 +744,13 @@ screen preferences():
     use game_menu(_("Preferences"), scroll="viewport"):
 
         vbox:
+            label _("Language")
+            textbutton _("English") action Language("english")
+            textbutton _("Português") action Language(None)
+
+            null height (4 * gui.pref_spacing)
+
+            style_prefix "check"
 
             hbox:
                 box_wrap True

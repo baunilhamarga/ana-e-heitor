@@ -28,7 +28,7 @@ define config.version = "2.0-dev"
 # Enable Ren'Py developer shortcuts while this editable copy is in development.
 define config.developer = True
 define config.console = True
-define config.default_language = "pt_br"
+define config.default_language = "english"
 define config.menu_include_disabled = True
 
 

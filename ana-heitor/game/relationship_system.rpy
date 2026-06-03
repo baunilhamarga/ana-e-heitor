@@ -588,7 +588,7 @@ init python:
         return pov_data.get(current_pov, pov_data["ana"])["name"]
 
     def pov_label():
-        return pov_data.get(current_pov, pov_data["ana"])["label"]
+        return ui_text(pov_data.get(current_pov, pov_data["ana"])["label"])
 
     def pov_color(who=None):
         key = who or current_pov
@@ -633,9 +633,17 @@ init python:
     def restore_music(delay=0.8):
         set_music_volume(1.0, delay)
 
+    def ui_text(text):
+        if text is None:
+            return ""
+        return renpy.translation.translate_string(str(text))
+
     def time_slot():
         normalize_time_state()
         return time_slots[time_slot_index % len(time_slots)]
+
+    def time_slot_text():
+        return ui_text(time_slot())
 
     def time_slot_icon():
         icons = {
@@ -648,8 +656,11 @@ init python:
 
     def day_status_text():
         if special_day_label:
-            return special_day_label
-        return "📅 Dia %d" % current_day
+            return ui_text(special_day_label)
+        return "📅 %s %d" % (ui_text("Dia"), current_day)
+
+    def country_label_text():
+        return ui_text(current_country_label)
 
     def bandejao_is_open():
         return time_slot() not in ("Noite", "Madrugada")
@@ -752,24 +763,24 @@ init python:
     def locked_location_message(location_id):
         if current_love_cap_stage == "primeiro_contato":
             if location_id == "bandejao":
-                return "Acabaram de sair do bandejão."
+                return ui_text("Acabaram de sair do bandejão.")
             if location_id == "poli":
-                return "Ainda é cedo para chamar para estudar."
+                return ui_text("Ainda é cedo para chamar para estudar.")
             if location_id == "heitor_home":
-                return "Ta maluca Ana! Você nem conhece ele direito!"
+                return ui_text("Ta maluca Ana! Você nem conhece ele direito!")
             if location_id == "shop":
-                return "Presentes ficam para depois."
+                return ui_text("Presentes ficam para depois.")
         if location_id == "bandejao" and not bandejao_is_open():
-            return "O bandejão está fechado agora."
+            return ui_text("O bandejão está fechado agora.")
         if location_id == "bandejao" and current_money() < 2:
-            return "Precisa de R$ 2,00 para o bandejão."
+            return ui_text("Precisa de R$ 2,00 para o bandejão.")
         if location_id == "heitor_home" and current_pov == "ana" and not first_kiss_done:
-            return "Ta maluca Ana! Você nem conhece ele direito!"
+            return ui_text("Ta maluca Ana! Você nem conhece ele direito!")
         if location_id == "heitor_home":
-            return "Esse rolê ainda não faz sentido."
+            return ui_text("Esse rolê ainda não faz sentido.")
         if location_id == "shop":
-            return "Presentes ficam para depois."
-        return "Ainda não disponível."
+            return ui_text("Presentes ficam para depois.")
+        return ui_text("Ainda não disponível.")
 
     def resolved_continue_requirements(stage, needed=0, target_person=None):
         base = dict(free_time_continue_requirements.get(stage, {}))
@@ -799,16 +810,16 @@ init python:
 
     def free_time_blocked_hint(stage="campus", custom_hint=None):
         if custom_hint:
-            return custom_hint
-        return free_time_blocked_hints.get(stage, "Antes da próxima memória, falta cumprir alguns requisitos no dia a dia.")
+            return ui_text(custom_hint)
+        return ui_text(free_time_blocked_hints.get(stage, "Antes da próxima memória, falta cumprir alguns requisitos no dia a dia."))
 
     def ana_distance_day(stage):
         return current_pov == "ana" and stage == "distancia_australia"
 
     def possessive_name(person):
         if person == "ana":
-            return "da Ana"
-        return "do Heitor"
+            return ui_text("da Ana")
+        return ui_text("do Heitor")
 
     def free_time_continue_hint(stage="campus", needed=0, target_person=None):
         requirements = resolved_continue_requirements(stage, needed, target_person)
@@ -822,37 +833,37 @@ init python:
             label = progress_label(person=target)
             owner = possessive_name(target)
             if current >= love_needed:
-                parts.append("%s %s: %d" % (label, owner, love_needed))
+                parts.append(ui_text("%(label)s %(owner)s: %(needed)d") % {"label": label, "owner": owner, "needed": love_needed})
             else:
                 all_met = False
-                parts.append("%s %s: %d/%d" % (label, owner, current, love_needed))
+                parts.append(ui_text("%(label)s %(owner)s: %(current)d/%(needed)d") % {"label": label, "owner": owner, "current": current, "needed": love_needed})
 
         money_needed = requirements.get("money", 0)
         if money_needed:
             current_cash = current_money()
             if current_cash >= money_needed:
-                parts.append("saldo: %s" % format_money(money_needed))
+                parts.append("%s: %s" % (ui_text("saldo"), format_money(money_needed)))
             else:
                 all_met = False
-                parts.append("saldo: %s/%s, falta %s" % (format_money(current_cash), format_money(money_needed), format_money(money_needed - current_cash)))
+                parts.append("%s: %s/%s, %s %s" % (ui_text("saldo"), format_money(current_cash), format_money(money_needed), ui_text("falta"), format_money(money_needed - current_cash)))
 
         gift_needed = requirements.get("gifts", [])
         for gift_id in gift_needed:
             gift = gift_by_id(gift_id)
-            gift_name = gift["name"] if gift else gift_id
+            gift_name = ui_text(gift["name"]) if gift else gift_id
             if gift_id in purchased_gifts:
-                parts.append("%s comprado" % gift_name)
+                parts.append("%s %s" % (gift_name, ui_text("comprado")))
             else:
                 all_met = False
-                parts.append("comprar %s" % gift_name)
+                parts.append("%s %s" % (ui_text("comprar"), gift_name))
 
         if not parts:
-            return "Requisito: nenhum."
+            return ui_text("Requisito: nenhum.")
 
         if all_met:
-            return "Requisito cumprido - " + " | ".join(parts)
+            return ui_text("Requisito cumprido - ") + " | ".join(parts)
 
-        return "Requisito - " + " | ".join(parts)
+        return ui_text("Requisito - ") + " | ".join(parts)
 
     def story_day_target(stage):
         return story_day_targets.get(stage)
@@ -901,25 +912,25 @@ init python:
     def progress_label(value=None, person=None):
         score = progress_for(person) if value is None else value
         if score < 10:
-            return "Curiosidade"
+            return ui_text("Curiosidade")
         if score < 24:
-            return "Atenção"
+            return ui_text("Atenção")
         if score < 42:
-            return "Interesse"
+            return ui_text("Interesse")
         if score < 62:
-            return "Carinho"
+            return ui_text("Carinho")
         if score < 80:
-            return "Paixão"
-        return "Amor"
+            return ui_text("Paixão")
+        return ui_text("Amor")
 
     def capped_progress_text(label):
-        feminine_labels = ("Curiosidade", "Atenção", "Paixão")
-        masculine_labels = ("Interesse", "Carinho", "Amor")
+        feminine_labels = (ui_text("Curiosidade"), ui_text("Atenção"), ui_text("Paixão"))
+        masculine_labels = (ui_text("Interesse"), ui_text("Carinho"), ui_text("Amor"))
         if label in feminine_labels:
-            return "%s máxima atingida, por agora..." % label
+            return ui_text("%s máxima atingida, por agora...") % label
         if label in masculine_labels:
-            return "%s máximo atingido, por agora..." % label
-        return "%s no limite, por agora..." % label
+            return ui_text("%s máximo atingido, por agora...") % label
+        return ui_text("%s no limite, por agora...") % label
 
     def popup_reason(reason):
         reasons = {
@@ -979,7 +990,7 @@ init python:
         }
         if not reason:
             return ""
-        return reasons.get(reason, str(reason).replace("_", " "))
+        return ui_text(reasons.get(reason, str(reason).replace("_", " ")))
 
     def notification_duration(message):
         plain = py_re.sub(r"\{[^}]+\}", "", message)
@@ -1011,7 +1022,7 @@ init python:
         if unlocked_achievement_count() >= len(achievement_data) and not getattr(persistent, "all_achievements_event_seen", False):
             all_achievements_event_pending = True
         renpy.save_persistent()
-        queue_notification("{color=#f5c84b}🏆 Conquista desbloqueada: %s{/color}" % achievement["name"], duration=7.5)
+        queue_notification("{color=#f5c84b}%s{/color}" % (ui_text("🏆 Conquista desbloqueada: %s") % ui_text(achievement["name"])), duration=7.5)
         return True
 
     def unlocked_achievement_count():
@@ -1022,6 +1033,8 @@ init python:
         return unlocked_achievement_count() >= len(achievement_data)
 
     def confirm_message_pt(message):
+        if getattr(renpy.store._preferences, "language", None) == "english":
+            return message
         translations = {
             "Are you sure you want to return to the main menu?\nThis will lose unsaved progress.": "Tem certeza que quer voltar ao menu principal?\nO progresso não salvo será perdido.",
             "Are you sure you want to quit?": "Tem certeza que quer sair?",
@@ -1068,7 +1081,8 @@ init python:
             if heitor_progress >= 100 and ana_progress >= 100:
                 unlock_achievement("full_love_both")
             if reason:
-                queue_notification("{color=%s}+%d %s para %s: %s{/color}" % (pov_color(key), applied, progress_label(person=key), pov_data[key]["name"], popup_reason(reason)))
+                text = ui_text("+%(amount)d %(label)s para %(name)s: %(reason)s") % {"amount": applied, "label": progress_label(person=key), "name": pov_data[key]["name"], "reason": popup_reason(reason)}
+                queue_notification("{color=%s}%s{/color}" % (pov_color(key), text))
         elif amount and reason:
             queue_notification("{color=%s}%s{/color}" % (pov_color(key), capped_progress_text(progress_label(person=key))))
 
@@ -1107,16 +1121,16 @@ init python:
         if key == "heitor" and money_for(key) >= 10000:
             unlock_achievement("heitor_money_10000")
         if amount and reason:
-            queue_notification("💰 +%s para %s: %s" % (format_money(amount), pov_data[key]["name"], popup_reason(reason)))
+            queue_notification(ui_text("💰 +%(amount)s para %(name)s: %(reason)s") % {"amount": format_money(amount), "name": pov_data[key]["name"], "reason": popup_reason(reason)})
 
     def spend_money(amount, reason=None, person=None):
         key = person or current_pov
         if money_for(key) < amount:
-            queue_notification("💸 Dinheiro insuficiente para %s." % pov_data[key]["name"])
+            queue_notification(ui_text("💸 Dinheiro insuficiente para %s.") % pov_data[key]["name"])
             return False
         set_money_for(key, money_for(key) - amount)
         if reason:
-            queue_notification("💸 -%s de %s: %s" % (format_money(amount), pov_data[key]["name"], popup_reason(reason)))
+            queue_notification(ui_text("💸 -%(amount)s de %(name)s: %(reason)s") % {"amount": format_money(amount), "name": pov_data[key]["name"], "reason": popup_reason(reason)})
         return True
 
     def advance_time(blocks=1):
@@ -1432,7 +1446,7 @@ init python:
                 entries.append({
                     "track_id": track_id,
                     "locked": True,
-                    "message": "🔒 Jogue %s para desbloquear" % rhythm_tracks[previous_id]["title"],
+                    "message": ui_text("🔒 Jogue %s para desbloquear") % rhythm_tracks[previous_id]["title"],
                 })
                 break
         return entries
@@ -1449,7 +1463,7 @@ init python:
     def rhythm_chart_result_text(chart):
         result = rhythm_best_results.get(chart["id"])
         if not result:
-            return "🏁 Sem score"
+            return ui_text("🏁 Sem score")
         return "%s  Max %d" % (rhythm_result_tag(result.get("accuracy", 0)), result.get("score", 0))
 
     def rhythm_record_result(chart):
@@ -1469,7 +1483,7 @@ init python:
                 return
             rhythm_unlocked_song_index = max(rhythm_unlocked_song_index, index)
             rhythm_locked_song_clicks[track_id] = 0
-            queue_notification("Ok, não precisa spammar, pode jogar.")
+            queue_notification(ui_text("Ok, não precisa spammar, pode jogar."))
             renpy.restart_interaction()
 
     def rhythm_locked_difficulty_press(track_id, chart):
@@ -1484,7 +1498,7 @@ init python:
                     break
             rhythm_unlocked_difficulties[track_id] = max(rhythm_unlocked_difficulties.get(track_id, 0), unlock_index)
             rhythm_locked_difficulty_clicks[key] = 0
-            queue_notification("Ok, não precisa spammar, pode jogar.")
+            queue_notification(ui_text("Ok, não precisa spammar, pode jogar."))
             renpy.restart_interaction()
 
     def sm_chart_notes(track_id, chart):
@@ -1664,7 +1678,7 @@ screen relationship_hud():
 
             text "[pov_name()]" color pov_color() size 24 layout "nobreak" yalign 0.5
             text "[day_status_text()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
-            text "[time_slot_icon()] [time_slot()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
+            text "[time_slot_icon()] [time_slot_text()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
 
             hbox:
                 spacing 10
@@ -1674,7 +1688,7 @@ screen relationship_hud():
                 text "[current_progress()]/[progress_max]" color "#f6f7fb" size 18 layout "nobreak" yalign 0.5
 
             text "💵 [current_money_text()]" color "#f6f7fb" size 22 layout "nobreak" yalign 0.5
-            text "[current_country_label]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
+            text "[country_label_text()]" color "#f6f7fb" size 24 layout "nobreak" yalign 0.5
             textbutton "🏆":
                 yalign 0.5
                 ysize 30
@@ -1756,8 +1770,8 @@ screen achievement_list_screen():
                                 text ("🏆" if unlocked else "🔒") color ("#f5c84b" if unlocked else "#7f8797") size 30 yalign 0.5
                                 vbox:
                                     spacing 4
-                                    text (achievement["name"] if unlocked else "???") color ("#ffffff" if unlocked else "#7f8797") size 25
-                                    text achievement["description"] color ("#cfd7e6" if unlocked else "#8a93a5") size 19
+                                    text (ui_text(achievement["name"]) if unlocked else "???") color ("#ffffff" if unlocked else "#7f8797") size 25
+                                    text ui_text(achievement["description"]) color ("#cfd7e6" if unlocked else "#8a93a5") size 19
 
             textbutton _("Fechar") action Hide("achievement_list_screen") xalign 0.5
 
@@ -1788,13 +1802,13 @@ screen pov_card(who, title=""):
             spacing 14
             xalign 0.5
 
-            text pov_data.get(who, pov_data["ana"])["label"]:
+            text ui_text(pov_data.get(who, pov_data["ana"])["label"]):
                 xalign 0.5
                 color pov_color(who)
                 size 56
 
             if title:
-                text title:
+                text ui_text(title):
                     xalign 0.5
                     text_align 0.5
                     color "#ffffff"
@@ -1845,12 +1859,12 @@ screen gate_notice(title, needed, hint, target_person="", show_date_hint=False, 
 
         vbox:
             spacing 18
-            text title color "#ffffff" size 42 xalign 0.5 text_align 0.5
-            text hint color "#dfe7f3" size 28 xmaximum 920 xalign 0.5 text_align 0.5
+            text ui_text(title) color "#ffffff" size 42 xalign 0.5 text_align 0.5
+            text ui_text(hint) color "#dfe7f3" size 28 xmaximum 920 xalign 0.5 text_align 0.5
             if show_date_hint:
                 text _("Agora vocês podem sair em encontros ♡ Que fofos!") color "#dfe7f3" size 24 xmaximum 920 xalign 0.5 text_align 0.5
             if state_text:
-                text state_text color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
+                text ui_text(state_text) color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
             elif target_person:
                 text _("[target_label] [target_owner]: [needed]") color "#f0a7bb" size 26 xmaximum 920 xalign 0.5 text_align 0.5
             else:
@@ -1899,14 +1913,14 @@ screen location_picker(stage, needed=0, target_person=None):
                                 spacing 7
                                 xalign 0.5
                                 yalign 0.5
-                                text "%s %s" % (loc.get("emoji", ""), loc["name"]) color ("#ffffff" if loc_ready else "#7f8797") size 32 xalign 0.5
+                                text "%s %s" % (loc.get("emoji", ""), ui_text(loc["name"])) color ("#ffffff" if loc_ready else "#7f8797") size 32 xalign 0.5
                                 if loc_id == "bandejao":
                                     if bandejao_closed:
                                         text _("O bandejão está fechado agora.") color "#a2a9b8" size 20 xalign 0.5
                                     else:
                                         text _("Gasta R$ 2,00") color ("#f7d7e2" if loc_ready else "#a2a9b8") size 20 xalign 0.5
                                 if (not loc_ready) and (not bandejao_closed) and locked_location_id == loc_id and locked_location_hint:
-                                    text locked_location_hint color "#f7d7e2" size 18 xalign 0.5 text_align 0.5
+                                    text ui_text(locked_location_hint) color "#f7d7e2" size 18 xalign 0.5 text_align 0.5
 
                 button:
                     xsize 540
@@ -1922,7 +1936,7 @@ screen location_picker(stage, needed=0, target_person=None):
                         yalign 0.5
                         text _("➡️ Continuar história") color ("#ffffff" if continue_ready else "#7f8797") size 32 xalign 0.5
                         if stage != "primeiro_contato":
-                            text free_time_continue_hint(stage, needed, target_person) color ("#f7d7e2" if continue_ready else "#a2a9b8") size 20 xalign 0.5 text_align 0.5
+                            text ui_text(free_time_continue_hint(stage, needed, target_person)) color ("#f7d7e2" if continue_ready else "#a2a9b8") size 20 xalign 0.5 text_align 0.5
                             if continue_ready and continue_will_pass_time(stage):
                                 text _("Isso passará o tempo.") color "#cfd7e6" size 18 xalign 0.5 text_align 0.5
 
@@ -1967,14 +1981,14 @@ screen endgame_location_picker():
                                 spacing 5
                                 xalign 0.5
                                 yalign 0.5
-                                text "%s %s" % (loc.get("emoji", ""), loc["name"]) color ("#ffffff" if loc_ready else "#7f8797") size 29 xalign 0.5
+                                text "%s %s" % (loc.get("emoji", ""), ui_text(loc["name"])) color ("#ffffff" if loc_ready else "#7f8797") size 29 xalign 0.5
                                 if loc_id == "bandejao":
                                     if bandejao_closed:
                                         text _("O bandejão está fechado agora.") color "#a2a9b8" size 18 xalign 0.5
                                     else:
                                         text _("Gasta R$ 2,00") color ("#f7d7e2" if loc_ready else "#a2a9b8") size 18 xalign 0.5
                                 if (not loc_ready) and (not bandejao_closed) and locked_location_id == loc_id and locked_location_hint:
-                                    text locked_location_hint color "#f7d7e2" size 17 xalign 0.5 text_align 0.5
+                                    text ui_text(locked_location_hint) color "#f7d7e2" size 17 xalign 0.5 text_align 0.5
 
                 button:
                     xsize 540
@@ -2028,7 +2042,7 @@ screen endgame_memory_screen():
                         background Solid("#232d42")
                         hover_background Solid("#33405d")
                         action Return(memory["label"])
-                        text memory["name"] color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
+                        text ui_text(memory["name"]) color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
 
             textbutton _("Voltar") action Return("back") xalign 0.5
 
@@ -2061,7 +2075,7 @@ screen endgame_state_screen():
                         background Solid("#232d42")
                         hover_background Solid("#33405d")
                         action Return(state)
-                        text state["name"] color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
+                        text ui_text(state["name"]) color "#ffffff" size 22 xalign 0.5 yalign 0.5 text_align 0.5
 
             textbutton _("Voltar") action Return("back") xalign 0.5
 
@@ -2083,7 +2097,7 @@ screen code_bug_screen(puzzle):
         vbox:
             spacing 20
 
-            text puzzle["title"] color "#ffffff" size 40 xalign 0.5 text_align 0.5
+            text ui_text(puzzle["title"]) color "#ffffff" size 40 xalign 0.5 text_align 0.5
             text _("Clique na linha com o bug e confirme.") color "#cfd7e6" size 24 xalign 0.5
 
             frame:
@@ -2150,10 +2164,10 @@ screen gift_shop_screen():
                             xfill True
                             yfill True
 
-                            text "%s %s" % (gift.get("emoji", ""), gift["name"]) color ("#ffffff" if gift_ready else "#7f8797") size 21 xpos 20 xsize 400 yalign 0.5
+                            text "%s %s" % (gift.get("emoji", ""), ui_text(gift["name"])) color ("#ffffff" if gift_ready else "#7f8797") size 21 xpos 20 xsize 400 yalign 0.5
                             text format_money(gift["cost"]) color ("#f0a7bb" if gift_ready else "#7f8797") size 21 xpos 430 xsize 112 text_align 0.5 yalign 0.5 layout "nobreak"
                             text "+%d %s" % (gift["love"], progress_label(person=other_pov())) color ("#89c7f5" if gift_ready else "#7f8797") size 20 xpos 550 xsize 185 text_align 0.5 yalign 0.5
-                            text gift_status_text(gift) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 17 xpos 752 xsize 300 yalign 0.5
+                            text ui_text(gift_status_text(gift)) color ("#cbd5e1" if gift_ready else "#a2a9b8") size 17 xpos 752 xsize 300 yalign 0.5
 
             textbutton _("Voltar") action Return("back") xalign 0.5
 
@@ -2194,7 +2208,7 @@ screen photo_gift_difficulty_screen():
                             spacing 8
                             xalign 0.5
                             yalign 0.5
-                            text difficulty["name"] color "#ffffff" size 30 xalign 0.5
+                            text ui_text(difficulty["name"]) color "#ffffff" size 30 xalign 0.5
                             text "%dx%d" % (difficulty["size"], difficulty["size"]) color "#cfd7e6" size 22 xalign 0.5
                             text "+%d %s" % (difficulty["reward"], progress_label(person=other_pov())) color "#89c7f5" size 22 xalign 0.5
 
@@ -2331,7 +2345,7 @@ screen rhythm_difficulty_screen(track_id):
                             xalign 0.5
                             yalign 0.5
                             text chart["difficulty"] color ("#ffffff" if chart_ready else "#7f8797") size 28 xalign 0.5
-                            text _("Nível %s" % chart["meter"]) color ("#cfd7e6" if chart_ready else "#7f8797") size 20 xalign 0.5
+                            text (_("Nível %s") % chart["meter"]) color ("#cfd7e6" if chart_ready else "#7f8797") size 20 xalign 0.5
                             text rhythm_chart_result_text(chart) color ("#f7d7e2" if chart_ready else "#7f8797") size 18 xalign 0.5
 
 screen rhythm_game_screen():
@@ -2364,8 +2378,8 @@ screen rhythm_game_screen():
             hbox:
                 spacing 34
                 xalign 0.5
-                text _("Score %d" % rhythm_state["score"]) color "#cfd7e6" size 22
-                text _("Combo %d" % rhythm_state["combo"]) color "#cfd7e6" size 22
+                text (_("Score %d") % rhythm_state["score"]) color "#cfd7e6" size 22
+                text (_("Combo %d") % rhythm_state["combo"]) color "#cfd7e6" size 22
                 text rhythm_state["judgement"] color pov_color() size 22
 
             fixed:
@@ -2698,9 +2712,9 @@ label ana_distance_debug_ep(stage="campus"):
 
     if selected_code_line == code_puzzle["answer"]:
         $ score += 2
-        $ code_result_text = code_puzzle["success"]
+        $ code_result_text = ui_text(code_puzzle["success"])
     else:
-        $ code_result_text = code_puzzle["failure"]
+        $ code_result_text = ui_text(code_puzzle["failure"])
 
     system_line "[code_result_text]"
 
@@ -3246,9 +3260,9 @@ label minigame_debug_ep(stage="campus"):
 
     if selected_code_line == code_puzzle["answer"]:
         $ score += 2
-        $ code_result_text = code_puzzle["success"]
+        $ code_result_text = ui_text(code_puzzle["success"])
     else:
-        $ code_result_text = code_puzzle["failure"]
+        $ code_result_text = ui_text(code_puzzle["failure"])
 
     system_line "[code_result_text]"
 
